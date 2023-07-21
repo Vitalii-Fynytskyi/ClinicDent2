@@ -1,0 +1,97 @@
+﻿<UserControl x:Class="ClinicDent2.View.PhotoflowView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:local="clr-namespace:ClinicDent2.View"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <DockPanel>
+        <ComboBox ItemsSource="{Binding DoctorViewModels}" DisplayMemberPath="Name"  DockPanel.Dock="Top" HorizontalAlignment="Center" SelectedItem="{Binding SelectedDoctor, Mode=TwoWay}"/>
+        <Button HorizontalAlignment="Center" Content="Завантажити фото" Margin="0,10,0,0" Click="buttonAddPhotos_Click" DockPanel.Dock="Top" IsEnabled="{Binding CanAddPhotos}"/>
+        <ScrollViewer>
+            <StackPanel>
+                <ItemsControl ItemsSource="{Binding ImageViewModels}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel></WrapPanel>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Image MaxWidth="200" MaxHeight="150" Source="{Binding CompressedBytes, Converter={StaticResource bytesToImageSourceConverter}}" Margin="0,0,5,5">
+                                <behaviors:Interaction.Triggers>
+                                    <behaviors:EventTrigger EventName="MouseLeftButtonDown" SourceObject="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Image}}}">
+                                        <behaviors:InvokeCommandAction Command="{Binding ImageClickedCommand}" />
+                                    </behaviors:EventTrigger>
+                                </behaviors:Interaction.Triggers>
+                                <Image.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Копіювати" Command="{Binding CopyImageCommand}"/>
+                                        <MenuItem Header="Видалити" Command="{Binding DeleteImageCommand}"/>
+                                        <MenuItem IsEnabled="False" Header="{Binding FileName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                        <MenuItem Header="Перейменувати" Command="{Binding RenameImageCommand}"/>
+                                        <MenuItem Header="Показати пацієнтів" Command="{Binding ShowReferencesCommand}"/>
+                                    </ContextMenu>
+                                </Image.ContextMenu>
+                            </Image>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top">
+                    <Label Content="...">
+                        <Label.Style>
+                            <Style TargetType="{x:Type Label}">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Setter Property="FontSize" Value="18"/>
+                                <Style.Triggers>
+                                    <DataTrigger Value="True">
+                                        <DataTrigger.Binding>
+                                            <MultiBinding Converter="{StaticResource dotsVisibilityConverter}" ConverterParameter="prefix">
+                                                <Binding Path="SelectedPage" />
+                                                <Binding Path="CountPages" />
+                                            </MultiBinding>
+                                        </DataTrigger.Binding>
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Label.Style>
+                    </Label>
+                    <ItemsControl ItemsSource="{Binding VisiblePages}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Content="{Binding}" MinWidth="30" Command="{Binding DataContext.PageChangedCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}" Margin="5,0,0,0" Loaded="PageButton_Loaded"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+                    <Label Content="...">
+                        <Label.Style>
+                            <Style TargetType="{x:Type Label}">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Setter Property="FontSize" Value="18"/>
+                                <Style.Triggers>
+                                    <DataTrigger Value="True">
+                                        <DataTrigger.Binding>
+                                            <MultiBinding Converter="{StaticResource dotsVisibilityConverter}" ConverterParameter="suffix">
+                                                <Binding Path="SelectedPage" />
+                                                <Binding Path="CountPages" />
+                                            </MultiBinding>
+                                        </DataTrigger.Binding>
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Label.Style>
+                    </Label>
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
+</UserControl>

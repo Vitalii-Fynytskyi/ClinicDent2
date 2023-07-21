@@ -1,0 +1,69 @@
+﻿<UserControl x:Class="ClinicDent2.View.NewPatientView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ClinicDent2.View"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             mc:Ignorable="d" 
+             d:DesignHeight="800" d:DesignWidth="800">
+    <StackPanel Margin="0,10,0,0">
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="275,0,0,0">
+            <Label Content="ПІБ"/>
+            <TextBox MinWidth="200" Height="22" MaxLength="50" Text="{Binding Path=Name}" />
+            <GroupBox Header="Стать">
+                <StackPanel Orientation="Horizontal">
+                    <RadioButton VerticalAlignment="Top"
+                                 HorizontalAlignment="Left" Content="Чоловіча"
+                                 IsChecked="{Binding Path=Gender, ConverterParameter=Male, Converter={StaticResource genderToBoolConverter}}"/>
+                    <RadioButton VerticalAlignment="Top"
+                                 HorizontalAlignment="Left" Content="Жіноча"
+                                 IsChecked="{Binding Path=Gender, ConverterParameter=Female, Converter={StaticResource genderToBoolConverter}}"/>
+                </StackPanel>
+            </GroupBox>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="158,0,0,0">
+            <Label HorizontalAlignment="Left" VerticalAlignment="Top" Content="Дата народження"/>
+            <TextBox HorizontalAlignment="Left" VerticalAlignment="Top" Width="132" Text="{Binding Path=Birthdate}"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="165,0,0,0">
+            <Label VerticalAlignment="Top" HorizontalAlignment="Left" Content="Номер телефону"/>
+            <TextBox VerticalAlignment="Top" HorizontalAlignment="Left" Width="200" Text="{Binding Path=Phone}" Margin="0,5,0,0"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="245,0,0,0">
+            <Label VerticalAlignment="Top" HorizontalAlignment="Left" Content="Адреса"/>
+            <TextBox VerticalAlignment="Top" HorizontalAlignment="Left" Width="200" Height="50" MaxLength="150" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Text="{Binding Path=Address}"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0,5,0,0">
+            <Label VerticalAlignment="Top" HorizontalAlignment="Left" Content="Перенесені та супутні захворювання"/>
+            <TextBox VerticalAlignment="Top" HorizontalAlignment="Left" Width="375" Height="75" MaxLength="150" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Text="{Binding Path=Illness}"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="175,5,0,0">
+            <Label VerticalAlignment="Top" HorizontalAlignment="Left" Content="Додаткові дані"/>
+            <TextBox VerticalAlignment="Top" HorizontalAlignment="Left" Width="375" Height="75" MaxLength="150" TextWrapping="Wrap" AcceptsReturn="True" Margin="7,0,0,0" VerticalScrollBarVisibility="Auto" Text="{Binding Path=Notes}"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="175,5,0,0">
+            <Label VerticalAlignment="Top" HorizontalAlignment="Left" Content="Дата реєстрації"/>
+            <DatePicker SelectedDateFormat="Short" SelectedDate="{Binding Path=RegisterDate, Converter={StaticResource shortDateToStringConverter}}" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="250,5,0,0">
+            <Label VerticalAlignment="Top" HorizontalAlignment="Left" Content="Статус"/>
+            <ListBox x:Name="listBoxStatus" VerticalAlignment="Top" HorizontalAlignment="Left" Width="200" Height="120" SelectionMode="Multiple" SelectionChanged="listBoxStatus_SelectionChanged">
+                <sys:String>Новий</sys:String>
+                <sys:String>Запланований</sys:String>
+                <sys:String>В роботі</sys:String>
+                <sys:String>Виконаний</sys:String>
+                <sys:String>Відмовився</sys:String>
+                <sys:String>Ортодонтія</sys:String>
+            </ListBox>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="320,5,0,0">
+            <Button Content="Завантажити фото" Click="buttonSelectImageFromDisk_Click"/>
+            <Label x:Name="labelPhotoPath"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="320,10,0,0">
+            <Button VerticalAlignment="Top" HorizontalAlignment="Left" Content="Зберегти"  MinWidth="60" Click="buttonCreate_Click"/>
+            <Button VerticalAlignment="Top" HorizontalAlignment="Left" Content="Відміна"  MinWidth="60" Click="cancelButton_Click" Margin="10,0,0,0"/>
+        </StackPanel>
+    </StackPanel>
+</UserControl>

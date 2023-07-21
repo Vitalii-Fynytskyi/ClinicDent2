@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <CanDeleteImage>true</CanDeleteImage>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="assets\images\birthdateIcon.png" />
+    <None Remove="assets\images\OK.png" />
+    <None Remove="assets\images\phoneIcon.png" />
+    <None Remove="assets\images\questionMark.png" />
+    <None Remove="assets\images\viber icon.png" />
+    <None Remove="assets\images\WRONG.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.39" />
+    <PackageReference Include="System.Drawing.Common" Version="5.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="assets\images\birthdateIcon.png" />
+    <Resource Include="assets\images\OK.png" />
+    <Resource Include="assets\images\phoneIcon.png" />
+    <Resource Include="assets\images\questionMark.png" />
+    <Resource Include="assets\images\viber icon.png" />
+    <Resource Include="assets\images\WRONG.png" />
+  </ItemGroup>
+
+</Project>

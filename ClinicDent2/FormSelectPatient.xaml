@@ -1,0 +1,94 @@
+﻿<UserControl x:Class="ClinicDent2.FormSelectPatient"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:local="clr-namespace:ClinicDent2"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800" Unloaded="UserControl_Unloaded">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0.9*"></RowDefinition>
+            <RowDefinition Height="0.1*"></RowDefinition>
+
+        </Grid.RowDefinitions>
+        <DockPanel x:Name="stackPanel" LastChildFill="True" Grid.Row="0">
+            <Label Content="Пацієнти" DockPanel.Dock="Top"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" DockPanel.Dock="Top">
+                <Label Content="Пошук"/>
+                <TextBox x:Name="textBoxSearchPatient" Width="300"/>
+                <Button x:Name="buttonSearch" Content="Пошук" Margin="5,0,0,0" Click="buttonSearch_Click"/>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" DockPanel.Dock="Top">
+                <Label Content="Сортування"/>
+                <ComboBox x:Name="comboBoxSorting" MinWidth="100">
+                    <sys:String>За замовчуванням</sys:String>
+                    <sys:String>За замовчуванням навпаки</sys:String>
+                    <sys:String>Дата реєстрації: спочатку недавні</sys:String>
+                    <sys:String>Дата реєстрації: спочатку старіші</sys:String>
+                    <sys:String>Ім'я: від А до Я</sys:String>
+                    <sys:String>Ім'я: від Я до А</sys:String>
+                    <sys:String>Вік: спочатку молодші</sys:String>
+                    <sys:String>Вік: спочатку старші</sys:String>
+                </ComboBox>
+                <Label Content="Статуси"/>
+                <ComboBox x:Name="comboBoxStatus" MinWidth="100">
+                    <sys:String>Всі статуси</sys:String>
+                    <sys:String>Новий</sys:String>
+                    <sys:String>Запланований</sys:String>
+                    <sys:String>В роботі</sys:String>
+                    <sys:String>Виконаний</sys:String>
+                    <sys:String>Відмовився</sys:String>
+                    <sys:String>Ортодонтія</sys:String>
+                </ComboBox>
+            </StackPanel>
+            <ScrollViewer x:Name="scrollViewer" VerticalScrollBarVisibility="Auto" ScrollChanged="scrollViewer_ScrollChanged">
+                <ItemsControl x:Name="listPatients">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <RadioButton Style="{StaticResource {x:Type ToggleButton}}" Click="ButtonPatient_Click" HorizontalContentAlignment="Left" GroupName="patientSelectGroup">
+                                <WrapPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                    <Image x:Name="imagePatientPhoto" MaxHeight="50" MaxWidth="75" Source="{Binding ImageBytes, Converter={StaticResource bytesToImageSourceConverter}}"/>
+                                    <Label Content="{Binding Name}"/>
+                                    <Button x:Name="buttonEditPatient" Content="Редагувати" VerticalAlignment="Center" Click="buttonEditPatient_Click"/>
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition></ColumnDefinition>
+                                            <ColumnDefinition></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
+                                        <Image x:Name="phoneIcon" MaxHeight="25" MaxWidth="25" Source="assets/images/phoneIcon.png"/>
+                                        <Label x:Name="labelPhone" Content="{Binding Phone}" FontSize="12" Grid.Row="1"/>
+                                        <Image x:Name="birthdateIcon" MaxHeight="25" MaxWidth="25" Grid.Column="1" Source="assets/images/birthdateIcon.png"/>
+                                        <Label x:Name="labelBirthdate" Content="{Binding Birthdate}" FontSize="12" Grid.Row="1" Grid.Column="1"/>
+                                    </Grid>
+                                </WrapPanel>
+                            </RadioButton>
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding ElementName=labelPhone, Path=Content}" Value="{x:Null}">
+                                    <Setter TargetName="phoneIcon" Property="Source" Value="{x:Null}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding ElementName=labelPhone, Path=Content}" Value="">
+                                    <Setter TargetName="phoneIcon" Property="Source" Value="{x:Null}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding ElementName=labelBirthdate, Path=Content}" Value="{x:Null}">
+                                    <Setter TargetName="birthdateIcon" Property="Source" Value="{x:Null}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding ElementName=labelBirthdate, Path=Content}" Value="">
+                                    <Setter TargetName="birthdateIcon" Property="Source" Value="{x:Null}" />
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </DockPanel>
+        <StackPanel x:Name="panelPages" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,5,5,0" Grid.Row="1" Grid.RowSpan="2">
+        </StackPanel>
+    </Grid>
+</UserControl>

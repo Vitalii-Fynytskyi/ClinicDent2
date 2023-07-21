@@ -1,0 +1,289 @@
+﻿<UserControl x:Class="ClinicDent2.View.StagesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:vm="clr-namespace:ClinicDent2.ViewModel"
+             xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:mybehaviors="clr-namespace:ClinicDent2.Behaviors"
+             xmlns:main="clr-namespace:ClinicDent2"
+             xmlns:local="clr-namespace:ClinicDent2.View"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800" Unloaded="UserControl_Unloaded">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition MaxHeight="150" Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid Margin="0,0,0,5" HorizontalAlignment="Left">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Image x:Name="imagePatientPhoto" HorizontalAlignment="Left" Grid.Row="0" Grid.RowSpan="2" MaxHeight="150" MaxWidth="150" Source="{Binding Patient.ImageBytes, Converter={StaticResource bytesToImageSourceConverter}}">
+                <behaviors:Interaction.Triggers>
+                    <behaviors:EventTrigger EventName="MouseLeftButtonDown" SourceObject="{Binding ElementName=imagePatientPhoto}">
+                        <behaviors:InvokeCommandAction Command="{Binding PhotoClickedCommand}" />
+                    </behaviors:EventTrigger>
+                </behaviors:Interaction.Triggers>
+            </Image>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Row="0" Grid.Column="1">
+                <Label Content="{Binding Patient.Name}"/>
+                <Label Content="{Binding Patient.Birthdate, Converter={StaticResource birthdateToYearsOldConverter}}" Margin="5,0,0,0"/>
+                <Label Content="{Binding Patient.Address}" Margin="5,0,0,0"/>
+            </StackPanel>
+            <TextBox x:Name="textBoxPhone" Text="{Binding Patient.Phone, Mode=OneWay}" IsReadOnly="True" Background="Transparent" BorderThickness="0" Grid.Row="1" Grid.Column="1"/>
+            <Button Content="Редагувати" Grid.Column="2" VerticalAlignment="Top" Command="{Binding EditPatientCommand}"/>
+        </Grid>
+        <ScrollViewer Grid.Row="1" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" Focusable="True">
+            <StackPanel VerticalAlignment="Stretch">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Label Content="План лікування"/>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBox Grid.Row="0" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Text="{Binding Patient.CurePlan}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" MinWidth="150" MinHeight="50" PreviewKeyDown="TextBox_PreviewKeyDown"/>
+                        <Thumb Grid.Row="1" Cursor="SizeNS" Height="5" HorizontalAlignment="Stretch" DragDelta="Thumb_DragDelta" />
+                    </Grid>
+                    
+                </StackPanel>
+                <DockPanel HorizontalAlignment="Center" Margin="0,5,0,0">
+                    <Label DockPanel.Dock="Left">Новий етап</Label>
+                    <Button  Content="Створити" DockPanel.Dock="Right" Command="{Binding CreateNewStageCommand}" CommandParameter="{Binding Path=Text, ElementName=textBoxStageName}"/>
+                    <TextBox x:Name="textBoxStageName" Margin="20,0,20,0" MinWidth="200" AcceptsReturn="False">
+                        <TextBox.InputBindings>
+                            <KeyBinding Key="Enter" Command="{Binding CreateNewStageCommand}"  CommandParameter="{Binding Path=Text, RelativeSource={RelativeSource AncestorType={x:Type TextBox}}}" />
+                        </TextBox.InputBindings>
+                    </TextBox>
+                </DockPanel>
+                <ItemsControl ItemsSource="{Binding Stages}" x:Name="stagesPanel" Margin="0,5,0,0" VerticalAlignment="Stretch">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border BorderThickness="2" BorderBrush="Black">
+                                <StackPanel Background="{Binding BoundBackground}">
+                                    <TextBox Text="{Binding Title}" Background="Transparent" BorderThickness="0" IsEnabled="{Binding IsOwner}">
+                                        <TextBox.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Header="Видалити етап" Command="{Binding DeleteStageCommand}"/>
+                                            </ContextMenu>
+                                        </TextBox.ContextMenu>
+                                    </TextBox>
+                                    <TextBox Text="{Binding StageDatetime,UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" FontSize="18" Background="Transparent" BorderThickness="0" IsEnabled="{Binding IsOwner}">
+                                        <TextBox.Style>
+                                            <Style TargetType="TextBox">
+                                                <Style.Triggers>
+                                                    <Trigger Property="Validation.HasError" Value="True">
+                                                        <Setter Property="ToolTip" Value="{Binding (Validation.Errors)[0].ErrorContent, RelativeSource={RelativeSource Self}}" />
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                            
+                                        </TextBox.Style>
+                                    </TextBox>
+                                    <WrapPanel Margin="0,5,0,0" IsEnabled="{Binding IsOwner}">
+                                        <ComboBox ItemsSource="{x:Static vm:StageViewModel.Operations}" DisplayMemberPath="Value" MinWidth="100" SelectedItem="{Binding Operation, Mode=TwoWay}" IsEditable="True" IsReadOnly="True" Text="Операція" HorizontalAlignment="Left"/>
+                                        <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
+                                            <StackPanel.Style>
+                                                <Style TargetType="StackPanel">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Operation.Value}" Value="Реставрація">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Operation.Value}" Value="Відновлення культі">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </StackPanel.Style>
+
+                                            <Label Content="Бонд"/>
+                                            <ComboBox MinWidth="100" SelectedItem="{Binding Bond, Mode=TwoWay}" DisplayMemberPath="Value" ItemsSource="{x:Static vm:StageViewModel.Bonds}"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
+                                            <StackPanel.Style>
+                                                <Style TargetType="StackPanel">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Operation.Value}" Value="Відновлення культі">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </StackPanel.Style>
+                                            <Label Content="Штифт"/>
+                                            <ComboBox MinWidth="100" SelectedItem="{Binding Pin, Mode=TwoWay}" DisplayMemberPath="Value" ItemsSource="{x:Static vm:StageViewModel.Pins}"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
+                                            <StackPanel.Style>
+                                                <Style TargetType="StackPanel">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Operation.Value}" Value="Реставрація">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </StackPanel.Style>
+                                            <Label Content="Дентин"/>
+                                            <ComboBox MinWidth="100" SelectedItem="{Binding Dentin, Mode=TwoWay}" DisplayMemberPath="Value" ItemsSource="{x:Static vm:StageViewModel.Dentins}"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
+                                            <StackPanel.Style>
+                                                <Style TargetType="StackPanel">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Operation.Value}" Value="Реставрація">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </StackPanel.Style>
+                                            <Label Content="Емаль"/>
+                                            <ComboBox MinWidth="100" SelectedItem="{Binding Enamel, Mode=TwoWay}" DisplayMemberPath="Value" ItemsSource="{x:Static vm:StageViewModel.Enamels}"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
+                                            <StackPanel.Style>
+                                                <Style TargetType="StackPanel">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Operation.Value}" Value="Пломбування каналів">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </StackPanel.Style>
+                                            <Label Content="Метод"/>
+                                            <ComboBox MinWidth="100" SelectedItem="{Binding CanalMethod, Mode=TwoWay}" DisplayMemberPath="Value" ItemsSource="{x:Static vm:StageViewModel.CanalMethods}"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
+                                            <StackPanel.Style>
+                                                <Style TargetType="StackPanel">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Operation.Value}" Value="Пломбування каналів">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </StackPanel.Style>
+                                            <Label Content="Кальцій"/>
+                                            <ComboBox MinWidth="100" SelectedItem="{Binding Calcium, Mode=TwoWay}" DisplayMemberPath="Value" ItemsSource="{x:Static vm:StageViewModel.Calciums}"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
+                                            <StackPanel.Style>
+                                                <Style TargetType="StackPanel">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Operation.Value}" Value="Пломбування каналів">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </StackPanel.Style>
+                                            <Label Content="Силер"/>
+                                            <ComboBox MinWidth="100" SelectedItem="{Binding Sealer, Mode=TwoWay}" DisplayMemberPath="Value" ItemsSource="{x:Static vm:StageViewModel.Sealers}"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
+                                            <StackPanel.Style>
+                                                <Style TargetType="StackPanel">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Operation.Value}" Value="Відновлення культі">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Operation.Value}" Value="Цементування коронок">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </StackPanel.Style>
+                                            <Label Content="Цемент"/>
+                                            <ComboBox MinWidth="100" SelectedItem="{Binding Cement, Mode=TwoWay}" DisplayMemberPath="Value" ItemsSource="{x:Static vm:StageViewModel.Cements}"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
+                                            <StackPanel.Style>
+                                                <Style TargetType="StackPanel">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Operation.Value}" Value="Цементування коронок">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </StackPanel.Style>
+                                            <Label Content="Технік"/>
+                                            <ComboBox MinWidth="100" SelectedItem="{Binding Technician, Mode=TwoWay}" DisplayMemberPath="Value" ItemsSource="{x:Static vm:StageViewModel.Technicians}"/>
+                                        </StackPanel>
+                                        <Label Content="{Binding DoctorName}" ContentStringFormat="Лікар: {0}" Margin="5,0,0,0" HorizontalAlignment="Right"/>
+                                    </WrapPanel>
+                                    <Grid HorizontalAlignment="Left" Margin="5,0,0,0" IsEnabled="{Binding IsOwner}">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="100"/>
+                                            <ColumnDefinition Width="35*"/>
+                                            <ColumnDefinition Width="100*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Content="Оплачено" Grid.Column="0" HorizontalAlignment="Center"/>
+                                        <Label Content="Ціна" Grid.Column="1" HorizontalAlignment="Center"/>
+                                        <TextBox Text="{Binding Payed, Converter={StaticResource numberToStringConverter}, TargetNullValue=0, FallbackValue=0, UpdateSourceTrigger=PropertyChanged}" Grid.Column="0" Grid.Row="1" MinWidth="100"/>
+                                        <TextBox Text="{Binding Price, Converter={StaticResource numberToStringConverter}, TargetNullValue=0, FallbackValue=0, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Grid.Row="1" Margin="5,0,0,0" MinWidth="100"/>
+                                        <Image Source="{Binding PaymentStatusImagePath}" MaxWidth="24" MaxHeight="24" Grid.Row="1" Grid.Column="2"/>
+                                    </Grid>
+                                    <TextBox Background="Transparent" BorderThickness="0" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Text="{Binding CommentText}" IsEnabled="{Binding IsOwner}"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <Button Command="{Binding SendStageViaViberCommand}" CommandParameter="{Binding ElementName=textBoxPhone, Path=Text}">
+                                            <Image Source="pack://application:,,,/assets/images/viber icon.png"></Image>
+                                        </Button>
+                                        <Button Content="З диску" Command="{Binding AddImageFromDiskCommand}" Margin="5,0,0,0"/>
+                                        <Button Content="Вибрати існуюче" Command="{Binding AttachImageCommand}"  Margin="5,0,0,0"/>
+                                        <Button Content="Вставити з буферу обміну" Command="{Binding AddImageFromClipboardCommand}"  Margin="5,0,0,0"/>
+                                    </StackPanel>
+                                    <ItemsControl ItemsSource="{Binding Images}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel></WrapPanel>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Image MaxWidth="200" MaxHeight="150" Margin="0,0,5,5" Source="{Binding CompressedBytes, Converter={StaticResource bytesToImageSourceConverter}}">
+                                                    <behaviors:Interaction.Triggers>
+                                                        <behaviors:EventTrigger EventName="MouseLeftButtonDown" SourceObject="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Image}}}">
+                                                            <behaviors:InvokeCommandAction Command="{Binding ImageClickedCommand}" />
+                                                        </behaviors:EventTrigger>
+                                                    </behaviors:Interaction.Triggers>
+                                                    <Image.ContextMenu>
+                                                        <ContextMenu>
+                                                            <MenuItem Header="Копіювати" Command="{Binding CopyImageCommand}"/>
+                                                            <MenuItem Header="Видалити" Command="{Binding DeleteImageFromStageCommand}"/>
+                                                            <MenuItem IsEnabled="False" Header="{Binding FileName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                                            <MenuItem Header="Перейменувати" Command="{Binding RenameImageCommand}"/>
+                                                            <MenuItem Header="Показати пацієнтів" Command="{Binding ShowReferencesCommand}"/>
+                                                        </ContextMenu>
+                                                    </Image.ContextMenu>
+                                                </Image>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

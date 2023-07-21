@@ -1,0 +1,29 @@
+﻿<UserControl x:Class="ClinicDent2.RegisterMenu"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ClinicDent2"
+             mc:Ignorable="d" 
+             d:DesignHeight="1080" d:DesignWidth="1920" Background="#eeeeee">
+    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <StackPanel Orientation="Horizontal">
+            <Label Content="Email" FontSize="22"/>
+            <TextBox x:Name="TextBoxEmail" MinWidth="200" Height="24" Margin="189,0,0,0"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal">
+            <Label Content="Ім'я" FontSize="22"/>
+            <TextBox x:Name="TextBoxName" MinWidth="200" Height="24" Margin="203,0,0,0"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal">
+            <Label Content="Пароль" FontSize="22"/>
+            <PasswordBox x:Name="TextBoxPassword" MinWidth="200" Height="24" Margin="165,0,0,0"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal">
+            <Label Content="Підтвердження паролю" FontSize="22"/>
+            <PasswordBox x:Name="TextBoxConfirmPassword" MinWidth="200" Height="24"/>
+        </StackPanel>
+        <Button x:Name="buttonRegister" Content="Зареєструватись" FontSize="22" Click="buttonRegister_Click"/>
+        <Button x:Name="buttonBack" Content="Назад" FontSize="22" Margin="0,10,0,0" Click="buttonBack_Click"/>
+    </StackPanel>
+</UserControl>

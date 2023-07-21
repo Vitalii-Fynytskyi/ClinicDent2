@@ -1,0 +1,140 @@
+﻿<UserControl x:Class="ClinicDent2.View.PatientsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ClinicDent2.View"
+             xmlns:viewmodel="clr-namespace:ClinicDent2.ViewModel"
+             xmlns:attached="clr-namespace:ClinicDent2.Attached"
+             xmlns:main="clr-namespace:ClinicDent2"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0.9*"></RowDefinition>
+            <RowDefinition Height="0.1*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <DockPanel LastChildFill="True" Grid.Row="0">
+            <Label Content="{Binding PageTitle}" DockPanel.Dock="Top"/>
+            <ComboBox ItemsSource="{Binding Path=(main:Options.AllDoctors)}" DisplayMemberPath="Name" DockPanel.Dock="Top" SelectedItem="{Binding SelectedDoctor, Mode=TwoWay}" HorizontalAlignment="Center">
+                <ComboBox.Style>
+                    <Style TargetType="ComboBox">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding patientListMode}" Value="MyPatients">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ComboBox.Style>
+            </ComboBox>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" DockPanel.Dock="Top">
+                <Label Content="Пошук"/>
+                <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Width="300" attached:TextBoxProperties.OnEnterKeyDown="{Binding SearchPressedCommand}"/>
+                <Button Content="Пошук" Margin="5,0,0,0" Command="{Binding SearchPressedCommand}"/>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" DockPanel.Dock="Top">
+                <Label Content="Сортування"/>
+                <ComboBox ItemsSource="{Binding Path=(viewmodel:PatientsViewModel.AvailableSorts)}" SelectedItem="{Binding SelectedSorting}" MinWidth="100"/>
+                <Label x:Name="labelStatuses" Content="Статуси"/>
+                <ComboBox x:Name="comboBoxStatuses" ItemsSource="{Binding Path=(viewmodel:PatientsViewModel.AvailableStatuses)}" SelectedItem="{Binding SelectedStatus}" MinWidth="100"/>
+            </StackPanel>
+            <ScrollViewer x:Name="scrollViewer" VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding PatientViewModels}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Background="WhiteSmoke" Click="ButtonPatient_Click"  HorizontalContentAlignment="Left">
+                                <WrapPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                    <Image MaxHeight="50" MaxWidth="75" Source="{Binding ImageBytes, Converter={StaticResource bytesToImageSourceConverter}}"/>
+                                    <Label Content="{Binding Name}"/>
+                                    <Button Content="Редагувати" VerticalAlignment="Center" Click="ButtonEditPatient_Click"/>
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition></RowDefinition>
+                                            <RowDefinition></RowDefinition>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition></ColumnDefinition>
+                                            <ColumnDefinition></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
+                                        <Image x:Name="phoneIcon" MaxHeight="25" MaxWidth="25" Source="/assets/images/phoneIcon.png"/>
+                                        <Label x:Name="labelPhone" Content="{Binding Phone}" FontSize="12" Grid.Row="1"/>
+                                        <Image x:Name="birthdateIcon" MaxHeight="25" MaxWidth="25" Grid.Column="1" Source="/assets/images/birthdateIcon.png"/>
+                                        <Label x:Name="labelBirthdate" Content="{Binding Birthdate}" FontSize="12" Grid.Row="1" Grid.Column="1"/>
+                                    </Grid>
+                                </WrapPanel>
+                            </Button>
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding ElementName=labelPhone, Path=Content}" Value="{x:Null}">
+                                    <Setter TargetName="phoneIcon" Property="Source" Value="{x:Null}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding ElementName=labelPhone, Path=Content}" Value="">
+                                    <Setter TargetName="phoneIcon" Property="Source" Value="{x:Null}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding ElementName=labelBirthdate, Path=Content}" Value="{x:Null}">
+                                    <Setter TargetName="birthdateIcon" Property="Source" Value="{x:Null}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding ElementName=labelBirthdate, Path=Content}" Value="">
+                                    <Setter TargetName="birthdateIcon" Property="Source" Value="{x:Null}" />
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </DockPanel>
+        <StackPanel x:Name="panelPages" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,5,5,0" Grid.Row="1" Grid.RowSpan="2">
+            <Label Content="...">
+                <Label.Style>
+                    <Style TargetType="{x:Type Label}">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Setter Property="FontSize" Value="18"/>
+                        <Style.Triggers>
+                            <DataTrigger Value="True">
+                                <DataTrigger.Binding>
+                                    <MultiBinding Converter="{StaticResource dotsVisibilityConverter}" ConverterParameter="prefix">
+                                        <Binding Path="SelectedPage" />
+                                        <Binding Path="CountPages" />
+                                    </MultiBinding>
+                                </DataTrigger.Binding>
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Label.Style>
+            </Label>
+            <ItemsControl ItemsSource="{Binding VisiblePages}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button Content="{Binding}" MinWidth="30" Command="{Binding DataContext.PageChangedCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}" Margin="5,0,0,0" Loaded="PageButton_Loaded"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+            <Label Content="...">
+                <Label.Style>
+                    <Style TargetType="{x:Type Label}">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Setter Property="FontSize" Value="18"/>
+                        <Style.Triggers>
+                            <DataTrigger Value="True">
+                                <DataTrigger.Binding>
+                                    <MultiBinding Converter="{StaticResource dotsVisibilityConverter}" ConverterParameter="suffix">
+                                        <Binding Path="SelectedPage" />
+                                        <Binding Path="CountPages" />
+                                    </MultiBinding>
+                                </DataTrigger.Binding>
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Label.Style>
+            </Label>
+        </StackPanel>
+    </Grid>
+</UserControl>
