@@ -12,6 +12,9 @@
     <None Remove="assets\images\OK.png" />
     <None Remove="assets\images\phoneIcon.png" />
     <None Remove="assets\images\questionMark.png" />
+    <None Remove="assets\images\TelegramLogo.png" />
+    <None Remove="assets\images\TelegramLogoGray.png" />
+    <None Remove="assets\images\TelegramLogoSent.png" />
     <None Remove="assets\images\viber icon.png" />
     <None Remove="assets\images\WRONG.png" />
   </ItemGroup>
@@ -20,6 +23,7 @@
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.39" />
     <PackageReference Include="System.Drawing.Common" Version="5.0.2" />
+    <PackageReference Include="TLSharp" Version="0.1.0.574" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,6 +31,9 @@
     <Resource Include="assets\images\OK.png" />
     <Resource Include="assets\images\phoneIcon.png" />
     <Resource Include="assets\images\questionMark.png" />
+    <Resource Include="assets\images\TelegramLogo.png" />
+    <Resource Include="assets\images\TelegramLogoGray.png" />
+    <Resource Include="assets\images\TelegramLogoSent.png" />
     <Resource Include="assets\images\viber icon.png" />
     <Resource Include="assets\images\WRONG.png" />
   </ItemGroup>

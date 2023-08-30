@@ -5,17 +5,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:local="clr-namespace:ClinicDent2.View"
+             xmlns:model="clr-namespace:ClinicDent2.Model"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="450" d:DesignWidth="800" MouseDoubleClick="UserControl_MouseDoubleClick" PreviewMouseDoubleClick="UserControl_PreviewMouseDoubleClick">
     <Grid x:Name="grid" Background="#77ff0000"  MouseMove="Grid_MouseMove" MouseLeftButtonDown="Grid_MouseDown" MouseLeftButtonUp="Grid_MouseUp" MouseEnter="Grid_MouseEnter" MouseLeave="Grid_MouseLeave" Margin="0,2,0,0">
-        <Grid.RowDefinitions>
-            <RowDefinition></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"></ColumnDefinition>
-            <ColumnDefinition Width="Auto"></ColumnDefinition>
-            <ColumnDefinition Width="*" ></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <Grid.ContextMenu>
             <ContextMenu>
@@ -23,41 +19,42 @@
                 <MenuItem x:Name="menuItemDeleteRecord" Header="Видалити запис" Click="menuItemDeleteRecord_Click"/>
             </ContextMenu>
         </Grid.ContextMenu>
-
+        
         <TextBlock FontSize="14" Text="{Binding PatientName}"/>
-        <TextBox x:Name="textBoxComment" VerticalAlignment="Top" Grid.Column="1" FontSize="14" Margin="5,0,0,0" TextWrapping="Wrap" AcceptsReturn="True" Padding="0" Foreground="White" MinWidth="100" Background="Transparent" BorderThickness="0" Text="{Binding Comment}" MouseLeftButtonDown="textBoxComment_MouseLeftButtonDown" MouseLeftButtonUp="textBoxComment_MouseLeftButtonUp"/>
-        <Image x:Name="buttonWillAppear" HorizontalAlignment="Right" VerticalAlignment="Top" MouseLeftButtonDown="buttonWillAppear_MouseLeftButtonDown" MouseLeftButtonUp="buttonWillAppear_MouseLeftButtonUp" Grid.Column="2" MaxHeight="32" MaxWidth="32">
-            <Image.Style>
-                <Style TargetType="Image">
-                    <Setter Property="Source" Value="/assets/images/questionMark.png"/>
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding State}" Value="1">
-                            <Setter Property="Source" Value="/assets/images/OK.png"/>
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding State}" Value="2">
-                            <Setter Property="Source" Value="/assets/images/WRONG.png"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Image.Style>
-        </Image>
-        <!--<Button x:Name="buttonWillAppear" HorizontalAlignment="Right" VerticalAlignment="Top" Command="{Binding WillAppearChangedCommand}" Grid.Column="1" MinWidth="100">
-            <Button.Style>
-                <Style TargetType="Button">
-                    <Setter Property="Content" Value="Не підтверджено"/>
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding State}" Value="1">
-                            <Setter Property="Background" Value="Green"/>
-                            <Setter Property="ContentControl.Content" Value="Прийде"/>
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding State}" Value="2">
-                            <Setter Property="Background" Value="Red"/>
-                            <Setter Property="Content" Value="Відмовився"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Button.Style>
-        </Button>-->
-        <Rectangle Grid.Row="1" Grid.ColumnSpan="3" Fill="Transparent" HorizontalAlignment="Stretch" Height="10" Cursor="SizeNS" MouseDown="Separator_MouseDown"/>
+        <DockPanel LastChildFill="True" HorizontalAlignment="Stretch" VerticalAlignment="Top" Grid.Column="1">
+            <Image x:Name="buttonWillAppear" MouseLeftButtonDown="buttonWillAppear_MouseLeftButtonDown" MaxHeight="32" MaxWidth="32" DockPanel.Dock="Right">
+                <Image.Style>
+                    <Style TargetType="Image">
+                        <Setter Property="Source" Value="/assets/images/questionMark.png"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding State}" Value="1">
+                                <Setter Property="Source" Value="/assets/images/OK.png"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding State}" Value="2">
+                                <Setter Property="Source" Value="/assets/images/WRONG.png"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Image.Style>
+            </Image>
+            <Image MaxHeight="32" MaxWidth="32" DockPanel.Dock="Right">
+                <Image.Style>
+                    <Style TargetType="Image">
+                        <Setter Property="Source" Value="/assets/images/TelegramLogoGray.png"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding StagesSentViaMessagerState}" Value="{x:Static model:ScheduleIsSentViaMessagetState.AllSent}">
+                                <Setter Property="Source" Value="/assets/images/TelegramLogoSent.png"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding StagesSentViaMessagerState}" Value="{x:Static model:ScheduleIsSentViaMessagetState.CanSend}">
+                                <Setter Property="Source" Value="/assets/images/TelegramLogo.png"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Image.Style>
+            </Image>
+            <TextBlock FontSize="14" Foreground="White" Text="{Binding PaidPriceText}" DockPanel.Dock="Right"/>
+            <TextBox x:Name="textBoxComment" VerticalAlignment="Top" FontSize="14" Margin="5,0,0,0" TextWrapping="Wrap" AcceptsReturn="True" Padding="0" Foreground="White" Background="Transparent" BorderThickness="0" Text="{Binding Comment}" HorizontalAlignment="Stretch" DockPanel.Dock="Left"/>
+        </DockPanel>
+        <Rectangle Grid.ColumnSpan="2" Fill="Transparent" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Height="5" Cursor="SizeNS" MouseDown="Separator_MouseDown"/>
     </Grid>
 </UserControl>

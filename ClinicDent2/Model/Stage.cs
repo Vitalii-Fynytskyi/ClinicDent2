@@ -15,9 +15,9 @@ namespace ClinicDent2.Model
             Id = d.Id;
             PatientId = d.PatientId;
             DoctorId = d.DoctorId;
-            ScheduleId = d.ScheduleId;
             Title = d.Title;
             StageDatetime = d.StageDatetime;
+            IsSentViaViber = d.IsSentViaViber;
             if(d.Operation != null)
                 Operation = StageViewModel.Operations.FirstOrDefault(a => a.Id == d.Operation);
             if(d.Bond !=null)
@@ -48,9 +48,8 @@ namespace ClinicDent2.Model
         public int Id { get; set; }
         public int PatientId { get; set; }
         public int DoctorId { get; set; }
-        public int? ScheduleId { get; set; }
 
-
+        public bool IsSentViaViber { get; set; }
         public string Title { get; set; }
         public string StageDatetime { get; set; }
         public StageAsset Operation { get; set; } //'Реставрація' 'Плом. каналів' 'Цементування коронок'
@@ -84,9 +83,9 @@ namespace ClinicDent2.Model
             Id = d.Id;
             PatientId = d.PatientId;
             DoctorId = d.DoctorId;
-            ScheduleId = d.ScheduleId;
             Title = d.Title;
             StageDatetime = d.StageDatetime;
+            IsSentViaViber = d.IsSentViaViber;
             Operation = d.Operation?.Id;
             Bond = d.Bond?.Id;
             Dentin = d.Dentin?.Id;
@@ -107,7 +106,7 @@ namespace ClinicDent2.Model
         public int Id { get; set; }
         public int PatientId { get; set; }
         public int DoctorId { get; set; }
-        public int? ScheduleId { get; set; }
+        public bool IsSentViaViber { get; set; }
 
 
         public string Title { get; set; }

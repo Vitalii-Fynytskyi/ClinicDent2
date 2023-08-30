@@ -71,16 +71,7 @@ namespace ClinicDent2.ViewModel
             stage.DoctorId = Options.CurrentDoctor.Id;
             stage.DoctorName = "<null>";
             stage.Title = stageName as string;
-            if (ScheduleRecordViewModel == null) //stage is not connected with Schedule
-            {
-                stage.StageDatetime = DateTime.Now.ToString(Options.DateTimePattern);
-
-            }
-            else //stage is connected with schedule
-            {
-                stage.ScheduleId = ScheduleRecordViewModel.Id;
-                stage.StageDatetime = ScheduleRecordViewModel.StartDatetime;
-            }
+            stage.StageDatetime = DateTime.Now.ToString(Options.DateTimePattern);
             try
             {
                 stage = HttpService.PostStage(stage);
@@ -110,7 +101,6 @@ namespace ClinicDent2.ViewModel
                 
             }
         }
-        public Schedule ScheduleRecordViewModel { get; set; }
         ObservableCollection<StageViewModel> stages;
         public ObservableCollection<StageViewModel> Stages
         {
@@ -133,13 +123,14 @@ namespace ClinicDent2.ViewModel
             patient = patientToSet;
             Stages = new ObservableCollection<StageViewModel>(HttpService.GetPatientStages(patient.PatientId).Select(s => new StageViewModel(s, this)));
         }
-        public void LoadAllPatientStagesWithRelatedMarked(Schedule scheduleRecordViewModelToSet)
+        public DateTime? MarkedDate { get; set; } = null;
+        public void LoadAllPatientStagesWithRelatedMarked(DateTime markedDateToSet, int patientId)
         {
-            ScheduleRecordViewModel = scheduleRecordViewModelToSet;
+            MarkedDate= markedDateToSet;
             Patient loadedPatient = null;
             try
             {
-                loadedPatient = HttpService.GetPatient(ScheduleRecordViewModel.PatientId.Value);
+                loadedPatient = HttpService.GetPatient(patientId);
             }
             catch (Exception ex)
             {

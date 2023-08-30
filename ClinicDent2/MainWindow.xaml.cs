@@ -35,8 +35,9 @@ namespace ClinicDent2
                 return;
             }
             goToLoginMenu();
+            
+            
         }
-        
         private Doctor TryAuthenticateWithCookies()
         {
             LoginModel loginModel = Options.ReadCookies(Environment.CurrentDirectory + "\\data\\cookies.dat");
@@ -49,13 +50,13 @@ namespace ClinicDent2
         {
             foreach(Window w in App.Current.Windows) //iterate all windows in order to find StagesView, stages need to be updated before quiting application
             {
-                if(w.Content is ICommitChanges i)
+                if(w.Content is IBrowserTabControl i)
                 {
                     i.CommitChanges();
                     break;
                 }
             }
-            if(mainMenu.browserControl.currentTabOpened.Content is ICommitChanges commitChanges)
+            if(mainMenu.browserControl.currentTabOpened.Content is IBrowserTabControl commitChanges)
             {
                 commitChanges.CommitChanges();
             }
@@ -71,6 +72,7 @@ namespace ClinicDent2
         {
             LoginMenu loginMenu = new LoginMenu();
             ViewBox.Child = loginMenu;
+
         }
         public void goToRegisterMenu()
         {

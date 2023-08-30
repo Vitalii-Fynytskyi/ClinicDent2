@@ -5,16 +5,41 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ClinicDent2.View"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800" Unloaded="UserControl_Unloaded">
+             d:DesignHeight="450" d:DesignWidth="800" Loaded="UserControl_Loaded">
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="*"></RowDefinition>
-        </Grid.RowDefinitions>
-        <Calendar x:Name="datePicker" FirstDayOfWeek="Monday" SelectedDate="{Binding SelectedDate}" Grid.Row="0" HorizontalAlignment="Left" Focusable="False" MouseUp="datePicker_MouseUp" SelectedDatesChanged="datePicker_SelectedDatesChanged"/>
-        <ScrollViewer x:Name="scrollViewerSchedule" VerticalScrollBarVisibility="Auto" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CanContentScroll="False" Grid.Row="1" Focusable="True" >
-            <StackPanel x:Name="stackPanelDays"/>
+        <ScrollViewer x:Name="scrollViewerSchedule" VerticalScrollBarVisibility="Auto" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CanContentScroll="False" Focusable="True" ScrollChanged="scrollViewerSchedule_ScrollChanged">
+            <StackPanel x:Name="stackPanelDays" Focusable="True"/>
         </ScrollViewer>
+        <Canvas>
+            <Calendar x:Name="datePicker" FirstDayOfWeek="Monday" SelectedDate="{Binding SelectedDate}" HorizontalAlignment="Left" Focusable="False" SelectedDatesChanged="datePicker_SelectedDatesChanged" MouseLeftButtonDown="datePicker_MouseLeftButtonDown" MouseMove="datePicker_MouseMove" MouseLeftButtonUp="datePicker_MouseLeftButtonUp">
+                <Calendar.Style>
+                    <Style TargetType="Calendar">
+                        <Setter Property="CalendarDayButtonStyle">
+                            <Setter.Value>
+                                <Style TargetType="CalendarDayButton">
+                                    <Setter Property="Template" Value="{StaticResource CustomCalendarDayButtonTemplate}" />
+                                    <Setter Property="Background" Value="Transparent" />
+                                    <Setter Property="Foreground" Value="Black" />
+                                    <Setter Property="FontSize" Value="18"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsToday" Value="True">
+                                            <Setter Property="Background" Value="White" />
+                                            <Setter Property="Foreground" Value="Blue" />
+                                            <Setter Property="FontWeight" Value="Bold" />
+                                        </Trigger>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="Black" />
+                                            <Setter Property="Foreground" Value="White" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Calendar.Style>
+            </Calendar>
+        </Canvas>
+        
         
     </Grid>
 </UserControl>

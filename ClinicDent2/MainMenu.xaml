@@ -20,7 +20,6 @@
             <Button x:Name="buttonUnpayedStages" Content="Неоплачені" Margin="0,5" Style="{StaticResource sideBarButton}" Click="buttonUnpayedStages_Click"/>
             <Button x:Name="buttonAllPatients" Content="Всі пацієнти" Margin="0,5" Style="{StaticResource sideBarButton}" Click="buttonAllPatients_Click"/>
             <Button x:Name="buttonStatistics" Content="Статистика" Margin="0,5" Style="{StaticResource sideBarButton}" Click="buttonStatistics_Click" Visibility="Collapsed"/>
-
             <Button x:Name="buttonSettings" Content="Налаштування" Margin="0,5" Style="{StaticResource sideBarButton}" Click="buttonSettings_Click"/>
             <Button x:Name="buttonExit" Content="Вихід" Margin="0,5" Style="{StaticResource sideBarButton}" Click="buttonExit_Click"/>
             <Button x:Name="buttonExitAccount" Content="Вийти з акаунту" Margin="0,50,0,0" Style="{StaticResource sideBarButton}" Click="buttonExitAccount_Click"/>

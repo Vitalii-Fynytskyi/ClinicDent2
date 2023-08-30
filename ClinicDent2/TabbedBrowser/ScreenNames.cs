@@ -3,6 +3,7 @@
     public static class ScreenNames
     {
         public const string MY_PATIENTS = "Мої пацієнти";
+        public const string SCHEDULE = "Розклад";
         public const string ALL_PATIENTS = "Всі пацієнти";
         public const string NEW_PATIENT = "Новий пацієнт";
         public const string DEBTORS = "Боржники";

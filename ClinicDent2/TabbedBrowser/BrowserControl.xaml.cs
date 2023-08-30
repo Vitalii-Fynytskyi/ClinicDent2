@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ClinicDent2.Interfaces;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -24,8 +25,8 @@ namespace ClinicDent2.TabbedBrowser
                     {
                         selectedTab.BackgroundBorder.Background = Brushes.Transparent;
                         selectedTab.TabLabel.Foreground = Brushes.Black;
+                        (selectedTab.Control as IBrowserTabControl)?.TabDeactivated();
                     }
-
                     selectedTab = value;
 
                     if(selectedTab != null)
@@ -33,6 +34,7 @@ namespace ClinicDent2.TabbedBrowser
                         selectedTab.BackgroundBorder.Background = Brushes.Black;
                         selectedTab.TabLabel.Foreground = Brushes.White;
                         currentTabOpened.Content = selectedTab.Control;
+                        (selectedTab.Control as IBrowserTabControl)?.TabActivated();
                     }
                     
                 }
@@ -70,6 +72,21 @@ namespace ClinicDent2.TabbedBrowser
                 if (i is BrowserTabButton tabButton)
                 {
                     if (tabButton.PatientViewModel?.PatientId == patientId && tabButton.ButtonType == tabButtonType)
+                    {
+                        SelectedTab = tabButton;
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        public bool ScreenRequested(int patientId, TabButtonType tabButtonType, string dayOfMonth)
+        {
+            foreach (object i in panelTabs.Children)
+            {
+                if (i is BrowserTabButton tabButton)
+                {
+                    if (tabButton.PatientViewModel?.PatientId == patientId && tabButton.ButtonType == tabButtonType && dayOfMonth==ExtractDate(tabButton.TabText))
                     {
                         SelectedTab = tabButton;
                         return true;
@@ -129,12 +146,23 @@ namespace ClinicDent2.TabbedBrowser
         }
         private void BrowserTabButton_CloseButtonClick(object sender, EventArgs e)
         {
-            RemoveTab(sender as BrowserTabButton);
+            BrowserTabButton browserTabButton = sender as BrowserTabButton;
+            RemoveTab(browserTabButton);
+            (browserTabButton.Control as IBrowserTabControl)?.TabClosed();
         }
 
         private void BrowserTabButton_TabSelected(object sender, EventArgs e)
         {
             SelectedTab = sender as BrowserTabButton;
+        }
+        public string ExtractDate(string input)
+        {
+            var words = input.Split(' ');
+            if (words.Length >= 2)
+            {
+                return words[words.Length - 2] + " " + words[words.Length - 1];
+            }
+            return null;
         }
     }
 }

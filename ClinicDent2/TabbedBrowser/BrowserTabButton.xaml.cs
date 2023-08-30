@@ -12,7 +12,7 @@ namespace ClinicDent2.TabbedBrowser
     /// </summary>
     public enum TabButtonType
     {
-        Regular, PatientDataEdit, PatientStages
+        Regular, PatientDataEdit, PatientStages, PatientScheduleStages
     }
     public partial class BrowserTabButton : UserControl
     {

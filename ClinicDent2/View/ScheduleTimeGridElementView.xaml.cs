@@ -16,6 +16,9 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using ClinicDent2.Commands;
 using System.Diagnostics;
+using System.Windows.Controls.Primitives;
+using ClinicDent2.TabbedBrowser;
+using ClinicDent2.ViewModel;
 
 namespace ClinicDent2.View
 {
@@ -79,13 +82,28 @@ namespace ClinicDent2.View
         }
         private void GoToStages()
         {
-            WindowContainer windowContainer = new WindowContainer();
-            windowContainer.Title = "Пов'язані роботи";
-            StagesView stagesView = new StagesView();
-            stagesView.LoadAllPatientStagesWithScheduleMarked(Schedule);
-            windowContainer.Content = stagesView;
-            windowContainer.WindowState = WindowState.Maximized;
-            windowContainer.Show();
+
+            string dayOfMonth = ParentGridView.Owner.SelectedDate.GetUkrainianDayOfMonth();
+            if (Options.MainWindow.mainMenu.browserControl.ScreenRequested(Schedule.PatientId.Value, TabButtonType.PatientScheduleStages,dayOfMonth) == false)
+            {
+                BrowserTabButton patientStagesButton = new BrowserTabButton();
+                StagesView stagesView = new StagesView();
+                try
+                {
+                    stagesView.LoadAllPatientStagesWithScheduleMarked(ParentGridView.Owner.SelectedDate, Schedule.PatientId.Value);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Не вдалось завантажити етапи робіт пацієнта: {ex.Message}");
+                    return;
+                }
+                patientStagesButton.TabText = this.PatientName + $" {dayOfMonth}";
+                patientStagesButton.PatientViewModel = stagesView.stagesViewModel.Patient;
+                patientStagesButton.ButtonType = TabButtonType.PatientScheduleStages;
+                patientStagesButton.Control = stagesView;
+                Options.MainWindow.mainMenu.browserControl.AddNewTab(patientStagesButton);
+            }
+
         }
         public TimeSpan ScheduleEndTime
         {
@@ -145,7 +163,51 @@ namespace ClinicDent2.View
                 ParentGridView.Owner.Owner.TcpClient.UpdateRecordComment(Schedule.Id, value);
             }
         }
-
+        public ScheduleIsSentViaMessagetState StagesSentViaMessagerState
+        {
+            get
+            {
+                return Schedule.StagesSentViaMessagerState;
+            }
+            set
+            {
+                Schedule.StagesSentViaMessagerState = value;
+                OnPropertyChanged();
+            }
+        }
+        public int StagesPaidSum
+        {
+            get
+            {
+                return Schedule.StagesPaidSum;
+            }
+            set
+            {
+                Schedule.StagesPaidSum = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(PaidPriceText));
+            }
+        }
+        public int StagesPriceSum
+        {
+            get
+            {
+                return Schedule.StagesPriceSum;
+            }
+            set
+            {
+                Schedule.StagesPriceSum = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(PaidPriceText));
+            }
+        }
+        public string PaidPriceText
+        {
+            get
+            {
+                return $"{StagesPaidSum}/{StagesPriceSum} грн.";
+            }
+        }
         internal void UpdateRecordState(SchedulePatientState newState)
         {
             Schedule.State = newState;
@@ -170,7 +232,8 @@ namespace ClinicDent2.View
             //get time from datetime (last 5 characters) and convert it to TimeSpan
             ScheduleStartTime = TimeSpan.ParseExact(s.StartDatetime.Substring(s.StartDatetime.Length - 5, 5), @"hh\:mm", CultureInfo.CurrentCulture);
             ScheduleEndTime = TimeSpan.ParseExact(s.EndDatetime.Substring(s.StartDatetime.Length - 5, 5), @"hh\:mm", CultureInfo.CurrentCulture);
-
+            parentToSet.payedSum += s.StagesPaidSum;
+            parentToSet.priceSum += s.StagesPriceSum;
             Grid.SetColumn(this, 1);
         }
 
@@ -184,6 +247,8 @@ namespace ClinicDent2.View
             Schedule.StartDatetime = e.StartDatetime;
             Schedule.EndDatetime = e.EndDatetime;
             //TODO Ensure Comment is updated
+            //OnPropertyChanged("Comment");
+
             OnPropertyChanged("PatientName");
             OnPropertyChanged("State");
 
@@ -214,7 +279,7 @@ namespace ClinicDent2.View
         internal void UpdateRecordComment(string newComment)
         {
             Schedule.Comment = newComment;
-            OnPropertyChanged("Comment");
+            OnPropertyChanged(nameof(Comment));
         }
 
         public void MoveRecordListener(Point pt)
@@ -319,14 +384,7 @@ namespace ClinicDent2.View
             
             MouseDownElement = null;
             ParentGridView.SeparatorSelectedElement = null;
-            if (isMovingMode == false)
-            {
-                GoToStages();
-            }
-            else
-            {
-                isMovingMode = false;
-            }
+            isMovingMode = false;
             ParentGridView.MovementSelectedElement = null;
 
         }
@@ -376,25 +434,24 @@ namespace ClinicDent2.View
         private void buttonWillAppear_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             WillAppearChanged();
-            e.Handled = true;
         }
 
-        private void buttonWillAppear_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        private void UserControl_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            e.Handled = true;
-
+            GoToStages();
         }
 
-        private void textBoxComment_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void UserControl_PreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            e.Handled = true;
-
-        }
-
-        private void textBoxComment_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            e.Handled = true;
-
+            Debug.WriteLine(e.OriginalSource.ToString());
+            if(e.OriginalSource is TextBlock || e.OriginalSource is Panel)
+            {
+                e.Handled = false;
+            }
+            else
+            {
+                e.Handled = true;
+            }
         }
     }
 }

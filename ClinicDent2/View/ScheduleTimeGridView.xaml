@@ -10,11 +10,13 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
-        
-        <Label Content="{Binding Cabinet.CabinetName}" HorizontalAlignment="Center" Grid.Row="0"/>
 
-        <Grid x:Name="grid" Background="SkyBlue" Grid.Row="1" MouseUp="grid_MouseUp" MouseLeave="grid_MouseLeave">
+        <Label Content="{Binding Cabinet.CabinetName}" HorizontalAlignment="Center" Grid.Row="0"/>
+        <TextBox Text="{Binding CabinetComment}" HorizontalAlignment="Stretch" Background="Transparent" BorderThickness="0" Grid.Row="1"/>
+        <Grid x:Name="grid" Background="SkyBlue" Grid.Row="2" MouseUp="grid_MouseUp" MouseLeave="grid_MouseLeave">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
                 <ColumnDefinition Width="500"></ColumnDefinition>
@@ -22,31 +24,31 @@
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="10"></RowDefinition>
-                <RowDefinition Height="40"></RowDefinition>
-                <RowDefinition Height="40"></RowDefinition>
-                <RowDefinition Height="40"></RowDefinition>
-                <RowDefinition Height="40"></RowDefinition>
-                <RowDefinition Height="40"></RowDefinition>
-                <RowDefinition Height="40"></RowDefinition>
-                <RowDefinition Height="40"></RowDefinition>
-                <RowDefinition Height="40"></RowDefinition>
-                <RowDefinition Height="40"></RowDefinition>
-                <RowDefinition Height="40"></RowDefinition>
-                <RowDefinition Height="40"></RowDefinition>
-                <RowDefinition Height="40"></RowDefinition>
-                <RowDefinition Height="40"></RowDefinition>
-                <RowDefinition Height="40"></RowDefinition>
-                <RowDefinition Height="40"></RowDefinition>
-                <RowDefinition Height="40"></RowDefinition>
-                <RowDefinition Height="40"></RowDefinition>
-                <RowDefinition Height="40"></RowDefinition>
-                <RowDefinition Height="40"></RowDefinition>
-                <RowDefinition Height="40"></RowDefinition>
-                <RowDefinition Height="40"></RowDefinition>
-                <RowDefinition Height="40"></RowDefinition>
-                <RowDefinition Height="40"></RowDefinition>
-                <RowDefinition Height="40"></RowDefinition>
-                <RowDefinition Height="40"></RowDefinition>
+                <RowDefinition Height="25"></RowDefinition>
+                <RowDefinition Height="25"></RowDefinition>
+                <RowDefinition Height="25"></RowDefinition>
+                <RowDefinition Height="25"></RowDefinition>
+                <RowDefinition Height="25"></RowDefinition>
+                <RowDefinition Height="25"></RowDefinition>
+                <RowDefinition Height="25"></RowDefinition>
+                <RowDefinition Height="25"></RowDefinition>
+                <RowDefinition Height="25"></RowDefinition>
+                <RowDefinition Height="25"></RowDefinition>
+                <RowDefinition Height="25"></RowDefinition>
+                <RowDefinition Height="25"></RowDefinition>
+                <RowDefinition Height="25"></RowDefinition>
+                <RowDefinition Height="25"></RowDefinition>
+                <RowDefinition Height="25"></RowDefinition>
+                <RowDefinition Height="25"></RowDefinition>
+                <RowDefinition Height="25"></RowDefinition>
+                <RowDefinition Height="25"></RowDefinition>
+                <RowDefinition Height="25"></RowDefinition>
+                <RowDefinition Height="25"></RowDefinition>
+                <RowDefinition Height="25"></RowDefinition>
+                <RowDefinition Height="25"></RowDefinition>
+                <RowDefinition Height="25"></RowDefinition>
+                <RowDefinition Height="25"></RowDefinition>
+                <RowDefinition Height="25"></RowDefinition>
 
             </Grid.RowDefinitions>
             <!--COLUMN 0-->
@@ -75,7 +77,7 @@
             <TextBlock  TextAlignment="Right" VerticalAlignment="Center" Text="19:00" Grid.Column="0" Grid.Row="23"/>
             <TextBlock  TextAlignment="Right" VerticalAlignment="Center" Text="19:30" Grid.Column="0" Grid.Row="24"/>
             <TextBlock  TextAlignment="Right" VerticalAlignment="Center" Text="20:00" Grid.Column="0" Grid.Row="25"/>
-            
+
             <!--COLUMN 1-->
             <local:TimeGridEmpinessView Time="08:00:00" Grid.Column="1" Grid.Row="1" MouseMove="Emptiness_MouseMove" MouseDown="Emptiness_MouseDown" MouseUp="Emptiness_MouseUp"/>
             <local:TimeGridEmpinessView Time="08:30:00" Grid.Column="1" Grid.Row="2" MouseMove="Emptiness_MouseMove" MouseDown="Emptiness_MouseDown" MouseUp="Emptiness_MouseUp"/>
@@ -103,5 +105,6 @@
             <local:TimeGridEmpinessView Time="19:30:00" Grid.Column="1" Grid.Row="24" MouseMove="Emptiness_MouseMove" MouseDown="Emptiness_MouseDown" MouseUp="Emptiness_MouseUp"/>
             <local:TimeGridEmpinessView Time="20:00:00" Grid.Column="1" Grid.Row="25" MouseMove="Emptiness_MouseMove" MouseDown="Emptiness_MouseDown" MouseUp="Emptiness_MouseUp"/>
         </Grid>
+        <TextBlock Text="{Binding DayMoneySummary}" Grid.Row="3"/>
     </Grid>
 </UserControl>

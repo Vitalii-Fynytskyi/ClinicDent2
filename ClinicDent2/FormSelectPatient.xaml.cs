@@ -169,12 +169,6 @@ namespace ClinicDent2
             comboBoxStatus.SelectedItem = selectedStatus;
             comboBoxSorting.SelectedItem = selectedSortDescription;
         }
-        private void ButtonPatient_Click(object sender, RoutedEventArgs e)
-        {
-            RadioButton target = sender as RadioButton;
-            Patient patient = target.DataContext as Patient;
-            selectedPatient = patient;
-        }
 
         private void buttonEditPatient_Click(object sender, RoutedEventArgs e)
         {
@@ -231,13 +225,16 @@ namespace ClinicDent2
             ReceivePatients();
         }
 
-        private void UserControl_Unloaded(object sender, RoutedEventArgs e)
+        private void RadioButton_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            Debug.WriteLine("FormSelectPatient_Unloaded");
+            RadioButton target = sender as RadioButton;
+            Patient patient = target.DataContext as Patient;
+            selectedPatient = patient;
             if (selectedPatient != null)
             {
                 PatientSelected?.Invoke(this, selectedPatient);
             }
+            Window.GetWindow(this).Close();
         }
     }
 }

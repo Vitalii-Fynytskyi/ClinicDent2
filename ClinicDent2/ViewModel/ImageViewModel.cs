@@ -158,7 +158,7 @@ namespace ClinicDent2.ViewModel
             windowContainer.SizeToContent = SizeToContent.WidthAndHeight;
             windowContainer.Show();
         }
-        Model.Image image;
+        public Model.Image image;
         StageViewModel ownerStage;
         PhotoflowViewModel photoflowOwner;
         public ImageViewModel(Image imageToSet, StageViewModel ownerToSet=null, PhotoflowViewModel photoflowViewModelToSet = null)

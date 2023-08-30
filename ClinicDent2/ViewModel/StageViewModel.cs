@@ -10,6 +10,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
 
@@ -48,7 +49,8 @@ namespace ClinicDent2.ViewModel
         public static List<StageAsset> Sealers { get; set; }
         public static List<StageAsset> Technicians { get; set; }
         public RelayCommand DeleteStageCommand { get; set; }
-        public RelayCommand SendStageViaViberCommand { get; set; }
+        public RelayCommand MarkSentViaMessagerCommand { get; set; }
+        public RelayCommandAsync SendStageViaViberCommand { get; set; }
         public RelayCommand AddImageFromClipboardCommand { get; set; }
         public RelayCommand AddImageFromDiskCommand { get; set; }
         public RelayCommand AttachImageCommand { get; set; }
@@ -107,7 +109,7 @@ namespace ClinicDent2.ViewModel
             }
             owner.Stages.Remove(this);
         }
-        private void SendStageViaViber(object arg)
+        private async Task SendStageViaTelegram(object arg)
         {
             string phone = arg as string;
             if (String.IsNullOrWhiteSpace(phone))
@@ -124,12 +126,12 @@ namespace ClinicDent2.ViewModel
                 MessageBox.Show($"Номер '{arg}' не є в правильному форматі");
                 return;
             }
-            MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show("Надіслати етап через Viber?", "Надсилання", System.Windows.MessageBoxButton.YesNo);
+            MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show("Надіслати етап через Telegram?", "Надсилання", System.Windows.MessageBoxButton.YesNo);
             if (messageBoxResult != MessageBoxResult.Yes) { return; }
-            ViberController viberController = new ViberController();
             try
             {
-                viberController.SendToUser(phone, this);
+                await TelegramMessageSender.SendStageAsync(owner.Patient.Name, phone, this);
+                MarkSentViaMessagerCommand?.Execute("1");
             }
             catch(Exception e)
             {
@@ -215,6 +217,18 @@ namespace ClinicDent2.ViewModel
             set
             {
                 stage.StageDatetime = value;
+                OnPropertyChanged();
+            }
+        }
+        public bool IsSentViaViber
+        {
+            get
+            {
+                return stage.IsSentViaViber;
+            }
+            set
+            {
+                stage.IsSentViaViber = value;
                 OnPropertyChanged();
             }
         }
@@ -509,9 +523,9 @@ namespace ClinicDent2.ViewModel
         {
             owner = ownerToSet;
             stage = stageToSet;
-            if(ownerToSet.ScheduleRecordViewModel != null)
+            if(ownerToSet.MarkedDate != null)
             {
-                if(ownerToSet.ScheduleRecordViewModel.Id == stageToSet.ScheduleId)
+                if(ownerToSet.MarkedDate == DateTime.ParseExact(stageToSet.StageDatetime,Options.DateTimePattern,null).Date)
                 {
                     BoundBackground = "PaleGreen";
                 }
@@ -529,11 +543,20 @@ namespace ClinicDent2.ViewModel
             Images = new ObservableCollection<ImageViewModel>(HttpService.GetImagesForStage(stageToSet.Id).Select(i => new ImageViewModel(i, this)));
 
             DeleteStageCommand = new RelayCommand(DeleteStage);
-            SendStageViaViberCommand = new RelayCommand(SendStageViaViber);
+            SendStageViaViberCommand = new RelayCommandAsync(SendStageViaTelegram);
             AddImageFromDiskCommand = new RelayCommand(AddImageFromDisk);
             AttachImageCommand = new RelayCommand(AttachImage);
             AddImageFromClipboardCommand = new RelayCommand(AddImageFromClipboard);
+            MarkSentViaMessagerCommand = new RelayCommand(MarkSentViaMessager);
         }
+
+        private void MarkSentViaMessager(object obj)
+        {
+            int mark = Convert.ToInt32(obj as string);
+            HttpService.StageMarkSentViaMessager(stage.Id, mark);
+            IsSentViaViber = Convert.ToBoolean(mark);
+        }
+
         private StagesViewModel owner;
         public event PropertyChangedEventHandler PropertyChanged;
 

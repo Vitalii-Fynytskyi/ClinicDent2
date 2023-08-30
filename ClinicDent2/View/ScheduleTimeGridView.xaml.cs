@@ -1,7 +1,11 @@
 ﻿using ClinicDent2.Model;
+using ClinicDent2.RequestAnswers;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -11,7 +15,7 @@ namespace ClinicDent2.View
     /// <summary>
     /// Логика взаимодействия для ScheduleTimeGridView.xaml
     /// </summary>
-    public partial class ScheduleTimeGridView : UserControl
+    public partial class ScheduleTimeGridView : UserControl, INotifyPropertyChanged
     {
         public List<ScheduleTimeGridElementView> TimeGridElementViews { get; set; }
         public List<TimeGridEmpinessView> emptySlots { get; set; }
@@ -46,6 +50,100 @@ namespace ClinicDent2.View
         public ScheduleForDayView Owner { get; set; }
 
         public Cabinet Cabinet { get; set; }
+
+        public string CabinetComment
+        {
+            get { return cabinetComment; }
+            set
+            {
+                if(value != cabinetComment)
+                {
+                    cabinetComment = value;
+                    Owner.Owner.TcpClient.UpdateCabinetComment(Owner.SelectedDate.ToString(Options.DateTimePattern), Cabinet.Id, cabinetComment);
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public string cabinetComment;
+        public string DayMoneySummary
+        {
+            get
+            {
+                if(Owner.SelectedDate.DayOfWeek != DayOfWeek.Sunday)
+                {
+                    return $"День: {PayedSum}/{PriceSum} грн.";
+                }
+                else
+                {
+                    int weekPayedSum = PayedSum;
+                    int weekPriceSum = PriceSum;
+                    if (Owner.SelectedDate.Day < 7) //request to server required
+                    {
+                        WeekMoneySummaryRequestAnswer weekMoneySummaryRequestAnswer = null;
+                        try
+                        {
+                            weekMoneySummaryRequestAnswer = HttpService.GetWeekMoneySummary(Cabinet.Id, Owner.SelectedDate);
+                            weekPayedSum = weekMoneySummaryRequestAnswer.PaidSum;
+                            weekPriceSum = weekMoneySummaryRequestAnswer.PriceSum;
+
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show(ex.Message);
+                            return $"День: {PayedSum}/{PriceSum} грн.(Помилка підсумку тижня)";
+                        }
+                    }
+                    else //calculate on client
+                    {
+                        //if day = 7: i=5;i>-1
+                        for(int i = Owner.SelectedDate.Day-2;i != Owner.SelectedDate.Day - 8; i--) //start at saturday
+                        {
+                            weekPayedSum += Owner.Owner.ScheduleForDayViews[i].TimeGrids.First(g => g.Cabinet == Cabinet).PayedSum;
+                            weekPriceSum += Owner.Owner.ScheduleForDayViews[i].TimeGrids.First(g => g.Cabinet == Cabinet).PriceSum;
+                        }
+                    }
+                    return $"День: {PayedSum}/{PriceSum} грн.{Environment.NewLine}Тиждень: {weekPayedSum}/{weekPriceSum} грн.";
+                }
+            }
+        }
+        public int PayedSum
+        {
+            get
+            {
+                return payedSum;
+            }
+            set
+            {
+                if(payedSum!= value)
+                {
+                    payedSum = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(DayMoneySummary));
+
+                }
+            }
+        }
+        public int payedSum;
+        public int PriceSum
+        {
+            get
+            {
+                return priceSum;
+            }
+            set
+            {
+                if (priceSum != value)
+                {
+                    priceSum = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(DayMoneySummary));
+
+                }
+            }
+        }
+        public int priceSum;
+
+
         public CabinetColors CabinetColor { get; set; }
         public ScheduleTimeGridView(Cabinet cabinetToSet, ScheduleForDayView ownerToSet, CabinetColors cabinetColorToSet)
         {
@@ -143,16 +241,21 @@ namespace ClinicDent2.View
         {
             ClearTimeGrid();
 
-            List<Schedule> schedules = HttpService.GetSchedule(date, Cabinet.Id.ToString());
-            foreach(Schedule s in schedules)
+            ScheduleRecordsForDayInCabinet schedules = HttpService.GetSchedule(date, Cabinet.Id.ToString());
+            foreach(Schedule s in schedules.Schedules)
             {
                 TimeGridElementViews.Add(new ScheduleTimeGridElementView(s, this));
             }
+            OnPropertyChanged(nameof(DayMoneySummary));
+            cabinetComment = schedules.CabinetComment;
+            OnPropertyChanged(nameof(CabinetComment));
             PlaceRecords();
         }
 
         private void ClearTimeGrid()
         {
+            cabinetComment=null;
+            OnPropertyChanged(nameof(CabinetComment));
             foreach(ScheduleTimeGridElementView timeGridElementView in TimeGridElementViews)
             {
                 if(timeGridElementView.Parent != null)
@@ -190,6 +293,13 @@ namespace ClinicDent2.View
         {
             SeparatorSelectedElement = null;
             MovementSelectedElement = null;
+        }
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public void OnPropertyChanged([CallerMemberName] string prop = "")
+        {
+            if (PropertyChanged != null)
+                PropertyChanged(this, new PropertyChangedEventArgs(prop));
         }
     }
 }

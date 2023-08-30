@@ -21,7 +21,7 @@ namespace ClinicDent2
             Height = SystemParameters.WorkArea.Height;
             StageViewModel.LoadAssets();
         }
-
+        
         public void createFullSizeImageControl(byte[] imageSourceToDisplay)
         {
             FullSizeImageControl fullSizeImageControl = new FullSizeImageControl(imageSourceToDisplay);
@@ -48,26 +48,36 @@ namespace ClinicDent2
             Options.MainWindow.goToLoginMenu();
         }
 
+        //private void buttonSchedule_Click(object sender, RoutedEventArgs e)
+        //{
+        //    foreach (Window w in App.Current.Windows)
+        //    {
+        //        if (w.Title == "Розклад")
+        //        {
+        //            w.WindowState= WindowState.Normal;
+        //            w.Focus();
+        //            return;
+        //        }
+        //    }
+        //    WindowContainer windowContainer= new WindowContainer();
+        //    windowContainer.Title = "Розклад";
+        //    windowContainer.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+        //    windowContainer.WindowState = WindowState.Maximized;
+        //    ScheduleMenuView scheduleMenuView = new ScheduleMenuView();
+        //    windowContainer.Content = scheduleMenuView;
+        //    windowContainer.Show();
+        //}
         private void buttonSchedule_Click(object sender, RoutedEventArgs e)
         {
-            foreach (Window w in App.Current.Windows)
+
+            if (browserControl.ScreenRequested(ScreenNames.SCHEDULE) == false)
             {
-                if (w.Title == "Розклад")
-                {
-                    w.WindowState= WindowState.Normal;
-                    w.Focus();
-                    return;
-                }
+                BrowserTabButton scheduleTabButton = new BrowserTabButton();
+                scheduleTabButton.TabText = ScreenNames.SCHEDULE;
+                ScheduleMenuView scheduleMenuView = new ScheduleMenuView();
+                scheduleTabButton.Control = scheduleMenuView;
+                browserControl.AddNewTab(scheduleTabButton);
             }
-            WindowContainer windowContainer= new WindowContainer();
-            windowContainer.Title = "Розклад";
-            windowContainer.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-            windowContainer.WindowState = WindowState.Maximized;
-            ScheduleMenuView scheduleMenuView = new ScheduleMenuView();
-            windowContainer.Content = scheduleMenuView;
-            windowContainer.Show();
-            scheduleMenuView.scrollViewerSchedule.ScrollToVerticalOffset(scheduleMenuView.ScheduleForDayViews[scheduleMenuView.SelectedDate.Day - 1].ActualHeight * (scheduleMenuView.SelectedDate.Day - 1));
-            
         }
 
         private void buttonPatients_Click(object sender, RoutedEventArgs e)

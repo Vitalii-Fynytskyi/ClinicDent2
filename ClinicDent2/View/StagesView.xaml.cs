@@ -13,9 +13,9 @@ namespace ClinicDent2.View
     /// <summary>
     /// Логика взаимодействия для StagesView.xaml
     /// </summary>
-    public partial class StagesView : UserControl, ICommitChanges
+    public partial class StagesView : UserControl, IBrowserTabControl
     {
-        StagesViewModel stagesViewModel;
+        public StagesViewModel stagesViewModel;
         static List<StagesViewModel> openedStagesViewModel = new List<StagesViewModel>();
         public StagesView()
         {
@@ -28,9 +28,9 @@ namespace ClinicDent2.View
         {
             stagesViewModel.LoadAllPatientStages(patientToSet);
         }
-        public void LoadAllPatientStagesWithScheduleMarked(Schedule scheduleRecordViewModelToSet)
+        public void LoadAllPatientStagesWithScheduleMarked(DateTime date, int patientId)
         {
-            stagesViewModel.LoadAllPatientStagesWithRelatedMarked(scheduleRecordViewModelToSet);
+            stagesViewModel.LoadAllPatientStagesWithRelatedMarked(date, patientId);
         }
         public void ServerUpdateStages()
         {
@@ -40,8 +40,8 @@ namespace ClinicDent2.View
                 //update stages on another window
                 if (s.Patient.PatientId == stagesViewModel.Patient.PatientId)
                 {
-                    if (s.ScheduleRecordViewModel != null)
-                        s.LoadAllPatientStagesWithRelatedMarked(s.ScheduleRecordViewModel);
+                    if (s.MarkedDate != null)
+                        s.LoadAllPatientStagesWithRelatedMarked(s.MarkedDate.Value, s.Patient.PatientId);
                     else
                     {
                         try
@@ -77,11 +77,7 @@ namespace ClinicDent2.View
                 }
             }
         }
-        public void CommitChanges()
-        {
-            openedStagesViewModel.Remove(this.stagesViewModel);
-            ServerUpdateStages();
-        }
+        
 
         private void TextBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {
@@ -95,6 +91,22 @@ namespace ClinicDent2.View
                     textBox.Height = double.NaN;
                 }
             }
+        }
+        public void CommitChanges()
+        {
+            openedStagesViewModel.Remove(this.stagesViewModel);
+            ServerUpdateStages();
+        }
+        public void TabActivated()
+        {
+        }
+
+        public void TabDeactivated()
+        {
+        }
+
+        public void TabClosed()
+        {
         }
     }
 }

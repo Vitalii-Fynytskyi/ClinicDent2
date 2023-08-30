@@ -8,7 +8,7 @@ namespace ClinicDent2.View
     /// <summary>
     /// Логика взаимодействия для SettingsView.xaml
     /// </summary>
-    public partial class SettingsView : UserControl, ICommitChanges
+    public partial class SettingsView : UserControl, IBrowserTabControl
     {
         public SettingsView()
         {
@@ -20,6 +20,18 @@ namespace ClinicDent2.View
             IniService.WritePrivateString("Settings", "CanDeleteImage", Options.CanDeleteImage.ToString());
             IniService.WritePrivateString("Settings", "PatientsPerPage", Options.PatientsPerPage.ToString());
             IniService.WritePrivateString("Settings", "PhotosPerPage", Options.PhotosPerPage.ToString());
+        }
+
+        public void TabActivated()
+        {
+        }
+
+        public void TabClosed()
+        {
+        }
+
+        public void TabDeactivated()
+        {
         }
 
         private void ButtonEditClinicMaterials_Click(object sender, RoutedEventArgs e)

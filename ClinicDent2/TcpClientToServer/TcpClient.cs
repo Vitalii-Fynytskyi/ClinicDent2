@@ -1,6 +1,7 @@
 ﻿using ClinicDent2.Model;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -11,6 +12,8 @@ namespace ClinicDent2.TcpClientToServer
 {
     public delegate void ScheduleRecordStateUpdatedDelegate(int recordId, SchedulePatientState newState, string dateTime, int cabinetId);
     public delegate void ScheduleRecordDeletedDelegate(int recordId, string dateTime, int cabinetId);
+    public delegate void ScheduleCabinetCommentUpdatedDelegate(string datetime, int cabinetId, string newComment);
+
     public delegate void ScheduleRecordCommentUpdatedDelegate(int recordId, string newComment, string dateTime, int cabinetId);
     public class TcpClient
     {
@@ -19,6 +22,8 @@ namespace ClinicDent2.TcpClientToServer
         public event ScheduleRecordDeletedDelegate ScheduleRecordDeleted;
         public event ScheduleRecordStateUpdatedDelegate ScheduleRecordStateUpdated;
         public event ScheduleRecordCommentUpdatedDelegate ScheduleRecordCommentUpdated;
+        public event ScheduleCabinetCommentUpdatedDelegate SchedlueCabinetCommentUpdated;
+
 
         bool isClientOutOfDate = false;
         string commandDelimeter = new string((char)1, 1);
@@ -32,10 +37,12 @@ namespace ClinicDent2.TcpClientToServer
         public bool Connected = false;
         public bool Authhorized = false;
         Socket socket;
+        public object socketLocker = new object();
         Thread socketDataListenerThread = null;
         public string clientVersion = "0.01";
         string messageToServer;
         Decoder utf8Decoder = Encoding.UTF8.GetDecoder();
+        System.Timers.Timer timerPingServer;
         public TcpClient()
         {
             //read server address from ini file
@@ -43,7 +50,17 @@ namespace ClinicDent2.TcpClientToServer
             Uri uri= new Uri(serverAddress);
             serverIp = uri.Host;
             serverPort = Convert.ToInt32(IniService.GetPrivateString("Settings", "TcpPort"));
+            timerPingServer=new System.Timers.Timer();
+            timerPingServer.Interval = 100 * 1000; //100 sec
+            timerPingServer.AutoReset = true;
+            timerPingServer.Elapsed += TimerPingServer_Elapsed;
         }
+
+        private void TimerPingServer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            SetMessageToServerAndSend("p");
+        }
+
         void SetMessageToServer(params string[] commands)
         {
             messageToServer = String.Join(commandDelimeter, commands) + commandDelimeter + clientVersion + packetDelimeter;
@@ -57,8 +74,11 @@ namespace ClinicDent2.TcpClientToServer
         }
         void SetMessageToServerAndSend(params string[] commands)
         {
-            SetMessageToServer(commands);
-            SendToServer();
+            lock (socketLocker)
+            {
+                SetMessageToServer(commands);
+                SendToServer();
+            }
         }
         public void ConnectToServer()
         {
@@ -67,6 +87,7 @@ namespace ClinicDent2.TcpClientToServer
                 IPAddress ipAddress = IPAddress.Parse(serverIp);
                 IPEndPoint ipEndPoint = new IPEndPoint(ipAddress, serverPort);
                 socket = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
                 socket.Connect(ipEndPoint);
                 Connected = true;
                 socketDataListenerThread = new Thread(socketDataListener);
@@ -105,23 +126,26 @@ namespace ClinicDent2.TcpClientToServer
                     }
                 }
             }
-            catch
+            catch(Exception ex)
             {
+                Debug.Write(ex.Message + ex.ToString()); ;
                 if(Connected == true)
                 {
                     DisconnectFromServer(false);
-
+                    return;
                 }
             }
         }
         public void DisconnectFromServer(bool isPlanned = true)
         {
+            timerPingServer.Stop();
             Authhorized = false;
             Connected = false;
             socket?.Close();
             if (isPlanned == false)
             {
-                MessageBox.Show("Втрачено з'єднання з сервером. Перезапустіть вікно розкладу");
+                //try to reconnect
+                ConnectToServer();
             }
         }
 
@@ -148,6 +172,9 @@ namespace ClinicDent2.TcpClientToServer
                 case "scheduleRecordCommentUpdated":
                     answerScheduleRecordCommentUpdated(splitArray[1], splitArray[2], splitArray[3], splitArray[4]);
                     break;
+                case "scheduleCabinetCommentUpdated":
+                    answerScheduleCabinetCommentUpdated(splitArray[1], splitArray[2], splitArray[3]);
+                    break;
                 case "clientOutOfDate":
                     answerClientOutOfDate();
                     break;
@@ -157,7 +184,13 @@ namespace ClinicDent2.TcpClientToServer
             }
         }
 
+
+
         #region Answers
+        private void answerScheduleCabinetCommentUpdated(string datetime, string cabinetId, string comment)
+        {
+            SchedlueCabinetCommentUpdated?.Invoke(datetime, Int32.Parse(cabinetId), comment);
+        }
         private void answerScheduleRecordCommentUpdated(string updatedRecordId, string newComment, string dateTime, string cabinetId)
         {
             ScheduleRecordCommentUpdated?.Invoke(Int32.Parse(updatedRecordId), newComment, dateTime, Int32.Parse(cabinetId));
@@ -189,6 +222,7 @@ namespace ClinicDent2.TcpClientToServer
         private void answerSuccessLogin()
         {
             Authhorized= true;
+            timerPingServer.Start();
         }
         private void answerWrongLogin()
         {
@@ -235,6 +269,12 @@ namespace ClinicDent2.TcpClientToServer
         public void UpdateRecordComment(int recordId, string newComment)
         {
             SetMessageToServerAndSend("scheduleUpdateRecordComment", recordId.ToString(), newComment);
+
+        }
+
+        internal void UpdateCabinetComment(string dateTime, int cabinetId, string cabinetComment)
+        {
+            SetMessageToServerAndSend("scheduleUpdateCabinetComment", dateTime, cabinetId.ToString(), cabinetComment);
 
         }
         #endregion

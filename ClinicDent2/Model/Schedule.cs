@@ -45,6 +45,14 @@ namespace ClinicDent2.Model
 
         public string CabinetName { get; set; }
         public SchedulePatientState State { get; set; } //0 - unknown, 1 - will appear, 2 - refused
-
+        public ScheduleIsSentViaMessagetState StagesSentViaMessagerState { get; set; } = ScheduleIsSentViaMessagetState.NoStages;
+        public int StagesPaidSum { get; set; }
+        public int StagesPriceSum { get; set; }
+    }
+    public enum ScheduleIsSentViaMessagetState
+    {
+        NoStages = 0,
+        CanSend = 1,
+        AllSent = 2
     }
 }

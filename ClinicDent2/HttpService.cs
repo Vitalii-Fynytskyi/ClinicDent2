@@ -1,4 +1,5 @@
 ﻿using ClinicDent2.Model;
+using ClinicDent2.RequestAnswers;
 using ClinicDent2.Requests;
 using System;
 using System.Collections.Generic;
@@ -30,7 +31,7 @@ namespace ClinicDent2
 
         }
 
-        public static List<Schedule> GetSchedule(DateTime date, string cabinetId)
+        public static ScheduleRecordsForDayInCabinet GetSchedule(DateTime date, string cabinetId)
         {
             httpClient.DefaultRequestHeaders.Accept.Clear();
             httpClient.DefaultRequestHeaders.Accept.Add(bsonHeaderValue);
@@ -43,7 +44,7 @@ namespace ClinicDent2
             {
                 throw new Exception($"List<Schedule> GetSchedule(date={date.ToString()}; cabinetId={cabinetId}). Status code: {responseMessage.StatusCode}");
             }
-            List<Schedule> receivedRecords = responseMessage.Content.ReadAsAsync<List<Schedule>>(bsonFormatting).Result;
+            ScheduleRecordsForDayInCabinet receivedRecords = responseMessage.Content.ReadAsAsync<ScheduleRecordsForDayInCabinet>(bsonFormatting).Result;
             return receivedRecords;
         }
 
@@ -450,5 +451,38 @@ namespace ClinicDent2
                 throw new Exception($"void RenameImage(imageId={imageId}, newName={newName}). Status code: {result.StatusCode}");
             }
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="stageId"></param>
+        /// <param name="mark">1 means true, 0 means false</param>
+        /// <exception cref="Exception"></exception>
+        public static void StageMarkSentViaMessager(int stageId, int mark)
+        {
+            httpClient.DefaultRequestHeaders.Accept.Clear();
+            httpClient.DefaultRequestHeaders.Accept.Add(bsonHeaderValue);
+            HttpResponseMessage result = httpClient.GetAsync($"Stages/sentViaMessager/{stageId}/{mark}").Result;
+            if (result.IsSuccessStatusCode == false)
+            {
+                throw new Exception($"void StageMarkSentViaMessager(int stageId={stageId}, int mark={mark}). Status code: {result.StatusCode}");
+            }
+        }
+        public static WeekMoneySummaryRequestAnswer GetWeekMoneySummary(int cabinetId, DateTime sunday)
+        {
+            httpClient.DefaultRequestHeaders.Accept.Clear();
+            httpClient.DefaultRequestHeaders.Accept.Add(bsonHeaderValue);
+            WeekMoneySummaryRequest r = new WeekMoneySummaryRequest()
+            {
+                CabinetId = cabinetId,
+                AnySunday = sunday
+            };
+            HttpResponseMessage result = httpClient.PutAsync($"Schedule/weekMoneySummary", r, BsonFormatter).Result;
+            if (result.IsSuccessStatusCode == false)
+            {
+                throw new Exception($"WeekMoneySummaryRequestAnswer GetWeekMoneySummary(cabinetId = {cabinetId}, sunday={sunday}). Status code: {result.StatusCode}");
+            }
+            return result.Content.ReadAsAsync<WeekMoneySummaryRequestAnswer>(bsonFormatting).Result;
+        }
+
     }
 }

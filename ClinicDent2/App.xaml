@@ -117,5 +117,26 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <ControlTemplate x:Key="CustomCalendarDayButtonTemplate" TargetType="CalendarDayButton">
+            <Border x:Name="ButtonBorder" Background="{TemplateBinding Background}" Padding="5">
+                <TextBlock Text="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter TargetName="ButtonBorder" Property="Background" Value="#FFDDDDDD" />
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter TargetName="ButtonBorder" Property="Background" Value="#FFCCCCCC" />
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Foreground" Value="White" />
+                </Trigger>
+                <Trigger Property="IsInactive" Value="True">
+                    <Setter Property="Background" Value="LightGray" />
+                    <!-- You can set this to your preferred background -->
+                    <Setter Property="Foreground" Value="Gray" />
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
     </Application.Resources>
 </Application>

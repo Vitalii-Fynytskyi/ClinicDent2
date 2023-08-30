@@ -236,6 +236,16 @@ namespace ClinicDent2.View
             if (PropertyChanged != null)
                 PropertyChanged(this, new PropertyChangedEventArgs(prop));
         }
+
+        internal void UpdateCabinetComment(string newComment,int cabinetId)
+        {
+            ScheduleTimeGridView gridView = TimeGrids.FirstOrDefault(t => t.Cabinet.Id == cabinetId);
+            if(gridView != null)
+            {
+                gridView.cabinetComment=newComment;
+                gridView.OnPropertyChanged("CabinetComment");
+            }
+        }
     }
     public class CabinetColors
     {

@@ -245,7 +245,24 @@
                                     <TextBox Background="Transparent" BorderThickness="0" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Text="{Binding CommentText}" IsEnabled="{Binding IsOwner}"/>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                                         <Button Command="{Binding SendStageViaViberCommand}" CommandParameter="{Binding ElementName=textBoxPhone, Path=Text}">
-                                            <Image Source="pack://application:,,,/assets/images/viber icon.png"></Image>
+                                            <Button.ContextMenu>
+                                                <ContextMenu>
+                                                    <MenuItem Header="Вказати що відправлено" Command="{Binding MarkSentViaMessagerCommand}" CommandParameter="1"/>
+                                                    <MenuItem Header="Вказати що не відправлено" Command="{Binding MarkSentViaMessagerCommand}" CommandParameter="0"/>
+                                                </ContextMenu>
+                                            </Button.ContextMenu>
+                                            <Image>
+                                                <Image.Style>
+                                                    <Style TargetType="Image">
+                                                        <Setter Property="Source" Value="pack://application:,,,/assets/images/TelegramLogo.png" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsSentViaViber}" Value="True">
+                                                                <Setter Property="Source" Value="pack://application:,,,/assets/images/TelegramLogoSent.png" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Image.Style>
+                                            </Image>
                                         </Button>
                                         <Button Content="З диску" Command="{Binding AddImageFromDiskCommand}" Margin="5,0,0,0"/>
                                         <Button Content="Вибрати існуюче" Command="{Binding AttachImageCommand}"  Margin="5,0,0,0"/>
