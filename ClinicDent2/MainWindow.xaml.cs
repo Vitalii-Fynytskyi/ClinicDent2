@@ -48,17 +48,19 @@ namespace ClinicDent2
 
         public void CloseApp()
         {
-            foreach(Window w in App.Current.Windows) //iterate all windows in order to find StagesView, stages need to be updated before quiting application
+            if(mainMenu.browserControl.currentTabOpened.Content is IBrowserTabControl openedBrowserTabControl)
             {
-                if(w.Content is IBrowserTabControl i)
-                {
-                    i.CommitChanges();
-                    break;
-                }
+                openedBrowserTabControl.TabDeactivated();
             }
-            if(mainMenu.browserControl.currentTabOpened.Content is IBrowserTabControl commitChanges)
+            foreach (UIElement element in mainMenu.browserControl.panelTabs.Children)
             {
-                commitChanges.CommitChanges();
+                if(element is BrowserTabButton tabButton) //ensure element is tab button
+                {
+                    if (tabButton.Control is IBrowserTabControl browserTabControl) //ensure interface is supported
+                    {
+                        browserTabControl.TabClosed();
+                    }
+                }
             }
             App.Current.Shutdown();
         }

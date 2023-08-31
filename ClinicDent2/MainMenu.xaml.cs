@@ -47,26 +47,6 @@ namespace ClinicDent2
             File.Delete(Environment.CurrentDirectory + "\\data\\cookies.dat");
             Options.MainWindow.goToLoginMenu();
         }
-
-        //private void buttonSchedule_Click(object sender, RoutedEventArgs e)
-        //{
-        //    foreach (Window w in App.Current.Windows)
-        //    {
-        //        if (w.Title == "Розклад")
-        //        {
-        //            w.WindowState= WindowState.Normal;
-        //            w.Focus();
-        //            return;
-        //        }
-        //    }
-        //    WindowContainer windowContainer= new WindowContainer();
-        //    windowContainer.Title = "Розклад";
-        //    windowContainer.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-        //    windowContainer.WindowState = WindowState.Maximized;
-        //    ScheduleMenuView scheduleMenuView = new ScheduleMenuView();
-        //    windowContainer.Content = scheduleMenuView;
-        //    windowContainer.Show();
-        //}
         private void buttonSchedule_Click(object sender, RoutedEventArgs e)
         {
 
@@ -141,15 +121,6 @@ namespace ClinicDent2
                 settings.Control = settingsView;
                 browserControl.AddNewTab(settings);
             }
-        }
-
-        private void buttonStatistics_Click(object sender, RoutedEventArgs e)
-        {
-            BrowserTabButton settings = new BrowserTabButton();
-            settings.TabText = "Статистика";
-            StatisticsView statisticsView = new StatisticsView();
-            settings.Control = statisticsView;
-            browserControl.AddNewTab(settings);
         }
     }
 }

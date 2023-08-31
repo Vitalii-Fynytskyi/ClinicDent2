@@ -3,7 +3,6 @@ using ClinicDent2.RequestAnswers;
 using ClinicDent2.Requests;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Formatting;
@@ -19,7 +18,6 @@ namespace ClinicDent2
         static MediaTypeFormatter BsonFormatter;
         static MediaTypeWithQualityHeaderValue bsonHeaderValue;
         static MediaTypeWithQualityHeaderValue octetStreamHeaderValue;
-
         static HttpService()
         {
             httpClient = new HttpClient();
@@ -30,7 +28,6 @@ namespace ClinicDent2
             octetStreamHeaderValue = new MediaTypeWithQualityHeaderValue("application/octet-stream");
 
         }
-
         public static ScheduleRecordsForDayInCabinet GetSchedule(DateTime date, string cabinetId)
         {
             httpClient.DefaultRequestHeaders.Accept.Clear();
@@ -47,7 +44,6 @@ namespace ClinicDent2
             ScheduleRecordsForDayInCabinet receivedRecords = responseMessage.Content.ReadAsAsync<ScheduleRecordsForDayInCabinet>(bsonFormatting).Result;
             return receivedRecords;
         }
-
         internal static void PutPatientCurePlan(int patientIdToSet, string curePlanToSet)
         {
             httpClient.DefaultRequestHeaders.Accept.Clear();
@@ -63,7 +59,6 @@ namespace ClinicDent2
                 throw new Exception($"void PutPatientCurePlan(patientIdToSet={patientIdToSet},curePlanToSet={curePlanToSet}). Status code: {result.StatusCode}");
             }
         }
-
         internal static List<Stage> GetPatientStages(int patientId)
         {
             httpClient.DefaultRequestHeaders.Accept.Clear();
@@ -76,7 +71,6 @@ namespace ClinicDent2
             List<Stage> stages = result.Content.ReadAsAsync<List<StageDTO>>(bsonFormatting).Result.Select(d => new Stage(d)).ToList();
             return stages;
         }
-
         public static Patient GetPatient(int patientId)
         {
             httpClient.DefaultRequestHeaders.Accept.Clear();
@@ -174,7 +168,6 @@ namespace ClinicDent2
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", doctor.EncodedJwt);
             return doctor;
         }
-
         internal static void DeleteScheduleRecord(int id)
         {
             httpClient.DefaultRequestHeaders.Accept.Clear();
@@ -185,7 +178,6 @@ namespace ClinicDent2
                 throw new Exception($"void DeleteScheduleRecord(id = {id}). Status code: {result.StatusCode}");
             }
         }
-
         internal static void DeleteStage(int id)
         {
             httpClient.DefaultRequestHeaders.Accept.Clear();
@@ -196,7 +188,6 @@ namespace ClinicDent2
                 throw new Exception($"void DeleteStage(id = {id}). Status code: {result.StatusCode}");
             }
         }
-
         internal static void RemoveImageFromStage(int imageId, int stageId)
         {
             httpClient.DefaultRequestHeaders.Accept.Clear();
@@ -207,7 +198,6 @@ namespace ClinicDent2
                 throw new Exception($"void RemoveImageFromStage(imageId = {imageId},stageId = {stageId}). Status code: {result.StatusCode}");
             }
         }
-
         internal static void DeleteImage(int id)
         {
             httpClient.DefaultRequestHeaders.Accept.Clear();
@@ -230,7 +220,6 @@ namespace ClinicDent2
             }
 
         }
-
         internal static void PutScheduleRecord(Schedule schedule)
         {
             httpClient.DefaultRequestHeaders.Accept.Clear();
@@ -241,7 +230,6 @@ namespace ClinicDent2
                 throw new Exception($"void PutScheduleRecord(Schedule schedule). Status code: {result.StatusCode}");
             }
         }
-
         internal static void PutStage(Stage s)
         {
             httpClient.DefaultRequestHeaders.Accept.Clear();
@@ -253,7 +241,6 @@ namespace ClinicDent2
                 throw new Exception($"void PutStage(Stage s). Status code: {result.StatusCode}");
             }
         }
-
         internal static Schedule PostScheduleRecord(Schedule newRecord)
         {
             httpClient.DefaultRequestHeaders.Accept.Clear();
@@ -266,7 +253,6 @@ namespace ClinicDent2
             Schedule record = result.Content.ReadAsAsync<Schedule>(bsonFormatting).Result;
             return record;
         }
-
         internal static Stage PostStage(Stage stage)
         {
             httpClient.DefaultRequestHeaders.Accept.Clear();
@@ -280,7 +266,6 @@ namespace ClinicDent2
             StageDTO stageFromServer = result.Content.ReadAsAsync<StageDTO>(bsonFormatting).Result;
             return new Stage(stageFromServer);
         }
-
         internal static Image PostImage(Image image)
         {
             httpClient.DefaultRequestHeaders.Accept.Clear();
@@ -315,7 +300,6 @@ namespace ClinicDent2
                 throw new Exception($"Patient PutPatient(Patient patient). Status code: {result.StatusCode}");
             }
         }
-
         internal static void AddImageToStage(int imageId, int stageId)
         {
             httpClient.DefaultRequestHeaders.Accept.Clear();
@@ -326,7 +310,6 @@ namespace ClinicDent2
                 throw new Exception($"void AddImageToStage(imageId = {imageId},stageId = {stageId}). Status code: {result.StatusCode}");
             }
         }
-
         internal static List<StageAsset> GetStageAssets()
         {
             httpClient.DefaultRequestHeaders.Accept.Clear();
@@ -356,7 +339,6 @@ namespace ClinicDent2
             int primaryKey = Convert.ToInt32(result.Content.ReadAsStringAsync().Result);
             stageAsset.Id = primaryKey;
         }
-
         internal static List<Stage> GetRelatedStagesToSchedule(int scheduleId)
         {
             httpClient.DefaultRequestHeaders.Accept.Clear();
@@ -370,7 +352,6 @@ namespace ClinicDent2
             receivedStages.Reverse();
             return receivedStages;
         }
-
         internal static byte[] GetImageOriginalBytes(int imageId)
         {
             httpClient.DefaultRequestHeaders.Accept.Clear();
@@ -382,7 +363,6 @@ namespace ClinicDent2
             }
             return result.Content.ReadAsByteArrayAsync().Result;
         }
-
         internal static List<Cabinet> GetCabinets()
         {
             httpClient.DefaultRequestHeaders.Accept.Clear();
@@ -395,7 +375,6 @@ namespace ClinicDent2
             List<Cabinet> receivedCabinets = result.Content.ReadAsAsync<List<Cabinet>>(bsonFormatting).Result.ToList();
             return receivedCabinets;
         }
-
         internal static Image[] GetImagesForStage(int stageId)
         {
             httpClient.DefaultRequestHeaders.Accept.Clear();
@@ -407,7 +386,6 @@ namespace ClinicDent2
             }
             return result.Content.ReadAsAsync<Image[]>(bsonFormatting).Result;
         }
-
         internal static Doctor[] GetDoctors()
         {
             httpClient.DefaultRequestHeaders.Accept.Clear();

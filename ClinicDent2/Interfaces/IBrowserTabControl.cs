@@ -5,7 +5,6 @@
         public void TabActivated();
         public void TabDeactivated();
         public void TabClosed();
-
-        public void CommitChanges();
+        public void Notify(int notificationCode, object param);
     }
 }

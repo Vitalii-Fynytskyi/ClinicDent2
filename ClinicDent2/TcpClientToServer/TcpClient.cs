@@ -251,6 +251,7 @@ namespace ClinicDent2.TcpClientToServer
         public void DeleteRecord(int recordId)
         {
             SetMessageToServerAndSend("scheduleDeleteRecord", recordId.ToString());
+            Options.MainWindow.mainMenu.browserControl.NotifyOtherTabs(NotificationCodes.ScheduleRecordDeleted, recordId);
         }
         public void UpdateRecord(Schedule s)
         {

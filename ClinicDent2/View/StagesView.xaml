@@ -9,7 +9,7 @@
              xmlns:main="clr-namespace:ClinicDent2"
              xmlns:local="clr-namespace:ClinicDent2.View"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800" Unloaded="UserControl_Unloaded">
+             d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition MaxHeight="150" Height="Auto"/>

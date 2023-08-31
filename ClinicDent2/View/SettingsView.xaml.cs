@@ -15,11 +15,8 @@ namespace ClinicDent2.View
             InitializeComponent();
         }
 
-        public void CommitChanges()
+        public void Notify(int notificationCode, object param)
         {
-            IniService.WritePrivateString("Settings", "CanDeleteImage", Options.CanDeleteImage.ToString());
-            IniService.WritePrivateString("Settings", "PatientsPerPage", Options.PatientsPerPage.ToString());
-            IniService.WritePrivateString("Settings", "PhotosPerPage", Options.PhotosPerPage.ToString());
         }
 
         public void TabActivated()
@@ -28,10 +25,14 @@ namespace ClinicDent2.View
 
         public void TabClosed()
         {
+            
         }
 
         public void TabDeactivated()
         {
+            IniService.WritePrivateString("Settings", "CanDeleteImage", Options.CanDeleteImage.ToString());
+            IniService.WritePrivateString("Settings", "PatientsPerPage", Options.PatientsPerPage.ToString());
+            IniService.WritePrivateString("Settings", "PhotosPerPage", Options.PhotosPerPage.ToString());
         }
 
         private void ButtonEditClinicMaterials_Click(object sender, RoutedEventArgs e)
@@ -41,11 +42,6 @@ namespace ClinicDent2.View
             createNewStageAssetWindow.Title = "Створення параметру робіт";
             createNewStageAssetWindow.Content = createNewStageAssetView;
             createNewStageAssetWindow.ShowDialog();
-        }
-
-        private void UserControl_Unloaded(object sender, RoutedEventArgs e)
-        {
-            CommitChanges();
         }
     }
 }

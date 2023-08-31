@@ -10,19 +10,14 @@ using System.Windows.Input;
 
 namespace ClinicDent2.View
 {
-    /// <summary>
-    /// Логика взаимодействия для StagesView.xaml
-    /// </summary>
     public partial class StagesView : UserControl, IBrowserTabControl
     {
         public StagesViewModel stagesViewModel;
-        static List<StagesViewModel> openedStagesViewModel = new List<StagesViewModel>();
         public StagesView()
         {
             stagesViewModel = new StagesViewModel();
             InitializeComponent();
             DataContext = stagesViewModel;
-            openedStagesViewModel.Add(stagesViewModel);
         }
         public void LoadAllPatientStages(PatientViewModel patientToSet)
         {
@@ -31,35 +26,6 @@ namespace ClinicDent2.View
         public void LoadAllPatientStagesWithScheduleMarked(DateTime date, int patientId)
         {
             stagesViewModel.LoadAllPatientStagesWithRelatedMarked(date, patientId);
-        }
-        public void ServerUpdateStages()
-        {
-            stagesViewModel.ServerUpdateStages();
-            foreach (StagesViewModel s in openedStagesViewModel)
-            {
-                //update stages on another window
-                if (s.Patient.PatientId == stagesViewModel.Patient.PatientId)
-                {
-                    if (s.MarkedDate != null)
-                        s.LoadAllPatientStagesWithRelatedMarked(s.MarkedDate.Value, s.Patient.PatientId);
-                    else
-                    {
-                        try
-                        {
-                            s.LoadAllPatientStages(s.Patient);
-                        }
-                        catch (Exception e)
-                        {
-                            MessageBox.Show($"Не вдалось завантажити етапи робіт пацієнта: {e.Message}");
-                            return;
-                        }
-                    }
-                }
-            }
-        }
-        private void UserControl_Unloaded(object sender, RoutedEventArgs e)
-        {
-            CommitChanges();
         }
         private void Thumb_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
         {
@@ -92,21 +58,45 @@ namespace ClinicDent2.View
                 }
             }
         }
-        public void CommitChanges()
-        {
-            openedStagesViewModel.Remove(this.stagesViewModel);
-            ServerUpdateStages();
-        }
         public void TabActivated()
         {
         }
 
         public void TabDeactivated()
         {
+            stagesViewModel.ServerUpdateStages();
+            Options.MainWindow.mainMenu.browserControl.NotifyOtherTabs(NotificationCodes.PatientStagesUpdated, stagesViewModel.Patient.PatientId);
         }
 
         public void TabClosed()
         {
+        }
+
+        public void Notify(int notificationCode, object param)
+        {
+            switch (notificationCode)
+            {
+                case NotificationCodes.PatientStagesUpdated:
+                    int patientId = (int)param;
+                    if (stagesViewModel.Patient.PatientId == patientId)
+                    {
+                        if (stagesViewModel.MarkedDate != null)
+                            stagesViewModel.LoadAllPatientStagesWithRelatedMarked(stagesViewModel.MarkedDate.Value, stagesViewModel.Patient.PatientId);
+                        else
+                        {
+                            try
+                            {
+                                stagesViewModel.LoadAllPatientStages(stagesViewModel.Patient);
+                            }
+                            catch (Exception e)
+                            {
+                                MessageBox.Show($"Не вдалось завантажити етапи робіт пацієнта: {e.Message}");
+                                return;
+                            }
+                        }
+                    }
+                    break;
+            }
         }
     }
 }

@@ -101,6 +101,7 @@ namespace ClinicDent2.View
                         dayView.DeleteRecord(recordId, cabinetId);
                     }
                 }
+                Options.MainWindow.mainMenu.browserControl.NotifyOtherTabs(NotificationCodes.ScheduleRecordDeleted, recordId);
             }));
 
         }
@@ -227,10 +228,6 @@ namespace ClinicDent2.View
             desiredVerticalScrollOffset=scrollViewerSchedule.VerticalOffset;
         }
 
-        public void CommitChanges()
-        {
-        }
-
         public void TabClosed()
         {
             TcpClient.DisconnectFromServer();
@@ -258,6 +255,10 @@ namespace ClinicDent2.View
         {
             isDragging = false;
             datePicker.ReleaseMouseCapture();
+        }
+
+        public void Notify(int notificationCode, object param)
+        {
         }
     }
 }

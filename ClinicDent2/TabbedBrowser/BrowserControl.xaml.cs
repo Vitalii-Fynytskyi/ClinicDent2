@@ -164,5 +164,25 @@ namespace ClinicDent2.TabbedBrowser
             }
             return null;
         }
+        public void NotifyOtherTabs(int notificationCode, object param)
+        {
+            foreach(UIElement element in panelTabs.Children)
+            {
+                if(element != SelectedTab && element is BrowserTabButton tabButton && tabButton.Control is IBrowserTabControl browserTabButton)
+                {
+                    browserTabButton.Notify(notificationCode, param);
+                }
+            }
+        }
+        public void NotifyAllTabs(int notificationCode, object param)
+        {
+            foreach (UIElement element in panelTabs.Children)
+            {
+                if (element is BrowserTabButton tabButton && tabButton.Control is IBrowserTabControl browserTabButton)
+                {
+                    browserTabButton.Notify(notificationCode, param);
+                }
+            }
+        }
     }
 }
