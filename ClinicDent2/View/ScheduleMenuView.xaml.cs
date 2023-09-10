@@ -16,7 +16,7 @@ namespace ClinicDent2.View
 {
     public partial class ScheduleMenuView : UserControl, INotifyPropertyChanged, IBrowserTabControl
     {
-        public static double? desiredVerticalScrollOffset = null;
+        public static double? DesiredVerticalScrollOffset = null;
         public TcpClient TcpClient;
         public List<ScheduleForDayView> ScheduleForDayViews { get; set; }
         public ScheduleMenuView()
@@ -118,6 +118,7 @@ namespace ClinicDent2.View
                         dayView.UpdateRecord(e);
                     }
                 }
+                Options.MainWindow.mainMenu.browserControl.NotifyOtherTabs(NotificationCodes.ScheduleRecordUpdated, e);
             }));
         }
 
@@ -134,6 +135,8 @@ namespace ClinicDent2.View
                         dayView.AddRecord(e);
                     }
                 }
+                e.CabinetName = ScheduleForDayView.Cabinets.FirstOrDefault(c => c.Id == e.CabinetId).CabinetName;
+                Options.MainWindow.mainMenu.browserControl.NotifyOtherTabs(NotificationCodes.ScheduleRecordAdded, new Schedule(e));
             }));
         }
 
@@ -200,32 +203,26 @@ namespace ClinicDent2.View
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
-            if(desiredVerticalScrollOffset == null)
+            if(DesiredVerticalScrollOffset == null)
             {
                 int dayOfMonth = selectedDate.Day;
                 scrollViewerSchedule.ScrollToVerticalOffset(ScheduleForDayViews[dayOfMonth - 1].ActualHeight * (dayOfMonth - 1));
             }
             else
             {
-                scrollViewerSchedule.ScrollToVerticalOffset(desiredVerticalScrollOffset.Value);
+                scrollViewerSchedule.ScrollToVerticalOffset(DesiredVerticalScrollOffset.Value);
             }
             datePicker.DisplayDate = datePicker.SelectedDate.Value;
         }
 
         public void TabActivated()
         {
-            Grid.SetColumn(Options.MainWindow.mainMenu.browserControl, 0);
-            Grid.SetColumnSpan(Options.MainWindow.mainMenu.browserControl, 2);
-            Options.MainWindow.mainMenu.stackPanelSideBar.Visibility= Visibility.Collapsed;
 
         }
 
         public void TabDeactivated()
         {
-            Grid.SetColumn(Options.MainWindow.mainMenu.browserControl, 1);
-            Grid.SetColumnSpan(Options.MainWindow.mainMenu.browserControl, 1);
-            Options.MainWindow.mainMenu.stackPanelSideBar.Visibility = Visibility.Visible;
-            desiredVerticalScrollOffset=scrollViewerSchedule.VerticalOffset;
+            DesiredVerticalScrollOffset=scrollViewerSchedule.VerticalOffset;
         }
 
         public void TabClosed()
@@ -259,6 +256,95 @@ namespace ClinicDent2.View
 
         public void Notify(int notificationCode, object param)
         {
+            switch(notificationCode)
+            {
+                case NotificationCodes.ScheduleStagesPaymentUpdated:
+                    string updatedStagesContent = (string)param;
+                    Notification_ScheduleStagesPaymentUpdated(updatedStagesContent);
+                    break;
+            }
+        }
+        private void Notification_ScheduleStagesPaymentUpdated(string updatedStagesContent)
+        {
+            string[] splitted = updatedStagesContent.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i <= splitted.Length - 5; i += 5) //if length is 5 then start from 0 and next time begin with 5
+            {
+                int patientId = Convert.ToInt32(splitted[i]);
+                DateTime stageDatetime = DateTime.ParseExact(splitted[i + 1], Options.DateTimePattern, null);
+                int priceDifference = Convert.ToInt32(splitted[i + 2]);
+                int payedDifference = Convert.ToInt32(splitted[i + 3]);
+                int doctorId = Convert.ToInt32(splitted[i + 4]);
+
+                if(SelectedDate.Year == stageDatetime.Year && SelectedDate.Month == stageDatetime.Month)
+                {
+                    //find requred day
+                    int scheduleForDayIndex = -1;
+                    for(int c =0;c< ScheduleForDayViews.Count; c++)
+                    {
+                        if (ScheduleForDayViews[c].SelectedDate.Day == stageDatetime.Day)
+                        {
+                            scheduleForDayIndex = c;
+                            break;
+                        }
+                    }
+                    if(scheduleForDayIndex == -1) { return; }
+                    //try to find to which cabinet this patient belongs
+                    for(int j=0;j< ScheduleForDayViews[scheduleForDayIndex].TimeGrids.Count; j++)
+                    {
+                        for(int k =0; k< ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews.Count; k++)
+                        {
+                            if (ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].Schedule.PatientId == patientId)
+                            {
+                                ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].Schedule.StagesPaidSum += payedDifference;
+                                ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].Schedule.StagesPriceSum += priceDifference;
+                                ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].OnPropertyChanged("StagesPaidSum");
+                                ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].OnPropertyChanged("StagesPriceSum");
+                                ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].OnPropertyChanged("PaidPriceText");
+                                ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].payedSum += payedDifference;
+                                ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].priceSum += priceDifference;
+                                ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].OnPropertyChanged("PayedSum");
+                                ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].OnPropertyChanged("PriceSum");
+                                ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].OnPropertyChanged("DayMoneySummary");
+                                int daysInWeek = 7;
+                                int daysTillNextSunday = daysInWeek - (int)stageDatetime.DayOfWeek;
+                                if (daysTillNextSunday != 7)
+                                {
+                                    DateTime nextSunday = stageDatetime + TimeSpan.FromDays(daysTillNextSunday);
+                                    if(nextSunday.Month == stageDatetime.Month)
+                                    {
+                                        //ScheduleForDayViews[scheduleForDayIndex + daysTillNextSunday].TimeGrids[j].AddToWeekSummary(priceDifference, payedDifference);
+                                        ScheduleForDayViews[scheduleForDayIndex + daysTillNextSunday].TimeGrids[j].OnPropertyChanged("DayMoneySummary");
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                else if(IsNextSundayInThisMonth(stageDatetime) == true)
+                {
+                    DateTime dateTime = stageDatetime + TimeSpan.FromDays(7);
+                    if (dateTime.Year == SelectedDate.Year && dateTime.Month == SelectedDate.Month)
+                    {
+                        //find first sunday in this month
+                        ScheduleForDayView scheduleForDayView = ScheduleForDayViews.FirstOrDefault(v => v.SelectedDate.DayOfWeek == DayOfWeek.Sunday);
+                        for (int j = 0; j < scheduleForDayView.TimeGrids.Count; j++)
+                        {
+                            scheduleForDayView.TimeGrids[j].OnPropertyChanged("DayMoneySummary");
+                        }
+                    }
+                }
+            }
+        }
+        public bool IsNextSundayInThisMonth(DateTime stageDatetime)
+        {
+            // Calculate how many days to add to reach next Sunday
+            int daysToAdd = ((int)DayOfWeek.Sunday - (int)stageDatetime.DayOfWeek + 7) % 7;
+            if (daysToAdd == 0) daysToAdd = 7; // If today is Sunday, then next Sunday would be 7 days later.
+
+            DateTime nextSunday = stageDatetime.AddDays(daysToAdd);
+
+            // Check if the month of the next Sunday is different from the original date
+            return nextSunday.Month != stageDatetime.Month;
         }
     }
 }

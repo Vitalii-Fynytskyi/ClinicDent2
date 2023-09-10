@@ -254,7 +254,10 @@ namespace ClinicDent2.View
 
         private void ClearTimeGrid()
         {
-            cabinetComment=null;
+            priceSum = 0;
+            payedSum = 0;
+
+            cabinetComment = null;
             OnPropertyChanged(nameof(CabinetComment));
             foreach(ScheduleTimeGridElementView timeGridElementView in TimeGridElementViews)
             {
@@ -300,6 +303,14 @@ namespace ClinicDent2.View
         {
             if (PropertyChanged != null)
                 PropertyChanged(this, new PropertyChangedEventArgs(prop));
+        }
+
+        internal void AddToWeekSummary(int priceDifference, int payedDifference)
+        {
+            //priceSum += priceDifference;
+            //payedSum += payedDifference;
+            //OnPropertyChanged("DayMoneySummary");
+
         }
     }
 }

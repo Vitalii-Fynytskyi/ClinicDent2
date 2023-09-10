@@ -241,6 +241,31 @@ namespace ClinicDent2
                 throw new Exception($"void PutStage(Stage s). Status code: {result.StatusCode}");
             }
         }
+        internal static void PutStages(List<Stage> s)
+        {
+            httpClient.DefaultRequestHeaders.Accept.Clear();
+            httpClient.DefaultRequestHeaders.Accept.Add(bsonHeaderValue);
+            List<StageDTO> stageDTO = s.Select(l => new StageDTO(l)).ToList();
+            HttpResponseMessage result = httpClient.PutAsync($"Stages/putMany", stageDTO, BsonFormatter).Result;
+            if (result.IsSuccessStatusCode == false)
+            {
+                throw new Exception($"void PutStages(List<Stage> s). Status code: {result.StatusCode}");
+            }
+        }
+        internal static void PutStages(List<StageDTO> s)
+        {
+            httpClient.DefaultRequestHeaders.Accept.Clear();
+            httpClient.DefaultRequestHeaders.Accept.Add(bsonHeaderValue);
+            PutStagesRequest putStagesRequest = new PutStagesRequest
+            {
+                stageDTO = s
+            };
+            HttpResponseMessage result = httpClient.PutAsync($"Stages/putMany", putStagesRequest, BsonFormatter).Result;
+            if (result.IsSuccessStatusCode == false)
+            {
+                throw new Exception($"void PutStages(List<StageDTO> s). Status code: {result.StatusCode}");
+            }
+        }
         internal static Schedule PostScheduleRecord(Schedule newRecord)
         {
             httpClient.DefaultRequestHeaders.Accept.Clear();
@@ -397,16 +422,16 @@ namespace ClinicDent2
             }
             return result.Content.ReadAsAsync<Doctor[]>(bsonFormatting).Result;
         }
-        public static List<Stage> GetStages(int patientId)
+        public static List<Schedule> GetPatientFutureAppointments(int patientId)
         {
             httpClient.DefaultRequestHeaders.Accept.Clear();
             httpClient.DefaultRequestHeaders.Accept.Add(bsonHeaderValue);
-            HttpResponseMessage result = httpClient.GetAsync($"Stages/{patientId}").Result;
+            HttpResponseMessage result = httpClient.GetAsync($"Schedule/getPatientFutureAppointments/{patientId}").Result;
             if (result.IsSuccessStatusCode == false)
             {
-                throw new Exception($"List<Stage> GetStages(patientId={patientId}). Status code: {result.StatusCode}");
+                throw new Exception($" List<Schedule> GetPatientFutureAppointments(int patientId = {patientId}). Status code: {result.StatusCode}");
             }
-            return result.Content.ReadAsAsync<List<Stage>>(bsonFormatting).Result;
+            return result.Content.ReadAsAsync<List<Schedule>>(bsonFormatting).Result;
         }
         public static ImagesToClient GetImages(int selectedPage, int photosPerPage,int doctorId)
         {

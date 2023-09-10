@@ -9,7 +9,7 @@
              Height="1080" Width="1920" Background="#eeeeee">
     <Grid x:Name="grid">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="0.15*"></ColumnDefinition>
+            <ColumnDefinition Width="Auto"></ColumnDefinition>
             <ColumnDefinition Width="*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <StackPanel x:Name="stackPanelSideBar" Orientation="Vertical" Grid.Column="0" Margin="10,5,0,0">

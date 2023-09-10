@@ -14,6 +14,7 @@
         <converters:BirthdateToYearsOldConverter x:Key="birthdateToYearsOldConverter" />
         <converters:NumberToStringConverter x:Key="numberToStringConverter" />
         <converters:StageAssetTypeToStringConverter x:Key="stageAssetTypeToStringConverter"/>
+        <converters:CollectionCountToVisibilityConverter x:Key="collectionCountToVisibilityConverter"/>
         <Style TargetType="Label">
             <Style.Setters>
                 <Setter Property="FontSize" Value="18"/>

@@ -49,10 +49,26 @@
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
-                        <TextBox Grid.Row="0" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Text="{Binding Patient.CurePlan}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" MinWidth="150" MinHeight="50" PreviewKeyDown="TextBox_PreviewKeyDown"/>
+                        <TextBox Grid.Row="0" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Text="{Binding CurePlan}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" MinWidth="150" MinHeight="50" PreviewKeyDown="TextBox_PreviewKeyDown"/>
                         <Thumb Grid.Row="1" Cursor="SizeNS" Height="5" HorizontalAlignment="Stretch" DragDelta="Thumb_DragDelta" />
                     </Grid>
                     
+                </StackPanel>
+                <StackPanel x:Name="futureAppointmentsSection" Visibility="{Binding FutureAppointmentsViewModels.Count,  Converter={StaticResource collectionCountToVisibilityConverter}}">
+                    <TextBlock Text="Заплановані візити" HorizontalAlignment="Center"/>
+                    <ListView ItemsSource="{Binding FutureAppointmentsViewModels}" HorizontalAlignment="Center">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <EventSetter Event="MouseDoubleClick" Handler="ListViewItem_MouseDoubleClick"/>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn DisplayMemberBinding="{Binding CabinetName}" Header="Крісло"/>
+                                <GridViewColumn DisplayMemberBinding="{Binding StartDateTimeDT, StringFormat='d MMMM HH:mm', ConverterCulture='uk-UA' }" Header="Дата"/>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
                 </StackPanel>
                 <DockPanel HorizontalAlignment="Center" Margin="0,5,0,0">
                     <Label DockPanel.Dock="Left">Новий етап</Label>

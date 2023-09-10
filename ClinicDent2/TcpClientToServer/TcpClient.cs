@@ -158,7 +158,7 @@ namespace ClinicDent2.TcpClientToServer
                     answerSuccessLogin();
                     break;
                 case "scheduleRecordAdded":
-                    answerScheduleRecordAdded(splitArray[1], splitArray[2], splitArray[3], splitArray[4], splitArray[5], splitArray[6], splitArray[7], splitArray[8], splitArray[9], splitArray[10]);
+                    answerScheduleRecordAdded(splitArray[1], splitArray[2], splitArray[3], splitArray[4], splitArray[5], splitArray[6], splitArray[7], splitArray[8], splitArray[9], splitArray[10], splitArray[11], splitArray[12], splitArray[13]);
                     break;
                 case "scheduleRecordDeleted":
                     answerScheduleRecordDeleted(splitArray[1], splitArray[2], splitArray[3]);
@@ -181,12 +181,19 @@ namespace ClinicDent2.TcpClientToServer
                 case "wrongLogin":
                     answerWrongLogin();
                     break;
+                case "stagePayInfoUpdated":
+                    answerStagePayInfoUpdated(splitArray[1]);
+                    break;
             }
         }
-
-
-
         #region Answers
+        private void answerStagePayInfoUpdated(string updatedStagesContent)
+        {
+            Application.Current.Dispatcher.Invoke(new Action(() => {
+                Options.MainWindow.mainMenu.browserControl.NotifyAllTabs(NotificationCodes.ScheduleStagesPaymentUpdated, updatedStagesContent);
+            }));
+            
+        }
         private void answerScheduleCabinetCommentUpdated(string datetime, string cabinetId, string comment)
         {
             SchedlueCabinetCommentUpdated?.Invoke(datetime, Int32.Parse(cabinetId), comment);
@@ -213,9 +220,9 @@ namespace ClinicDent2.TcpClientToServer
             ScheduleRecordUpdated?.Invoke(this, s);
         }
 
-        private void answerScheduleRecordAdded(string v1, string v2, string v3, string v4, string v5, string v6, string v7, string v8, string v9, string v10)
+        private void answerScheduleRecordAdded(string v1, string v2, string v3, string v4, string v5, string v6, string v7, string v8, string v9, string v10,string priceSum, string payedSum, string messagerSentState)
         {
-            Schedule s = new Schedule(v1, v2, v3, v4, v5, v6, v7, v8, v9, v10);
+            Schedule s = new Schedule(v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, priceSum, payedSum, messagerSentState);
             ScheduleRecordAdded?.Invoke(this, s);
 
         }
@@ -261,6 +268,8 @@ namespace ClinicDent2.TcpClientToServer
                 patientIdToSend = s.PatientId.ToString();
             }
             SetMessageToServerAndSend("scheduleUpdateRecord", s.Id.ToString(), s.StartDatetime, s.EndDatetime, s.Comment, patientIdToSend, s.DoctorId.ToString(), s.PatientName, s.CabinetId.ToString(), s.CabinetName, ((int)s.State).ToString());
+            Options.MainWindow.mainMenu.browserControl.NotifyOtherTabs(NotificationCodes.ScheduleRecordUpdated, s);
+
         }
         public void UpdateRecordState(int recordId, SchedulePatientState newState)
         {

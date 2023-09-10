@@ -16,7 +16,7 @@ using System.Windows.Media.Imaging;
 
 namespace ClinicDent2.ViewModel
 {
-    public class StageViewModel : INotifyPropertyChanged, IDataErrorInfo
+    public class StageViewModel : BaseViewModel, IDataErrorInfo
     {
         #region IDataErrorInfo_Implementation
         protected string error = string.Empty;
@@ -204,8 +204,12 @@ namespace ClinicDent2.ViewModel
             }
             set
             {
-                stage.Title = value;
-                OnPropertyChanged();
+                if(stage.Title != value)
+                {
+                    stage.Title = value;
+                    ViewModelStatus = ViewModelStatus.Updated;
+                    NotifyPropertyChanged();
+                }
             }
         }
         public string StageDatetime
@@ -216,8 +220,14 @@ namespace ClinicDent2.ViewModel
             }
             set
             {
-                stage.StageDatetime = value;
-                OnPropertyChanged();
+                if(stage.StageDatetime != value)
+                {
+                    stage.StageDatetime = value;
+                    ViewModelStatus = ViewModelStatus.Updated;
+
+                    NotifyPropertyChanged();
+                }
+                
             }
         }
         public bool IsSentViaViber
@@ -228,8 +238,14 @@ namespace ClinicDent2.ViewModel
             }
             set
             {
-                stage.IsSentViaViber = value;
-                OnPropertyChanged();
+                if(stage.IsSentViaViber != value)
+                {
+                    stage.IsSentViaViber = value;
+                    ViewModelStatus = ViewModelStatus.Updated;
+
+                    NotifyPropertyChanged();
+                }
+                
             }
         }
         public StageAsset Operation
@@ -240,8 +256,13 @@ namespace ClinicDent2.ViewModel
             }
             set
             {
-                stage.Operation = value;
-                OnPropertyChanged();
+                if(stage.Operation != value)
+                {
+                    stage.Operation = value;
+                    ViewModelStatus = ViewModelStatus.Updated;
+
+                    NotifyPropertyChanged();
+                }
             }
         }
         public StageAsset Cement
@@ -252,8 +273,14 @@ namespace ClinicDent2.ViewModel
             }
             set
             {
-                stage.Cement = value;
-                OnPropertyChanged();
+                if(stage.Cement != value)
+                {
+                    stage.Cement = value;
+                    ViewModelStatus = ViewModelStatus.Updated;
+
+                    NotifyPropertyChanged();
+                }
+                
             }
         }
         public StageAsset Calcium
@@ -264,8 +291,14 @@ namespace ClinicDent2.ViewModel
             }
             set
             {
-                stage.Calcium = value;
-                OnPropertyChanged();
+                if(stage.Calcium != value)
+                {
+                    stage.Calcium = value;
+                    ViewModelStatus = ViewModelStatus.Updated;
+
+                    NotifyPropertyChanged();
+                }
+                
             }
         }
         public StageAsset Bond
@@ -276,8 +309,14 @@ namespace ClinicDent2.ViewModel
             }
             set
             {
-                stage.Bond = value;
-                OnPropertyChanged();
+                if(stage.Bond != value)
+                {
+                    stage.Bond = value;
+                    ViewModelStatus = ViewModelStatus.Updated;
+
+                    NotifyPropertyChanged();
+                }
+                
             }
         }
         public StageAsset Pin
@@ -288,8 +327,14 @@ namespace ClinicDent2.ViewModel
             }
             set
             {
-                stage.Pin = value;
-                OnPropertyChanged();
+                if(stage.Pin != value)
+                {
+                    stage.Pin = value;
+                    ViewModelStatus = ViewModelStatus.Updated;
+
+                    NotifyPropertyChanged();
+                }
+                
             }
         }
         public StageAsset Dentin
@@ -300,8 +345,14 @@ namespace ClinicDent2.ViewModel
             }
             set
             {
-                stage.Dentin = value;
-                OnPropertyChanged();
+                if(stage.Dentin != value)
+                {
+                    stage.Dentin = value;
+                    ViewModelStatus = ViewModelStatus.Updated;
+
+                    NotifyPropertyChanged();
+                }
+                
             }
         }
         public StageAsset Enamel
@@ -312,8 +363,14 @@ namespace ClinicDent2.ViewModel
             }
             set
             {
-                stage.Enamel = value;
-                OnPropertyChanged();
+                if(stage.Enamel != value)
+                {
+                    stage.Enamel = value;
+                    ViewModelStatus = ViewModelStatus.Updated;
+
+                    NotifyPropertyChanged();
+                }
+                
             }
         }
         public StageAsset CanalMethod
@@ -324,8 +381,13 @@ namespace ClinicDent2.ViewModel
             }
             set
             {
-                stage.CanalMethod = value;
-                OnPropertyChanged();
+                if(stage.CanalMethod != value)
+                {
+                    stage.CanalMethod = value;
+                    ViewModelStatus = ViewModelStatus.Updated;
+
+                    NotifyPropertyChanged();
+                }
             }
         }
         public StageAsset Sealer
@@ -336,8 +398,14 @@ namespace ClinicDent2.ViewModel
             }
             set
             {
-                stage.Sealer = value;
-                OnPropertyChanged();
+                if(stage.Sealer != value)
+                {
+                    stage.Sealer = value;
+                    ViewModelStatus = ViewModelStatus.Updated;
+
+                    NotifyPropertyChanged();
+                }
+                
             }
         }
         public StageAsset Technician
@@ -348,8 +416,14 @@ namespace ClinicDent2.ViewModel
             }
             set
             {
-                stage.Technician = value;
-                OnPropertyChanged();
+                if(stage.Technician != value)
+                {
+                    stage.Technician = value;
+                    ViewModelStatus = ViewModelStatus.Updated;
+
+                    NotifyPropertyChanged();
+                }
+                
             }
         }
         public string DoctorName
@@ -360,8 +434,14 @@ namespace ClinicDent2.ViewModel
             }
             set
             {
-                stage.DoctorName = value;
-                OnPropertyChanged();
+                if(stage.DoctorName != value)
+                {
+                    stage.DoctorName = value;
+                    ViewModelStatus = ViewModelStatus.Updated;
+
+                    NotifyPropertyChanged();
+                }
+                
             }
         }
         public string CommentText
@@ -372,8 +452,14 @@ namespace ClinicDent2.ViewModel
             }
             set
             {
-                stage.CommentText = value;
-                OnPropertyChanged();
+                if(stage.CommentText != value)
+                {
+                    stage.CommentText = value;
+                    ViewModelStatus = ViewModelStatus.Updated;
+
+                    NotifyPropertyChanged();
+                }
+                
             }
         }
         public int Payed
@@ -384,9 +470,14 @@ namespace ClinicDent2.ViewModel
             }
             set
             {
-                stage.Payed = value;
-                UpdateImagePaymentStatus();
-                OnPropertyChanged();
+                if(stage.Payed != value)
+                {
+                    stage.Payed = value;
+                    ViewModelStatus = ViewModelStatus.Updated;
+
+                    UpdateImagePaymentStatus();
+                    NotifyPropertyChanged();
+                }
             }
         }
 
@@ -394,11 +485,11 @@ namespace ClinicDent2.ViewModel
         {
             if(paymentStatusImagePath == "..\\assets/images/OK.png" && Price != Payed)
             {
-                OnPropertyChanged("PaymentStatusImagePath");
+                NotifyPropertyChanged("PaymentStatusImagePath");
             }
             else if(paymentStatusImagePath == "..\\assets/images/WRONG.png" && Price == Payed)
             {
-                OnPropertyChanged("PaymentStatusImagePath");
+                NotifyPropertyChanged("PaymentStatusImagePath");
             }
         }
 
@@ -410,9 +501,15 @@ namespace ClinicDent2.ViewModel
             }
             set
             {
-                stage.Price = value;
-                UpdateImagePaymentStatus();
-                OnPropertyChanged();
+                if(stage.Price != value)
+                {
+                    stage.Price = value;
+                    ViewModelStatus = ViewModelStatus.Updated;
+
+                    UpdateImagePaymentStatus();
+                    NotifyPropertyChanged();
+                }
+                
             }
         }
         public bool IsOwner
@@ -448,8 +545,12 @@ namespace ClinicDent2.ViewModel
             }
             set
             {
-                images = value;
-                OnPropertyChanged();
+                if(images != value)
+                {
+                    images = value;
+                    NotifyPropertyChanged();
+                }
+                
             }
         }
         public int DoctorId
@@ -558,12 +659,5 @@ namespace ClinicDent2.ViewModel
         }
 
         private StagesViewModel owner;
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void OnPropertyChanged([CallerMemberName] string prop = "")
-        {
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs(prop));
-        }
     }
 }

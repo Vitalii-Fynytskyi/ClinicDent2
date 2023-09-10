@@ -42,6 +42,8 @@ namespace ClinicDent2.Model
 
             Payed = d.Payed;
             Price = d.Price;
+            OldPayed = d.OldPayed;
+            OldPrice = d.OldPrice;
             CommentText = d.CommentText;
             DoctorName = d.DoctorName;
         }
@@ -72,6 +74,8 @@ namespace ClinicDent2.Model
 
         public int Payed { get; set; }
         public int Price { get; set; }
+        public int OldPayed { get; set; }
+        public int OldPrice { get; set; }
         public string CommentText { get; set; }
         public string DoctorName { get; set; }
     }
@@ -100,6 +104,8 @@ namespace ClinicDent2.Model
 
             Payed = d.Payed;
             Price = d.Price;
+            OldPayed= d.OldPayed;
+            OldPrice= d.OldPrice;
             CommentText = d.CommentText;
             DoctorName = d.DoctorName;
         }
@@ -131,6 +137,9 @@ namespace ClinicDent2.Model
 
         public int Payed { get; set; }
         public int Price { get; set; }
+        public int OldPayed { get; set; }
+        public int OldPrice { get; set; }
+
         public string CommentText { get; set; }
         public string DoctorName { get; set; }
     }

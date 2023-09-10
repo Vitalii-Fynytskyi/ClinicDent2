@@ -6,6 +6,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
+using System.Windows.Documents;
 
 namespace ClinicDent2.ViewModel
 {
@@ -35,28 +36,35 @@ namespace ClinicDent2.ViewModel
 
         internal void ServerUpdateStages()
         {
+            if(Mark_IsCurePlanUpdated == true)
+            {
+                try
+                {
+                    HttpService.PutPatientCurePlan(patient.PatientId, patient.CurePlan);
+                    Mark_IsCurePlanUpdated = false;
+                }
+                catch
+                {
+                    MessageBox.Show($"Не вдалось оновити план лікування пацієнта", "Помилка");
+                }
+            }
+            
+            if(stages == null) { return; }
+            System.Collections.Generic.List<StageViewModel> selectedStageViewModels = stages.Where(vm => vm.IsOwner == true && vm.ViewModelStatus == ViewModelStatus.Updated && vm.Error == string.Empty).ToList();
+            System.Collections.Generic.List<StageDTO> stagesToUpdate = selectedStageViewModels.Select(vm => new StageDTO(vm.Stage)).ToList();
             try
             {
-                HttpService.PutPatientCurePlan(patient.PatientId, patient.CurePlan);
+                if(stagesToUpdate.Count>0)
+                    HttpService.PutStages(stagesToUpdate);
             }
             catch
             {
-                MessageBox.Show($"Не вдалось оновити план лікування пацієнта", "Помилка");
+                MessageBox.Show($"Не вдалось оновити дані робіт пацієнта: {patient.Name}", "Помилка");
+                return;
             }
-            if(stages == null) { return; }
-            foreach (StageViewModel stageViewModel in stages)
+            foreach(StageViewModel vm in selectedStageViewModels)
             {
-                if (stageViewModel.IsOwner && stageViewModel.Error == string.Empty)
-                {
-                    try
-                    {
-                        HttpService.PutStage(stageViewModel.Stage);
-                    }
-                    catch
-                    {
-                        MessageBox.Show($"Не вдалось оновити дані роботи: {stageViewModel.Title}/{stageViewModel.StageDatetime}/{patient.Name}", "Помилка");
-                    }
-                }
+                vm.ViewModelStatus= ViewModelStatus.NotChanged;
             }
         }
 
@@ -99,6 +107,21 @@ namespace ClinicDent2.ViewModel
                     NotifyPropertyChanged();
                 }
                 
+            }
+        }
+        public string CurePlan
+        {
+            get
+            {
+                return Patient.CurePlan;
+            }
+            set
+            {
+                if(value != Patient.CurePlan)
+                {
+                    Patient.CurePlan = value;
+                    Mark_IsCurePlanUpdated = true;
+                }
             }
         }
         ObservableCollection<StageViewModel> stages;
@@ -154,5 +177,9 @@ namespace ClinicDent2.ViewModel
             EditPatientCommand = new RelayCommand(EditPatient);
             CreateNewStageCommand = new RelayCommand(CreateNewStage);
         }
+
+
+        //use when StagesViewModel is closed, if true then make request to server
+        public bool Mark_IsCurePlanUpdated = false;
     }
 }
