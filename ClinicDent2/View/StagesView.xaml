@@ -240,6 +240,11 @@
                                             <Label Content="Технік"/>
                                             <ComboBox MinWidth="100" SelectedItem="{Binding Technician, Mode=TwoWay}" DisplayMemberPath="Value" ItemsSource="{x:Static vm:StageViewModel.Technicians}"/>
                                         </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
+                                            <Label Content="Витрати"/>
+                                            <TextBox MinWidth="100" Text="{Binding Expenses, Converter={StaticResource numberToStringConverter}, TargetNullValue=0, FallbackValue=0, UpdateSourceTrigger=PropertyChanged}"/>
+                                        </StackPanel>
+
                                         <Label Content="{Binding DoctorName}" ContentStringFormat="Лікар: {0}" Margin="5,0,0,0" HorizontalAlignment="Right"/>
                                     </WrapPanel>
                                     <Grid HorizontalAlignment="Left" Margin="5,0,0,0" IsEnabled="{Binding IsOwner}">

@@ -10,7 +10,8 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition/>
-
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid x:Name="headerTimeGrids" Grid.Row="0" Background="#2CABE2" MaxWidth="600" Margin="0,5,0,0" VerticalAlignment="Top">
                 <Grid.ColumnDefinitions>
@@ -22,7 +23,25 @@
                 <Label Content="{Binding SelectedDateString}" Grid.Column="1" HorizontalAlignment="Center"/>
                 <Label Content="{Binding AboutDay}" Grid.Column="2" HorizontalAlignment="Center"/>
             </Grid>
-            <WrapPanel x:Name="timeGridsPanel" HorizontalAlignment="Center" Grid.Row="1" >
-            </WrapPanel>
-        </Grid>
+        <WrapPanel x:Name="timeGridsPanel" HorizontalAlignment="Center" Grid.Row="1" >
+        </WrapPanel>
+        
+        <ItemsControl ItemsSource="{Binding DaySummaryList}" Grid.Row="2" HorizontalAlignment="Center">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding DisplayText}"/>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <StackPanel Grid.Row="3" HorizontalAlignment="Center" Background="LightBlue">
+            <ItemsControl ItemsSource="{Binding WeekSummaryList}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding DisplayText}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+        
+    </Grid>
 </UserControl>

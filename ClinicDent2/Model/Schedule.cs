@@ -10,8 +10,14 @@ namespace ClinicDent2.Model
     }
     public class Schedule
     {
-        public Schedule() { }
-        public Schedule(string id, string startDateTime, string endDateTime, string comment, string patientId, string doctorId, string patientName, string cabinetId, string cabinetName, string state,string priceSum, string payedSum,string messagerStateNumber)
+        public Schedule()
+        {
+            StagesPriceSum = new List<int>();
+            StagesPaidSum = new List<int>();
+            StagesExpensesSum = new List<int>();
+            DoctorIds = new List<int>();
+        }
+        public Schedule(string id, string startDateTime, string endDateTime, string comment, string patientId, string doctorId, string patientName, string cabinetId, string cabinetName, string state,string priceSum, string payedSum,string messagerStateNumber, string doctorsId, string expensesSum)
         {
             Id = Int32.Parse(id);
             StartDatetime = startDateTime;
@@ -30,12 +36,26 @@ namespace ClinicDent2.Model
             CabinetId = Int32.Parse(cabinetId);
             CabinetName = cabinetName;
             State = (SchedulePatientState)Int32.Parse(state);
-            StagesPriceSum = Convert.ToInt32(priceSum);
-            StagesPaidSum = Convert.ToInt32(payedSum);
-            StagesSentViaMessagerState = (ScheduleIsSentViaMessagetState)Convert.ToInt32(messagerStateNumber);
+            string[] priceSumSplit = priceSum.Split('|', StringSplitOptions.RemoveEmptyEntries);
+            string[] paidSumSplit = payedSum.Split('|', StringSplitOptions.RemoveEmptyEntries);
+            string[] doctorIdsSplit = doctorsId.Split('|', StringSplitOptions.RemoveEmptyEntries);
+            string[] expensesSumSplit = expensesSum.Split('|', StringSplitOptions.RemoveEmptyEntries);
 
+            StagesPriceSum = new List<int>(priceSumSplit.Length);
+            StagesPaidSum = new List<int>(priceSumSplit.Length);
+            DoctorIds = new List<int>(priceSumSplit.Length);
+            StagesExpensesSum = new List<int>(priceSumSplit.Length);
+
+            for (int i = 0; i < doctorIdsSplit.Length; i++)
+            {
+                StagesPriceSum.Add(Int32.Parse(priceSumSplit[i]));
+                StagesPaidSum.Add(Int32.Parse(paidSumSplit[i]));
+                DoctorIds.Add(Int32.Parse(doctorIdsSplit[i]));
+                StagesExpensesSum.Add(Int32.Parse(expensesSumSplit[i]));
+            }
+            StagesSentViaMessagerState = (ScheduleIsSentViaMessagetState)Convert.ToInt32(messagerStateNumber);
         }
-        public Schedule(string id, string startDateTime, string endDateTime, string comment, string patientId, string doctorId, string patientName, string cabinetId, string cabinetName, string state)
+        public Schedule(string id, string startDateTime, string endDateTime, string comment, string patientId, string doctorId, string patientName, string cabinetId, string cabinetName, string state):this()
         {
             Id = Int32.Parse(id);
             StartDatetime = startDateTime;
@@ -69,6 +89,8 @@ namespace ClinicDent2.Model
             StagesSentViaMessagerState=s.StagesSentViaMessagerState;
             StagesPaidSum= s.StagesPaidSum;
             StagesPriceSum= s.StagesPriceSum;
+            StagesExpensesSum = s.StagesExpensesSum;
+            DoctorIds = s.DoctorIds;
         }
         public int Id { get; set; }
         public string StartDatetime { get; set; }
@@ -85,8 +107,10 @@ namespace ClinicDent2.Model
         public string CabinetName { get; set; }
         public SchedulePatientState State { get; set; } //0 - unknown, 1 - will appear, 2 - refused
         public ScheduleIsSentViaMessagetState StagesSentViaMessagerState { get; set; } = ScheduleIsSentViaMessagetState.NoStages;
-        public int StagesPaidSum { get; set; }
-        public int StagesPriceSum { get; set; }
+        public List<int> StagesPaidSum { get; set; }
+        public List<int> StagesPriceSum { get; set; }
+        public List<int> DoctorIds { get; set; }
+        public List<int> StagesExpensesSum { get; set; }
     }
     public enum ScheduleIsSentViaMessagetState
     {

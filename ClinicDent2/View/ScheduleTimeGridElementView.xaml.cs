@@ -19,6 +19,7 @@ using System.Diagnostics;
 using System.Windows.Controls.Primitives;
 using ClinicDent2.TabbedBrowser;
 using ClinicDent2.ViewModel;
+using System.Linq;
 
 namespace ClinicDent2.View
 {
@@ -179,26 +180,14 @@ namespace ClinicDent2.View
         {
             get
             {
-                return Schedule.StagesPaidSum;
-            }
-            set
-            {
-                Schedule.StagesPaidSum = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(PaidPriceText));
+                return Schedule.StagesPaidSum.Sum();
             }
         }
         public int StagesPriceSum
         {
             get
             {
-                return Schedule.StagesPriceSum;
-            }
-            set
-            {
-                Schedule.StagesPriceSum = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(PaidPriceText));
+                return Schedule.StagesPriceSum.Sum();
             }
         }
         public string PaidPriceText
@@ -232,8 +221,6 @@ namespace ClinicDent2.View
             //get time from datetime (last 5 characters) and convert it to TimeSpan
             ScheduleStartTime = TimeSpan.ParseExact(s.StartDatetime.Substring(s.StartDatetime.Length - 5, 5), @"hh\:mm", CultureInfo.CurrentCulture);
             ScheduleEndTime = TimeSpan.ParseExact(s.EndDatetime.Substring(s.StartDatetime.Length - 5, 5), @"hh\:mm", CultureInfo.CurrentCulture);
-            parentToSet.payedSum += s.StagesPaidSum;
-            parentToSet.priceSum += s.StagesPriceSum;
             Grid.SetColumn(this, 1);
         }
 

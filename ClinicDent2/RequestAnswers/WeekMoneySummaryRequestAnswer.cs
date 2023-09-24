@@ -1,9 +1,13 @@
-﻿namespace ClinicDent2.RequestAnswers
+﻿using System.Collections.Generic;
+
+namespace ClinicDent2.RequestAnswers
 {
     public class WeekMoneySummaryRequestAnswer
     {
-        public int PriceSum { get; set; }
-        public int PaidSum { get; set; }
+        public List<int> StagesPaidSum { get; set; }
+        public List<int> StagesPriceSum { get; set; }
+        public List<int> StagesExpensesSum { get; set; }
+        public List<int> DoctorIds { get; set; }
 
     }
 }

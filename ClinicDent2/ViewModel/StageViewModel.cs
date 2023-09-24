@@ -9,7 +9,6 @@ using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
@@ -480,6 +479,25 @@ namespace ClinicDent2.ViewModel
                 }
             }
         }
+
+        public int Expenses
+        {
+            get
+            {
+                return stage.Expenses;
+            }
+            set
+            {
+                if (stage.Expenses != value)
+                {
+                    stage.Expenses = value;
+                    ViewModelStatus = ViewModelStatus.Updated;
+
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
 
         private void UpdateImagePaymentStatus()
         {

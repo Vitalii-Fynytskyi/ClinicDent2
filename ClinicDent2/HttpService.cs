@@ -470,19 +470,18 @@ namespace ClinicDent2
                 throw new Exception($"void StageMarkSentViaMessager(int stageId={stageId}, int mark={mark}). Status code: {result.StatusCode}");
             }
         }
-        public static WeekMoneySummaryRequestAnswer GetWeekMoneySummary(int cabinetId, DateTime sunday)
+        public static WeekMoneySummaryRequestAnswer GetWeekMoneySummary(DateTime sunday)
         {
             httpClient.DefaultRequestHeaders.Accept.Clear();
             httpClient.DefaultRequestHeaders.Accept.Add(bsonHeaderValue);
             WeekMoneySummaryRequest r = new WeekMoneySummaryRequest()
             {
-                CabinetId = cabinetId,
                 AnySunday = sunday
             };
             HttpResponseMessage result = httpClient.PutAsync($"Schedule/weekMoneySummary", r, BsonFormatter).Result;
             if (result.IsSuccessStatusCode == false)
             {
-                throw new Exception($"WeekMoneySummaryRequestAnswer GetWeekMoneySummary(cabinetId = {cabinetId}, sunday={sunday}). Status code: {result.StatusCode}");
+                throw new Exception($"WeekMoneySummaryRequestAnswer GetWeekMoneySummary(sunday={sunday}). Status code: {result.StatusCode}");
             }
             return result.Content.ReadAsAsync<WeekMoneySummaryRequestAnswer>(bsonFormatting).Result;
         }

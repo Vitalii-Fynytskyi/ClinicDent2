@@ -4,7 +4,6 @@ using ClinicDent2.TcpClientToServer;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
@@ -267,19 +266,21 @@ namespace ClinicDent2.View
         private void Notification_ScheduleStagesPaymentUpdated(string updatedStagesContent)
         {
             string[] splitted = updatedStagesContent.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-            for (int i = 0; i <= splitted.Length - 5; i += 5) //if length is 5 then start from 0 and next time begin with 5
+            for (int i = 0; i <= splitted.Length - 6; i += 6) //if length is 5 then start from 0 and next time begin with 5
             {
                 int patientId = Convert.ToInt32(splitted[i]);
                 DateTime stageDatetime = DateTime.ParseExact(splitted[i + 1], Options.DateTimePattern, null);
                 int priceDifference = Convert.ToInt32(splitted[i + 2]);
                 int payedDifference = Convert.ToInt32(splitted[i + 3]);
                 int doctorId = Convert.ToInt32(splitted[i + 4]);
+                int expensesDifference = Convert.ToInt32(splitted[i + 5]);
 
-                if(SelectedDate.Year == stageDatetime.Year && SelectedDate.Month == stageDatetime.Month)
+
+                if (SelectedDate.Year == stageDatetime.Year && SelectedDate.Month == stageDatetime.Month)
                 {
                     //find requred day
                     int scheduleForDayIndex = -1;
-                    for(int c =0;c< ScheduleForDayViews.Count; c++)
+                    for (int c = 0; c < ScheduleForDayViews.Count; c++)
                     {
                         if (ScheduleForDayViews[c].SelectedDate.Day == stageDatetime.Day)
                         {
@@ -287,50 +288,70 @@ namespace ClinicDent2.View
                             break;
                         }
                     }
-                    if(scheduleForDayIndex == -1) { return; }
+                    if (scheduleForDayIndex == -1) { return; }
+                    bool daySummaryAlreadyUpdated = false;
                     //try to find to which cabinet this patient belongs
-                    for(int j=0;j< ScheduleForDayViews[scheduleForDayIndex].TimeGrids.Count; j++)
+                    for (int j = 0; j < ScheduleForDayViews[scheduleForDayIndex].TimeGrids.Count; j++)
                     {
-                        for(int k =0; k< ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews.Count; k++)
+                        
+                        for (int k = 0; k < ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews.Count; k++)
                         {
                             if (ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].Schedule.PatientId == patientId)
                             {
-                                ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].Schedule.StagesPaidSum += payedDifference;
-                                ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].Schedule.StagesPriceSum += priceDifference;
+                                ///find to which doctor it belongs
+                                int foundDoctorIndex = -1;
+                                for(int q =0; q< ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].Schedule.DoctorIds.Count;q++)
+                                {
+                                    if (ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].Schedule.DoctorIds[q] == doctorId)
+                                    {
+                                        foundDoctorIndex = q; break;
+                                    }
+                                }
+                                if(foundDoctorIndex== -1)
+                                {
+                                    ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].Schedule.DoctorIds.Add(doctorId);
+                                    ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].Schedule.StagesPaidSum.Add(payedDifference);
+                                    ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].Schedule.StagesPriceSum.Add(priceDifference);
+                                    ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].Schedule.StagesExpensesSum.Add(expensesDifference);
+                                    foundDoctorIndex = ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].Schedule.DoctorIds.Count;
+                                }
+                                else
+                                {
+                                    //add to existing
+                                    ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].Schedule.StagesPaidSum[foundDoctorIndex] += payedDifference;
+                                    ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].Schedule.StagesPriceSum[foundDoctorIndex] += priceDifference;
+                                    ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].Schedule.StagesExpensesSum[foundDoctorIndex] += expensesDifference;
+
+                                }
                                 ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].OnPropertyChanged("StagesPaidSum");
                                 ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].OnPropertyChanged("StagesPriceSum");
                                 ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].OnPropertyChanged("PaidPriceText");
-                                ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].payedSum += payedDifference;
-                                ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].priceSum += priceDifference;
-                                ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].OnPropertyChanged("PayedSum");
-                                ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].OnPropertyChanged("PriceSum");
-                                ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].OnPropertyChanged("DayMoneySummary");
-                                int daysInWeek = 7;
-                                int daysTillNextSunday = daysInWeek - (int)stageDatetime.DayOfWeek;
-                                if (daysTillNextSunday != 7)
+                                if (daySummaryAlreadyUpdated == false)
                                 {
+                                    ScheduleForDayViews[scheduleForDayIndex].AddToDaySummary(doctorId, priceDifference, payedDifference, expensesDifference);
+
+                                    int daysInWeek = 7;
+                                    int daysTillNextSunday = (daysInWeek - (int)stageDatetime.DayOfWeek) % daysInWeek;
                                     DateTime nextSunday = stageDatetime + TimeSpan.FromDays(daysTillNextSunday);
-                                    if(nextSunday.Month == stageDatetime.Month)
+                                    if (nextSunday.Month == stageDatetime.Month)
                                     {
-                                        //ScheduleForDayViews[scheduleForDayIndex + daysTillNextSunday].TimeGrids[j].AddToWeekSummary(priceDifference, payedDifference);
-                                        ScheduleForDayViews[scheduleForDayIndex + daysTillNextSunday].TimeGrids[j].OnPropertyChanged("DayMoneySummary");
+                                        ScheduleForDayViews[scheduleForDayIndex + daysTillNextSunday].AddToWeekSummary(doctorId, priceDifference, payedDifference, expensesDifference);
                                     }
+                                    daySummaryAlreadyUpdated = true;
                                 }
+
                             }
                         }
                     }
                 }
-                else if(IsNextSundayInThisMonth(stageDatetime) == true)
+                else if (IsNextSundayInThisMonth(stageDatetime) == true)
                 {
                     DateTime dateTime = stageDatetime + TimeSpan.FromDays(7);
                     if (dateTime.Year == SelectedDate.Year && dateTime.Month == SelectedDate.Month)
                     {
                         //find first sunday in this month
                         ScheduleForDayView scheduleForDayView = ScheduleForDayViews.FirstOrDefault(v => v.SelectedDate.DayOfWeek == DayOfWeek.Sunday);
-                        for (int j = 0; j < scheduleForDayView.TimeGrids.Count; j++)
-                        {
-                            scheduleForDayView.TimeGrids[j].OnPropertyChanged("DayMoneySummary");
-                        }
+                        scheduleForDayView.AddToWeekSummary(doctorId,priceDifference, payedDifference,expensesDifference);
                     }
                 }
             }

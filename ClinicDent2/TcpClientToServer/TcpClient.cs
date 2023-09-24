@@ -158,7 +158,7 @@ namespace ClinicDent2.TcpClientToServer
                     answerSuccessLogin();
                     break;
                 case "scheduleRecordAdded":
-                    answerScheduleRecordAdded(splitArray[1], splitArray[2], splitArray[3], splitArray[4], splitArray[5], splitArray[6], splitArray[7], splitArray[8], splitArray[9], splitArray[10], splitArray[11], splitArray[12], splitArray[13]);
+                    answerScheduleRecordAdded(splitArray[1], splitArray[2], splitArray[3], splitArray[4], splitArray[5], splitArray[6], splitArray[7], splitArray[8], splitArray[9], splitArray[10], splitArray[11], splitArray[12], splitArray[13], splitArray[14], splitArray[15]);
                     break;
                 case "scheduleRecordDeleted":
                     answerScheduleRecordDeleted(splitArray[1], splitArray[2], splitArray[3]);
@@ -220,9 +220,9 @@ namespace ClinicDent2.TcpClientToServer
             ScheduleRecordUpdated?.Invoke(this, s);
         }
 
-        private void answerScheduleRecordAdded(string v1, string v2, string v3, string v4, string v5, string v6, string v7, string v8, string v9, string v10,string priceSum, string payedSum, string messagerSentState)
+        private void answerScheduleRecordAdded(string v1, string v2, string v3, string v4, string v5, string v6, string v7, string v8, string v9, string v10,string priceSum, string payedSum, string messagerSentState, string doctorsId, string expensesSum)
         {
-            Schedule s = new Schedule(v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, priceSum, payedSum, messagerSentState);
+            Schedule s = new Schedule(v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, priceSum, payedSum, messagerSentState, doctorsId, expensesSum);
             ScheduleRecordAdded?.Invoke(this, s);
 
         }

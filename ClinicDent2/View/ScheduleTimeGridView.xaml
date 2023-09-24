@@ -11,7 +11,6 @@
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
 
         <Label Content="{Binding Cabinet.CabinetName}" HorizontalAlignment="Center" Grid.Row="0"/>
@@ -105,6 +104,5 @@
             <local:TimeGridEmpinessView Time="19:30:00" Grid.Column="1" Grid.Row="24" MouseMove="Emptiness_MouseMove" MouseDown="Emptiness_MouseDown" MouseUp="Emptiness_MouseUp"/>
             <local:TimeGridEmpinessView Time="20:00:00" Grid.Column="1" Grid.Row="25" MouseMove="Emptiness_MouseMove" MouseDown="Emptiness_MouseDown" MouseUp="Emptiness_MouseUp"/>
         </Grid>
-        <TextBlock Text="{Binding DayMoneySummary}" Grid.Row="3"/>
     </Grid>
 </UserControl>

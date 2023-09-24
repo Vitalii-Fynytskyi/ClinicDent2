@@ -1,9 +1,5 @@
 ﻿using ClinicDent2.ViewModel;
-using System;
 using System.Linq;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Text;
 
 namespace ClinicDent2.Model
 {
@@ -44,6 +40,8 @@ namespace ClinicDent2.Model
             Price = d.Price;
             OldPayed = d.OldPayed;
             OldPrice = d.OldPrice;
+            Expenses = d.Expenses;
+            OldExpenses = d.OldExpenses;
             CommentText = d.CommentText;
             DoctorName = d.DoctorName;
         }
@@ -76,6 +74,8 @@ namespace ClinicDent2.Model
         public int Price { get; set; }
         public int OldPayed { get; set; }
         public int OldPrice { get; set; }
+        public int Expenses { get; set; }
+        public int OldExpenses { get; set; }
         public string CommentText { get; set; }
         public string DoctorName { get; set; }
     }
@@ -106,6 +106,8 @@ namespace ClinicDent2.Model
             Price = d.Price;
             OldPayed= d.OldPayed;
             OldPrice= d.OldPrice;
+            Expenses= d.Expenses;
+            OldExpenses= d.OldExpenses;
             CommentText = d.CommentText;
             DoctorName = d.DoctorName;
         }
@@ -139,6 +141,8 @@ namespace ClinicDent2.Model
         public int Price { get; set; }
         public int OldPayed { get; set; }
         public int OldPrice { get; set; }
+        public int Expenses { get; set; }
+        public int OldExpenses { get; set; }
 
         public string CommentText { get; set; }
         public string DoctorName { get; set; }
