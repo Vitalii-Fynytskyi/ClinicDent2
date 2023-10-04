@@ -123,7 +123,6 @@ namespace ClinicDent2.View
             }
             OnPropertyChanged(nameof(WeekSummaryList));
         }
-
         private void GenerateWeekSummary()
         {
             if (SelectedDate.Day < 7) //request to server required
@@ -157,7 +156,6 @@ namespace ClinicDent2.View
             }
 
         }
-
         public string DayOfWeek
         {
             get

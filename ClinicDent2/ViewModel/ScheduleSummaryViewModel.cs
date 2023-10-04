@@ -12,7 +12,7 @@ namespace ClinicDent2.ViewModel
         {
             get
             {
-                return $"{Doctor.Name}: {Payed}/{Price} грн. Прибуток: {Payed - Expenses} грн.";
+                return $"{Doctor.Name}: {Payed}/{Price} грн. Прибуток: {Price - Expenses} грн.";
             }
         }
 

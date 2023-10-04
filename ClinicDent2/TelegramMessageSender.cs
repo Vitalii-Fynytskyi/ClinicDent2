@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using TeleSharp.TL;
+using TeleSharp.TL.Contacts;
 using TLSharp.Core;
 using TLSharp.Core.Exceptions;
 using TLSharp.Core.Utils;
@@ -69,11 +70,11 @@ namespace ClinicDent2
         public async static Task<TLUser> SendTextMessage(string name, string receiverPhoneNumber, string message)
         {
             // this is because the contacts in the address come without the "+" prefix
-            var normalizedNumber = receiverPhoneNumber.StartsWith("+") ?
+            string normalizedNumber = receiverPhoneNumber.StartsWith("+") ?
                 receiverPhoneNumber.Substring(1, receiverPhoneNumber.Length - 1) :
                 receiverPhoneNumber;
 
-            var result = await client.GetContactsAsync().ConfigureAwait(false); ;
+            TLContacts result = await client.GetContactsAsync();
 
             TLUser user = result.Users
                 .OfType<TLUser>()
@@ -81,7 +82,7 @@ namespace ClinicDent2
 
             if(user != null)
             {
-                await client.SendMessageAsync(new TLInputPeerUser() { UserId = user.Id }, message).ConfigureAwait(false); ;
+                await client.SendMessageAsync(new TLInputPeerUser() { UserId = user.Id, AccessHash=user.AccessHash.Value }, message).ConfigureAwait(false); ;
             }
             else
             {
@@ -90,7 +91,7 @@ namespace ClinicDent2
                 {
                     throw new Exception("Не вдалось відправити повідомлення. Не зареєстровано Telegram");
                 }
-                await client.SendMessageAsync(new TLInputPeerUser() { UserId = user.Id }, message).ConfigureAwait(false); ;
+                await client.SendMessageAsync(new TLInputPeerUser() { UserId = user.Id, AccessHash = user.AccessHash.Value }, message).ConfigureAwait(false); ;
             }
             return user;
         }
@@ -98,7 +99,6 @@ namespace ClinicDent2
         {
             var imported = await client.ImportContactsAsync(new List<TLInputPhoneContact> {
             new TLInputPhoneContact {
-                ClientId = 1,
                 Phone = phoneNumber,
                 FirstName = firstName,
                 LastName = lastName
