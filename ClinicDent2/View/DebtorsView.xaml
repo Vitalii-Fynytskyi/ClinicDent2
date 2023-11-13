@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="ClinicDent2.View.PatientsView"
+﻿<UserControl x:Class="ClinicDent2.View.DebtorsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -15,19 +15,7 @@
             <RowDefinition Height="0.1*"></RowDefinition>
         </Grid.RowDefinitions>
         <DockPanel LastChildFill="True" Grid.Row="0">
-            <Label Content="{Binding PageTitle}" DockPanel.Dock="Top"/>
-            <ComboBox ItemsSource="{Binding Path=(main:Options.AllDoctors)}" DisplayMemberPath="Name" DockPanel.Dock="Top" SelectedItem="{Binding SelectedDoctor, Mode=TwoWay}" HorizontalAlignment="Center">
-                <ComboBox.Style>
-                    <Style TargetType="ComboBox">
-                        <Setter Property="Visibility" Value="Collapsed"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding patientListMode}" Value="MyPatients">
-                                <Setter Property="Visibility" Value="Visible"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </ComboBox.Style>
-            </ComboBox>
+            <ComboBox ItemsSource="{Binding Path=(main:Options.AllDoctors)}" DisplayMemberPath="Name" DockPanel.Dock="Top" SelectedItem="{Binding SelectedDoctor, Mode=TwoWay}" HorizontalAlignment="Center"/>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" DockPanel.Dock="Top">
                 <Label Content="Пошук"/>
                 <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Width="300" attached:TextBoxProperties.OnEnterKeyDown="{Binding SearchPressedCommand}"/>
@@ -36,9 +24,7 @@
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" DockPanel.Dock="Top">
                 <Label Content="Сортування"/>
-                <ComboBox ItemsSource="{Binding Path=(viewmodel:PatientsViewModel.AvailableSorts)}" SelectedItem="{Binding SelectedSorting}" MinWidth="100"/>
-                <Label x:Name="labelStatuses" Content="Статуси"/>
-                <ComboBox x:Name="comboBoxStatuses" ItemsSource="{Binding Path=(viewmodel:PatientsViewModel.AvailableStatuses)}" SelectedItem="{Binding SelectedStatus}" MinWidth="100"/>
+                <ComboBox ItemsSource="{Binding Path=(viewmodel:DebtorsViewModel.AvailableSorts)}" SelectedItem="{Binding SelectedSorting}" MinWidth="100"/>
             </StackPanel>
             <ScrollViewer x:Name="scrollViewer" VerticalScrollBarVisibility="Auto">
                 <ItemsControl ItemsSource="{Binding PatientViewModels}">
@@ -48,6 +34,7 @@
                                 <WrapPanel Orientation="Horizontal" Margin="0,0,0,5">
                                     <Image MaxHeight="50" MaxWidth="75" Source="{Binding ImageBytes, Converter={StaticResource bytesToImageSourceConverter}}"/>
                                     <Label Content="{Binding Name}"/>
+                                    <Label Content="{Binding DebtSum}" ContentStringFormat="&#x20B4;{0}" FontWeight="DemiBold"/>
                                     <Button Content="Редагувати" VerticalAlignment="Center" Click="ButtonEditPatient_Click"/>
                                     <Grid>
                                         <Grid.RowDefinitions>
@@ -137,4 +124,5 @@
             </Label>
         </StackPanel>
     </Grid>
+
 </UserControl>

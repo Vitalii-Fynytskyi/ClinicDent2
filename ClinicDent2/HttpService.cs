@@ -127,18 +127,18 @@ namespace ClinicDent2
                 throw new Exception($"PatientsToClient GetPatients( ... doctorId={doctorId} ). Status code: {result.StatusCode}");
             }
         }
-        public static PatientsToClient GetDebtors(string selectedSortDescription, int selectedPage, int patientsPerPage, string searchText, int doctorId)
+        public static DebtPatientsToClient GetDebtors(string selectedSortDescription, int selectedPage, int patientsPerPage, string searchText, int doctorId)
         {
             httpClient.DefaultRequestHeaders.Accept.Clear();
             httpClient.DefaultRequestHeaders.Accept.Add(bsonHeaderValue);
             HttpResponseMessage result = httpClient.GetAsync($"Patients/debtors/{selectedSortDescription}/{selectedPage}/{patientsPerPage}/{searchText}/{doctorId}").Result;
             if (result.IsSuccessStatusCode)
             {
-                return result.Content.ReadAsAsync<PatientsToClient>(bsonFormatting).Result;
+                return result.Content.ReadAsAsync<DebtPatientsToClient>(bsonFormatting).Result;
             }
             else
             {
-                throw new Exception($"PatientsToClient GetDebtors( ... doctorId={doctorId} ). Status code: {result.StatusCode}");
+                throw new Exception($"DebtPatientsToClient GetDebtors( ... doctorId={doctorId} ). Status code: {result.StatusCode}");
             }
         }
         public static Doctor Authenticate(LoginModel loginModel)

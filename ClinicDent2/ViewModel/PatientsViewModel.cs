@@ -14,7 +14,7 @@ namespace ClinicDent2.ViewModel
 {
     public enum PatientListMode
     {
-        MyPatients, AllPatients, Debtors, SearchPatientsWithImage
+        MyPatients, AllPatients, SearchPatientsWithImage
     }
     public class PatientsViewModel:BaseViewModel
     {
@@ -94,9 +94,6 @@ namespace ClinicDent2.ViewModel
                     break;
                 case PatientListMode.AllPatients:
                     PageTitle = ScreenNames.ALL_PATIENTS;
-                    break;
-                case PatientListMode.Debtors:
-                    PageTitle = ScreenNames.DEBTORS;
                     break;
                 case PatientListMode.SearchPatientsWithImage:
                     PageTitle = ScreenNames.PATIENTS_WITH_REQUESTED_IMAGE;
@@ -222,9 +219,6 @@ namespace ClinicDent2.ViewModel
                         break;
                     case PatientListMode.MyPatients:
                         patientsToClient = HttpService.GetPatients(selectedStatus, selectedSorting, selectedPage, Options.PatientsPerPage, searchTextForRequest, SelectedDoctor.Id);
-                        break;
-                    case PatientListMode.Debtors:
-                        patientsToClient = HttpService.GetDebtors(selectedSorting, selectedPage, Options.PatientsPerPage, searchTextForRequest, SelectedDoctor.Id);
                         break;
                     case PatientListMode.SearchPatientsWithImage:
                         patientsToClient = HttpService.GetPatientsByImage(imageId.Value, selectedStatus, selectedSorting, selectedPage, Options.PatientsPerPage, searchTextForRequest);

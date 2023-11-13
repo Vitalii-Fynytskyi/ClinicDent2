@@ -1,28 +1,28 @@
 ﻿using ClinicDent2.TabbedBrowser;
 using ClinicDent2.ViewModel;
-using System;
 using System.Windows;
+using System;
 using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace ClinicDent2.View
 {
     /// <summary>
-    /// Interaction logic for PatientsView.xaml
+    /// Interaction logic for DebtorsView.xaml
     /// </summary>
-    public partial class PatientsView : UserControl
+    public partial class DebtorsView : UserControl
     {
-        private PatientsViewModel patientsViewModel;
-        public PatientsViewModel PatientsViewModel
+        private DebtorsViewModel patientsViewModel;
+        public DebtorsViewModel PatientsViewModel
         {
             get { return patientsViewModel; }
             set
             {
-                patientsViewModel= value;
+                patientsViewModel = value;
                 DataContext = patientsViewModel;
             }
         }
-        public PatientsView()
+        public DebtorsView()
         {
             InitializeComponent();
         }
@@ -33,7 +33,7 @@ namespace ClinicDent2.View
             {
                 BrowserTabButton patientStagesButton = new BrowserTabButton();
                 patientStagesButton.TabText = patientViewModel.Name;
-                patientStagesButton.PatientViewModel= patientViewModel;
+                patientStagesButton.PatientViewModel = patientViewModel;
                 patientStagesButton.ButtonType = TabButtonType.PatientStages;
                 StagesView stagesView = new StagesView();
                 try
@@ -48,7 +48,7 @@ namespace ClinicDent2.View
                 patientStagesButton.Control = stagesView;
                 Options.MainWindow.mainMenu.browserControl.AddNewTab(patientStagesButton);
             }
-            
+
         }
 
         private void ButtonEditPatient_Click(object sender, RoutedEventArgs e)
@@ -65,7 +65,7 @@ namespace ClinicDent2.View
                 editPatientDataButton.Control = editPatientView;
                 Options.MainWindow.mainMenu.browserControl.AddNewTab(editPatientDataButton);
             }
-            
+
         }
 
         private void PageButton_Loaded(object sender, RoutedEventArgs e)

@@ -98,8 +98,8 @@ namespace ClinicDent2
             {
                 BrowserTabButton debtors = new BrowserTabButton();
                 debtors.TabText = ScreenNames.DEBTORS;
-                PatientsView patientsView = new PatientsView();
-                patientsView.PatientsViewModel = new PatientsViewModel(PatientListMode.Debtors);
+                DebtorsView patientsView = new DebtorsView();
+                patientsView.PatientsViewModel = new DebtorsViewModel();
                 debtors.Control = patientsView;
                 browserControl.AddNewTab(debtors);
             }
