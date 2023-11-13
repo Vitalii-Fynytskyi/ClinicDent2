@@ -4,6 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ClinicDent2.View"
+             xmlns:attached="clr-namespace:ClinicDent2.Attached"
+             
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800" Loaded="UserControl_Loaded">
     <Grid>
@@ -11,7 +13,7 @@
             <StackPanel x:Name="stackPanelDays" Focusable="True"/>
         </ScrollViewer>
         <Canvas>
-            <Calendar x:Name="datePicker" FirstDayOfWeek="Monday" SelectedDate="{Binding SelectedDate}" HorizontalAlignment="Left" Focusable="False" SelectedDatesChanged="datePicker_SelectedDatesChanged" MouseLeftButtonDown="datePicker_MouseLeftButtonDown" MouseMove="datePicker_MouseMove" MouseLeftButtonUp="datePicker_MouseLeftButtonUp">
+            <Calendar x:Name="datePicker" FirstDayOfWeek="Monday" SelectedDate="{Binding SelectedDate}" HorizontalAlignment="Left" Focusable="False" SelectedDatesChanged="datePicker_SelectedDatesChanged" MouseLeftButtonDown="datePicker_MouseLeftButtonDown" MouseMove="datePicker_MouseMove" MouseLeftButtonUp="datePicker_MouseLeftButtonUp" DisplayDateChanged="datePicker_DisplayDateChanged">
                 <Calendar.Style>
                     <Style TargetType="Calendar">
                         <Setter Property="CalendarDayButtonStyle">
@@ -22,6 +24,21 @@
                                     <Setter Property="Foreground" Value="Black" />
                                     <Setter Property="FontSize" Value="18"/>
                                     <Style.Triggers>
+                                        <!--Backgrounds-->
+                                        <Trigger Property="attached:CalendarExtensions.CalendarDayButtonState" Value="Green">
+                                            <Setter Property="Background" Value="LightGreen"/>
+                                        </Trigger>
+                                        <Trigger Property="attached:CalendarExtensions.CalendarDayButtonState" Value="Yellow">
+                                            <Setter Property="Background" Value="Yellow"/>
+                                        </Trigger>
+                                        <Trigger Property="attached:CalendarExtensions.CalendarDayButtonState" Value="Orange">
+                                            <Setter Property="Background" Value="Orange"/>
+                                        </Trigger>
+                                        <Trigger Property="attached:CalendarExtensions.CalendarDayButtonState" Value="Red">
+                                            <Setter Property="Background" Value="Red"/>
+                                        </Trigger>
+
+                                        <!--Today/Selected-->
                                         <Trigger Property="IsToday" Value="True">
                                             <Setter Property="Background" Value="White" />
                                             <Setter Property="Foreground" Value="Blue" />
@@ -31,6 +48,152 @@
                                             <Setter Property="Background" Value="Black" />
                                             <Setter Property="Foreground" Value="White" />
                                         </Trigger>
+
+                                        <!--Multitriggers for green-->
+                                        <MultiTrigger> <!--Selected-->
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="attached:CalendarExtensions.CalendarDayButtonState" Value="Green"/>
+                                                <Condition Property="IsSelected" Value="True"/>
+                                            </MultiTrigger.Conditions>
+                                            <MultiTrigger.Setters>
+                                                <Setter Property="Background" Value="Green" />
+                                                <Setter Property="Foreground" Value="White" />
+                                            </MultiTrigger.Setters>
+                                        </MultiTrigger>
+                                        <MultiTrigger> <!--Today-->
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="attached:CalendarExtensions.CalendarDayButtonState" Value="Green"/>
+                                                <Condition Property="IsToday" Value="True"/>
+                                            </MultiTrigger.Conditions>
+                                            <MultiTrigger.Setters>
+                                                <Setter Property="Background" Value="LightGreen" />
+                                                <Setter Property="Foreground" Value="Blue" />
+                                                <Setter Property="FontWeight" Value="Bold" />
+                                            </MultiTrigger.Setters>
+                                        </MultiTrigger>
+                                        <MultiTrigger> <!--Today/Selected-->
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="attached:CalendarExtensions.CalendarDayButtonState" Value="Green"/>
+                                                <Condition Property="IsSelected" Value="True"/>
+                                                <Condition Property="IsToday" Value="True"/>
+                                            </MultiTrigger.Conditions>
+                                            <MultiTrigger.Setters>
+                                                <Setter Property="Background" Value="Green" />
+                                                <Setter Property="Foreground" Value="Blue" />
+                                                <Setter Property="FontWeight" Value="Bold" />
+                                            </MultiTrigger.Setters>
+                                        </MultiTrigger>
+
+
+                                        <!--Multitriggers for yellow-->
+                                        <MultiTrigger> <!--Selected-->
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="attached:CalendarExtensions.CalendarDayButtonState" Value="Yellow"/>
+                                                <Condition Property="IsSelected" Value="True"/>
+                                            </MultiTrigger.Conditions>
+                                            <MultiTrigger.Setters>
+                                                <Setter Property="Background" Value="#FFD800" />
+                                                <Setter Property="Foreground" Value="White" />
+                                            </MultiTrigger.Setters>
+                                        </MultiTrigger>
+                                        <MultiTrigger><!--Today-->
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="attached:CalendarExtensions.CalendarDayButtonState" Value="Yellow"/>
+                                                <Condition Property="IsToday" Value="True"/>
+                                            </MultiTrigger.Conditions>
+                                            <MultiTrigger.Setters>
+                                                <Setter Property="Background" Value="Yellow" />
+                                                <Setter Property="Foreground" Value="Blue" />
+                                                <Setter Property="FontWeight" Value="Bold" />
+                                            </MultiTrigger.Setters>
+                                        </MultiTrigger>
+                                        <MultiTrigger> <!--Today/Selected-->
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="attached:CalendarExtensions.CalendarDayButtonState" Value="Yellow"/>
+                                                <Condition Property="IsSelected" Value="True"/>
+                                                <Condition Property="IsToday" Value="True"/>
+                                            </MultiTrigger.Conditions>
+                                            <MultiTrigger.Setters>
+                                                <Setter Property="Background" Value="#FFD800" />
+                                                <Setter Property="Foreground" Value="Blue" />
+                                                <Setter Property="FontWeight" Value="Bold" />
+                                            </MultiTrigger.Setters>
+                                        </MultiTrigger>
+
+                                        <!--Multitriggers for orange-->
+                                        <MultiTrigger><!--Selected-->
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="attached:CalendarExtensions.CalendarDayButtonState" Value="Orange"/>
+                                                <Condition Property="IsSelected" Value="True"/>
+                                            </MultiTrigger.Conditions>
+                                            <MultiTrigger.Setters>
+                                                <Setter Property="Background" Value="DarkOrange" />
+                                                <Setter Property="Foreground" Value="White" />
+                                            </MultiTrigger.Setters>
+                                        </MultiTrigger>
+                                        <MultiTrigger> <!--Today-->
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="attached:CalendarExtensions.CalendarDayButtonState" Value="Orange"/>
+                                                <Condition Property="IsToday" Value="True"/>
+                                            </MultiTrigger.Conditions>
+                                            <MultiTrigger.Setters>
+                                                <Setter Property="Background" Value="Orange" />
+                                                <Setter Property="Foreground" Value="Blue" />
+                                                <Setter Property="FontWeight" Value="Bold" />
+                                            </MultiTrigger.Setters>
+                                        </MultiTrigger>
+                                        <MultiTrigger> <!--Today/Selected-->
+                                            
+
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="attached:CalendarExtensions.CalendarDayButtonState" Value="Orange"/>
+                                                <Condition Property="IsSelected" Value="True"/>
+                                                <Condition Property="IsToday" Value="True"/>
+                                            </MultiTrigger.Conditions>
+                                            <MultiTrigger.Setters>
+                                                <Setter Property="Background" Value="DarkOrange" />
+                                                <Setter Property="Foreground" Value="Blue" />
+                                                <Setter Property="FontWeight" Value="Bold" />
+                                            </MultiTrigger.Setters>
+                                        </MultiTrigger>
+
+                                        <!--Multitriggers for red-->
+                                        <MultiTrigger>
+                                            <!--Selected-->
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="attached:CalendarExtensions.CalendarDayButtonState" Value="Red"/>
+                                                <Condition Property="IsSelected" Value="True"/>
+                                            </MultiTrigger.Conditions>
+                                            <MultiTrigger.Setters>
+                                                <Setter Property="Background" Value="DarkRed" />
+                                                <Setter Property="Foreground" Value="White" />
+                                            </MultiTrigger.Setters>
+                                        </MultiTrigger>
+                                        <MultiTrigger>
+                                            <!--Today-->
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="attached:CalendarExtensions.CalendarDayButtonState" Value="Red"/>
+                                                <Condition Property="IsToday" Value="True"/>
+                                            </MultiTrigger.Conditions>
+                                            <MultiTrigger.Setters>
+                                                <Setter Property="Background" Value="Red" />
+                                                <Setter Property="Foreground" Value="Blue" />
+                                                <Setter Property="FontWeight" Value="Bold" />
+                                            </MultiTrigger.Setters>
+                                        </MultiTrigger>
+                                        <MultiTrigger>
+                                            <!--Today/Selected-->
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="attached:CalendarExtensions.CalendarDayButtonState" Value="Red"/>
+                                                <Condition Property="IsSelected" Value="True"/>
+                                                <Condition Property="IsToday" Value="True"/>
+                                            </MultiTrigger.Conditions>
+                                            <MultiTrigger.Setters>
+                                                <Setter Property="Background" Value="DarkRed" />
+                                                <Setter Property="Foreground" Value="Blue" />
+                                                <Setter Property="FontWeight" Value="Bold" />
+                                            </MultiTrigger.Setters>
+                                        </MultiTrigger>
                                     </Style.Triggers>
                                 </Style>
                             </Setter.Value>

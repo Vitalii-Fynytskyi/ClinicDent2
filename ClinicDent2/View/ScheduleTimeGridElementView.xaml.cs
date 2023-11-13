@@ -61,6 +61,7 @@ namespace ClinicDent2.View
             Schedule.StartDatetime = date + ScheduleStartTime.ToString(@"hh\:mm");
             Schedule.EndDatetime = date + ScheduleEndTime.ToString(@"hh\:mm");
             ParentGridView.Owner.Owner.TcpClient.UpdateRecord(Schedule);
+            ParentGridView.UpdateCalendarDayState();
         }
         private void WillAppearChanged()
         {
@@ -415,6 +416,7 @@ namespace ClinicDent2.View
         {
             ParentGridView.TimeGridElementViews.Remove(this);
             ParentGridView.grid.Children.Remove(this);
+            ParentGridView.UpdateCalendarDayState();
             ParentGridView.Owner.Owner.TcpClient.DeleteRecord(Schedule.Id);
         }
 

@@ -18,6 +18,10 @@
             <Label Content="Максимальна кількість зображень на сторінці: "/>
             <TextBox x:Name="textBoxPhotosPerPage" Text="{Binding Path=(main:Options.PhotosPerPage)}" MinWidth="100"/>
         </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <Label Content="Вибране крісло в розкладі: "/>
+            <ComboBox MinWidth="100" SelectedItem="{Binding Path=(main:Options.DefaultSelectedCabinet)}" DisplayMemberPath="CabinetName" ItemsSource="{x:Static main:Options.AllCabinets}"/>
+        </StackPanel>
         <Button Content="Редагувати списки матеріалів клініки" HorizontalAlignment="Center" Margin="0,5,0,0" Click="ButtonEditClinicMaterials_Click"/>
     </StackPanel>
 </UserControl>

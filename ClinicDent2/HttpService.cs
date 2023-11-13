@@ -3,6 +3,7 @@ using ClinicDent2.RequestAnswers;
 using ClinicDent2.Requests;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Formatting;
@@ -13,20 +14,18 @@ namespace ClinicDent2
 {
     public static class HttpService
     {
-        static HttpClient httpClient;
+        public static HttpClient httpClient;
         static MediaTypeFormatter[] bsonFormatting;
         static MediaTypeFormatter BsonFormatter;
         static MediaTypeWithQualityHeaderValue bsonHeaderValue;
         static MediaTypeWithQualityHeaderValue octetStreamHeaderValue;
         static HttpService()
         {
-            httpClient = new HttpClient();
+            
             BsonFormatter = new BsonMediaTypeFormatter();
             bsonFormatting = new MediaTypeFormatter[] { BsonFormatter };
-            httpClient.BaseAddress = new Uri(IniService.GetPrivateString("Settings", "ServerAddress"));
             bsonHeaderValue = new MediaTypeWithQualityHeaderValue("application/bson");
             octetStreamHeaderValue = new MediaTypeWithQualityHeaderValue("application/octet-stream");
-
         }
         public static ScheduleRecordsForDayInCabinet GetSchedule(DateTime date, string cabinetId)
         {
@@ -144,29 +143,66 @@ namespace ClinicDent2
         }
         public static Doctor Authenticate(LoginModel loginModel)
         {
-            httpClient.DefaultRequestHeaders.Accept.Clear();
-            httpClient.DefaultRequestHeaders.Accept.Add(bsonHeaderValue);
-            HttpResponseMessage result = httpClient.PostAsync($"Account/login", loginModel, BsonFormatter).Result;
+
+            httpClient = CreateHttpClient(IniService.GetPrivateString("Settings", "ServerAddress"), TimeSpan.FromSeconds(10));
+            HttpResponseMessage result = null;
+            try
+            {
+                result = httpClient.PostAsync($"Account/login", loginModel, BsonFormatter).Result;
+            }
+            catch(Exception)
+            {
+                httpClient.Dispose();
+                httpClient = CreateHttpClient(IniService.GetPrivateString("Settings", "LanServerAddress"), TimeSpan.FromSeconds(10));
+                result = httpClient.PostAsync($"Account/login", loginModel, BsonFormatter).Result;
+            }
             if (result.IsSuccessStatusCode == false)
             {
+                httpClient.Dispose();
                 throw new Exception("Not authorized");
             }
             Doctor doctor = result.Content.ReadAsAsync<Doctor>(bsonFormatting).Result;
+            httpClient.Dispose();
+            httpClient = CreateHttpClient(httpClient.BaseAddress.ToString());
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", doctor.EncodedJwt);
             return doctor;
         }
         public static Doctor Register(RegisterModel registerModel)
         {
-            httpClient.DefaultRequestHeaders.Accept.Clear();
-            httpClient.DefaultRequestHeaders.Accept.Add(bsonHeaderValue);
-            HttpResponseMessage result = httpClient.PostAsync($"Account/register", registerModel, BsonFormatter).Result;
+            httpClient = CreateHttpClient(IniService.GetPrivateString("Settings", "ServerAddress"), TimeSpan.FromSeconds(10));
+            HttpResponseMessage result = null;
+            try
+            {
+                result = httpClient.PostAsync($"Account/register", registerModel, BsonFormatter).Result;
+            }
+            catch (Exception)
+            {
+                httpClient.Dispose();
+                httpClient = CreateHttpClient(IniService.GetPrivateString("Settings", "LanServerAddress"), TimeSpan.FromSeconds(10));
+                result = httpClient.PostAsync($"Account/register", registerModel, BsonFormatter).Result;
+            }
             if (result.IsSuccessStatusCode == false)
             {
+                httpClient.Dispose();
                 throw new Exception("Not authorized");
             }
             Doctor doctor = result.Content.ReadAsAsync<Doctor>(bsonFormatting).Result;
+            httpClient.Dispose();
+            httpClient = CreateHttpClient(httpClient.BaseAddress.ToString());
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", doctor.EncodedJwt);
             return doctor;
+        }
+        public static HttpClient CreateHttpClient(string serverAddress, TimeSpan? timeout = null)
+        {
+            HttpClient newHttpClient = new HttpClient();
+            newHttpClient.DefaultRequestHeaders.Accept.Clear();
+            newHttpClient.DefaultRequestHeaders.Accept.Add(bsonHeaderValue);
+            newHttpClient.BaseAddress=new Uri(serverAddress);
+            if(timeout != null)
+            {
+                newHttpClient.Timeout = timeout.Value;
+            }
+            return newHttpClient;
         }
         internal static void DeleteScheduleRecord(int id)
         {
@@ -388,16 +424,16 @@ namespace ClinicDent2
             }
             return result.Content.ReadAsByteArrayAsync().Result;
         }
-        internal static List<Cabinet> GetCabinets()
+        internal static Cabinet[] GetCabinets()
         {
             httpClient.DefaultRequestHeaders.Accept.Clear();
             httpClient.DefaultRequestHeaders.Accept.Add(bsonHeaderValue);
             HttpResponseMessage result = httpClient.GetAsync($"Schedule/getCabinets").Result;
             if (result.IsSuccessStatusCode == false)
             {
-                throw new Exception($"List<Cabinet> GetCabinets(). Status code: {result.StatusCode}");
+                throw new Exception($"Cabinet[] GetCabinets(). Status code: {result.StatusCode}");
             }
-            List<Cabinet> receivedCabinets = result.Content.ReadAsAsync<List<Cabinet>>(bsonFormatting).Result.ToList();
+            Cabinet[] receivedCabinets = result.Content.ReadAsAsync<Cabinet[]>(bsonFormatting).Result.ToArray();
             return receivedCabinets;
         }
         internal static Image[] GetImagesForStage(int stageId)

@@ -136,8 +136,15 @@ namespace ClinicDent2.View
                 TimeGridElementViews.Remove(target);
                 grid.Children.Remove(target);
             }
+            UpdateCalendarDayState();
         }
-
+        public void UpdateCalendarDayState()
+        {
+            if (Cabinet.Id == Options.DefaultSelectedCabinet.Id)
+            {
+                Owner.Owner.UpdateCalendarDayState(TimeGridElementViews, Owner.SelectedDate);
+            }
+        }
         private void Emptiness_MouseMove(object sender, MouseEventArgs e)
         {
             if (SeparatorSelectedElement != null)
@@ -169,6 +176,8 @@ namespace ClinicDent2.View
             cabinetComment = schedules.CabinetComment;
             OnPropertyChanged(nameof(CabinetComment));
             PlaceRecords();
+            //UpdateCalendarDayState();
+
         }
 
         private void ClearTimeGrid()

@@ -111,6 +111,7 @@ namespace ClinicDent2.ViewModel
         private async Task SendStageViaTelegram(object arg)
         {
             string phone = arg as string;
+
             if (String.IsNullOrWhiteSpace(phone))
             {
                 MessageBox.Show($"Номер пустий");
@@ -125,6 +126,7 @@ namespace ClinicDent2.ViewModel
                 MessageBox.Show($"Номер '{arg}' не є в правильному форматі");
                 return;
             }
+
             MessageBoxResult messageBoxResult = System.Windows.MessageBox.Show("Надіслати етап через Telegram?", "Надсилання", System.Windows.MessageBoxButton.YesNo);
             if (messageBoxResult != MessageBoxResult.Yes) { return; }
             try

@@ -224,7 +224,7 @@ namespace ClinicDent2.ViewModel
                         patientsToClient = HttpService.GetPatients(selectedStatus, selectedSorting, selectedPage, Options.PatientsPerPage, searchTextForRequest, SelectedDoctor.Id);
                         break;
                     case PatientListMode.Debtors:
-                        patientsToClient = HttpService.GetDebtors(selectedSorting, selectedPage, Options.PatientsPerPage, searchTextForRequest, Options.CurrentDoctor.Id);
+                        patientsToClient = HttpService.GetDebtors(selectedSorting, selectedPage, Options.PatientsPerPage, searchTextForRequest, SelectedDoctor.Id);
                         break;
                     case PatientListMode.SearchPatientsWithImage:
                         patientsToClient = HttpService.GetPatientsByImage(imageId.Value, selectedStatus, selectedSorting, selectedPage, Options.PatientsPerPage, searchTextForRequest);

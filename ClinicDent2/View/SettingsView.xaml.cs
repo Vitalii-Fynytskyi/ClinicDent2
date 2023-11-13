@@ -5,9 +5,6 @@ using System.Windows.Controls;
 
 namespace ClinicDent2.View
 {
-    /// <summary>
-    /// Логика взаимодействия для SettingsView.xaml
-    /// </summary>
     public partial class SettingsView : UserControl, IBrowserTabControl
     {
         public SettingsView()

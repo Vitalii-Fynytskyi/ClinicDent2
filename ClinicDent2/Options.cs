@@ -25,13 +25,21 @@ namespace ClinicDent2
         public static MainWindow MainWindow { get; set; }
         public static Doctor CurrentDoctor { get; set; }
         public static Doctor[] AllDoctors { get; set; }
+        public static Cabinet[] AllCabinets { get; set; }
+
 
         public static string DateTimePattern { get; set; } = "yyyy-MM-dd HH:mm";
         public static string DatePattern { get; set; } = "dd.MM.yyyy";
 
+        #region IniFile data
         public static bool CanDeleteImage { get; set; }
         public static int PatientsPerPage { get; set; }
         public static int PhotosPerPage { get; set; }
+        public static int DefaultSelectedTable { get; set; }
+        public static Cabinet DefaultSelectedCabinet { get; set; }
+        #endregion
+
+
         public static void WriteCookies(string path, LoginModel loginModel)
         {
             using (BinaryWriter writer = new BinaryWriter(File.Open(path, FileMode.Create)))

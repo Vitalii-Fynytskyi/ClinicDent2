@@ -24,6 +24,9 @@
                             <DataTrigger Binding="{Binding patientListMode}" Value="MyPatients">
                                 <Setter Property="Visibility" Value="Visible"/>
                             </DataTrigger>
+                            <DataTrigger Binding="{Binding patientListMode}" Value="Debtors">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
                         </Style.Triggers>
                     </Style>
                 </ComboBox.Style>

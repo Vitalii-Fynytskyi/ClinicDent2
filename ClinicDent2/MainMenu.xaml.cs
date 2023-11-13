@@ -4,6 +4,7 @@ using ClinicDent2.View;
 using ClinicDent2.ViewModel;
 using System;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -17,6 +18,12 @@ namespace ClinicDent2
             Options.CurrentDoctor = doctorToSet;
             InitializeComponent();
             Options.AllDoctors = HttpService.GetDoctors();
+            Options.AllCabinets = HttpService.GetCabinets();
+            Options.DefaultSelectedCabinet = Options.AllCabinets.FirstOrDefault(c => c.Id == Options.DefaultSelectedTable);
+            if (Options.DefaultSelectedCabinet == null)
+            {
+                MessageBox.Show("Неправильно задано DefaultSelectedTable в .ini файлі.", "Помилка");
+            }
             Width = SystemParameters.WorkArea.Width;
             Height = SystemParameters.WorkArea.Height;
             StageViewModel.LoadAssets();

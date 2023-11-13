@@ -20,6 +20,8 @@ namespace ClinicDent2
             Options.CanDeleteImage = Convert.ToBoolean(IniService.GetPrivateString("Settings","CanDeleteImage"));
             Options.PatientsPerPage = Convert.ToInt32(IniService.GetPrivateString("Settings","PatientsPerPage"));
             Options.PhotosPerPage = Convert.ToInt32(IniService.GetPrivateString("Settings","PhotosPerPage"));
+            Options.DefaultSelectedTable = Convert.ToInt32(IniService.GetPrivateString("Settings", "DefaultSelectedTable"));
+
             Options.MainWindow = this;
         }
 

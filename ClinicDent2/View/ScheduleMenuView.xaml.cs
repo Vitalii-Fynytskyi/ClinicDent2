@@ -1,15 +1,20 @@
-﻿using ClinicDent2.Interfaces;
+﻿using ClinicDent2.Attached;
+using ClinicDent2.Interfaces;
 using ClinicDent2.Model;
 using ClinicDent2.TcpClientToServer;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace ClinicDent2.View
 {
@@ -17,6 +22,8 @@ namespace ClinicDent2.View
     {
         public static double? DesiredVerticalScrollOffset = null;
         public TcpClient TcpClient;
+        public bool isInitialized = false;
+        private bool isScrollChangedEventBlocked = false;
         public List<ScheduleForDayView> ScheduleForDayViews { get; set; }
         public ScheduleMenuView()
         {
@@ -29,19 +36,12 @@ namespace ClinicDent2.View
             TcpClient.SchedlueCabinetCommentUpdated += TcpClient_SchedlueCabinetCommentUpdated;
 
             InitializeComponent();
-
             selectedDate = DefaultSelectedDate;
-            ScheduleForDayViews = new List<ScheduleForDayView>(31);
-            for (int i = 0; i < 31; i++)
-            {
-                ScheduleForDayView newScheduleForDayView = new ScheduleForDayView(selectedDate.Year, selectedDate.Month, i + 1, this);
-                stackPanelDays.Children.Add(newScheduleForDayView);
-                ScheduleForDayViews.Add(newScheduleForDayView);
-            }
             DataContext = this;
+            
             TcpClient.ConnectToServer();
-        }
 
+        }
         private void TcpClient_SchedlueCabinetCommentUpdated(string datetime, int cabinetId, string newComment)
         {
             Application.Current.Dispatcher.Invoke(new Action(() => {
@@ -56,7 +56,6 @@ namespace ClinicDent2.View
                 }
             }));
         }
-
         private void TcpConnection_ScheduleCommentUpdated(int recordId, string newComment, string date, int cabinetId)
         {
             Application.Current.Dispatcher.Invoke(new Action(() => {
@@ -71,7 +70,6 @@ namespace ClinicDent2.View
                 }
             }));
         }
-
         private void TcpConnection_ScheduleStateUpdated(int recordId, SchedulePatientState newState, string date, int cabinetId)
         {
             Application.Current.Dispatcher.Invoke(new Action(() => {
@@ -87,7 +85,6 @@ namespace ClinicDent2.View
             }));
 
         }
-
         private void TcpConnection_ScheduleRecordDeleted(int recordId, string date, int cabinetId)
         {
             Application.Current.Dispatcher.Invoke(new Action(() => {
@@ -104,7 +101,6 @@ namespace ClinicDent2.View
             }));
 
         }
-
         private void TcpConnection_ScheduleRecordUpdated(object sender, Schedule e)
         {
             Application.Current.Dispatcher.Invoke(new Action(() => {
@@ -120,7 +116,6 @@ namespace ClinicDent2.View
                 Options.MainWindow.mainMenu.browserControl.NotifyOtherTabs(NotificationCodes.ScheduleRecordUpdated, e);
             }));
         }
-
         private void TcpConnection_ScheduleRecordAdded(object sender, Schedule e)
         {
             Application.Current.Dispatcher.Invoke(new Action(() =>
@@ -134,16 +129,12 @@ namespace ClinicDent2.View
                         dayView.AddRecord(e);
                     }
                 }
-                e.CabinetName = ScheduleForDayView.Cabinets.FirstOrDefault(c => c.Id == e.CabinetId).CabinetName;
+                e.CabinetName = Options.AllCabinets.FirstOrDefault(c => c.Id == e.CabinetId).CabinetName;
                 Options.MainWindow.mainMenu.browserControl.NotifyOtherTabs(NotificationCodes.ScheduleRecordAdded, new Schedule(e));
             }));
         }
-
-
-
         private DateTime selectedDate;
         public static DateTime DefaultSelectedDate;
-
         public DateTime SelectedDate
         {
             get
@@ -154,34 +145,38 @@ namespace ClinicDent2.View
             {
                 if (value.Year != selectedDate.Year || value.Month != selectedDate.Month)
                 {
+                    DefaultSelectedDate = value;
+                    selectedDate = value;
+                    OnPropertyChanged();
                     for (int i = 0; i < ScheduleForDayViews.Count; i++)
                     {
-                        ScheduleForDayViews[i].UpdateDate(value.Year, value.Month, i + 1);
+                        ScheduleForDayViews[i].UpdateDate(selectedDate.Year, selectedDate.Month, i + 1);
                     }
+                    ScrollToTopOfScrollViewer(ScheduleForDayViews[selectedDate.Day - 1], scrollViewerSchedule);
+                    UpdateCalendarDaysState();
                 }
-                DefaultSelectedDate = value;
-                selectedDate = value;
-                int dayOfMonth = selectedDate.Day;
-                scrollViewerSchedule.ScrollToVerticalOffset(ScheduleForDayViews[dayOfMonth - 1].ActualHeight * (dayOfMonth - 1));
-                OnPropertyChanged();
+                else
+                {
+                    DefaultSelectedDate = value;
+                    selectedDate = value;
+                    int dayOfMonth = selectedDate.Day;
+                    ScrollToTopOfScrollViewer(ScheduleForDayViews[dayOfMonth - 1], scrollViewerSchedule);
+                    OnPropertyChanged();
+                }
+                
             }
         }
-
         static ScheduleMenuView()
         {
             DefaultSelectedDate = DateTime.Now;
 
         }
-
         public event PropertyChangedEventHandler PropertyChanged;
-
         public void OnPropertyChanged([CallerMemberName] string prop = "")
         {
             if (PropertyChanged != null)
                 PropertyChanged(this, new PropertyChangedEventArgs(prop));
         }
-
-
         private void datePicker_SelectedDatesChanged(object sender, SelectionChangedEventArgs e)
         {
             if (Mouse.Captured is CalendarItem)
@@ -191,21 +186,53 @@ namespace ClinicDent2.View
         }
         private void scrollViewerSchedule_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
-            if (e.VerticalChange != 0)
+            if (e.VerticalChange != 0 && isScrollChangedEventBlocked == false)
             {
-                double elementHeight = ScheduleForDayViews[0].ActualHeight;
-                int currentElement = (int)e.VerticalOffset / (int)elementHeight;
-                selectedDate = ScheduleForDayViews[currentElement].SelectedDate;
-                OnPropertyChanged(nameof(SelectedDate));
-            }
-        }
+                ScrollViewer scrollViewer = sender as ScrollViewer;
 
+                ScheduleForDayView mostVisibleItem = null;
+                double maxVisibleHeight = 0;
+
+                foreach (var item in ScheduleForDayViews)
+                {
+                    Rect itemRect = item.TransformToVisual(scrollViewer).TransformBounds(new Rect(0.0, 0.0, item.ActualWidth, item.ActualHeight));
+                    Rect intersection = Rect.Intersect(new Rect(0.0, 0.0, scrollViewer.ViewportWidth, scrollViewer.ViewportHeight), itemRect);
+
+                    if (intersection != Rect.Empty && intersection.Height > maxVisibleHeight)
+                    {
+                        maxVisibleHeight = intersection.Height;
+                        mostVisibleItem = item;
+                    }
+                }
+
+                if (mostVisibleItem != null)
+                {
+                    selectedDate = mostVisibleItem.SelectedDate;
+                    OnPropertyChanged(nameof(SelectedDate));
+                }
+            }
+            isScrollChangedEventBlocked = false;
+        }
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
-            if(DesiredVerticalScrollOffset == null)
+            if(isInitialized == false)
             {
-                int dayOfMonth = selectedDate.Day;
-                scrollViewerSchedule.ScrollToVerticalOffset(ScheduleForDayViews[dayOfMonth - 1].ActualHeight * (dayOfMonth - 1));
+                ScheduleForDayViews = new List<ScheduleForDayView>(31);
+                for (int i = 0; i < 31; i++)
+                {
+                    ScheduleForDayView newScheduleForDayView = new ScheduleForDayView(selectedDate.Year, selectedDate.Month, i + 1, this);
+                    stackPanelDays.Children.Add(newScheduleForDayView);
+                    ScheduleForDayViews.Add(newScheduleForDayView);
+                }
+                isInitialized = true;
+            }
+            if (DesiredVerticalScrollOffset == null)
+            {
+                this.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    int dayOfMonth = selectedDate.Day;
+                    ScrollToTopOfScrollViewer(ScheduleForDayViews[dayOfMonth - 1], scrollViewerSchedule);
+                }), DispatcherPriority.Loaded);
             }
             else
             {
@@ -213,17 +240,14 @@ namespace ClinicDent2.View
             }
             datePicker.DisplayDate = datePicker.SelectedDate.Value;
         }
-
         public void TabActivated()
         {
 
         }
-
         public void TabDeactivated()
         {
             DesiredVerticalScrollOffset=scrollViewerSchedule.VerticalOffset;
         }
-
         public void TabClosed()
         {
             TcpClient.DisconnectFromServer();
@@ -236,7 +260,6 @@ namespace ClinicDent2.View
             clickPosition = e.GetPosition(datePicker);
             datePicker.CaptureMouse();
         }
-
         private void datePicker_MouseMove(object sender, MouseEventArgs e)
         {
             if (isDragging)
@@ -246,13 +269,11 @@ namespace ClinicDent2.View
                 Canvas.SetLeft(datePicker, currentPosition.X - clickPosition.X);
             }
         }
-
         private void datePicker_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             isDragging = false;
             datePicker.ReleaseMouseCapture();
         }
-
         public void Notify(int notificationCode, object param)
         {
             switch(notificationCode)
@@ -367,5 +388,85 @@ namespace ClinicDent2.View
             // Check if the month of the next Sunday is different from the original date
             return nextSunday.Month != stageDatetime.Month;
         }
+
+        public void UpdateCalendarDayState(List<ScheduleTimeGridElementView> timeGridElementViews, DateTime dateTime)
+        {
+            ///Calculate hours
+            TimeSpan stagesSumTime = TimeSpan.Zero;
+            foreach (ScheduleTimeGridElementView scheduleTimeGridElementView in timeGridElementViews)
+            {
+                stagesSumTime += scheduleTimeGridElementView.ScheduleEndTime - scheduleTimeGridElementView.ScheduleStartTime;
+            }
+
+            
+            ///Mark button at calendar with corresponding background
+            CalendarDayButton calendarDayButton = datePicker.FindVisualChildren<System.Windows.Controls.Primitives.CalendarDayButton>().FirstOrDefault(button => (button.Content as string) == dateTime.Day.ToString() && button.IsInactive == false);
+            if (calendarDayButton == null) { return; }
+            if(stagesSumTime == TimeSpan.Zero)
+            {
+                CalendarExtensions.SetCalendarDayButtonState(calendarDayButton, CalendarDayButtonStates.White);
+
+            }
+            else if(stagesSumTime>=TimeSpan.FromMinutes(30) && stagesSumTime <= TimeSpan.FromHours(3))
+            {
+                CalendarExtensions.SetCalendarDayButtonState(calendarDayButton, CalendarDayButtonStates.Green);
+
+            }
+            else if(stagesSumTime >= TimeSpan.FromMinutes(210) && stagesSumTime <= TimeSpan.FromHours(6))
+            {
+                CalendarExtensions.SetCalendarDayButtonState(calendarDayButton, CalendarDayButtonStates.Yellow);
+            }
+            else if (stagesSumTime >= TimeSpan.FromMinutes(390) && stagesSumTime <= TimeSpan.FromMinutes(450))
+            {
+                CalendarExtensions.SetCalendarDayButtonState(calendarDayButton, CalendarDayButtonStates.Orange);
+            }
+            else
+            {
+                CalendarExtensions.SetCalendarDayButtonState(calendarDayButton, CalendarDayButtonStates.Red);
+            }
+        }
+        public void ClearCalendarDaysState()
+        {
+            CalendarDayButton[] calendarDayButtons = datePicker.FindVisualChildren<System.Windows.Controls.Primitives.CalendarDayButton>().ToArray();
+            foreach (CalendarDayButton button in calendarDayButtons)
+            {
+                CalendarExtensions.SetCalendarDayButtonState(button, CalendarDayButtonStates.White);
+            }
+
+        }
+
+        private void datePicker_DisplayDateChanged(object sender, CalendarDateChangedEventArgs e)
+        {
+            ClearCalendarDaysState();
+            if (e.AddedDate.HasValue)
+            {
+                if(e.AddedDate.Value.Month == SelectedDate.Month && e.AddedDate.Value.Year == SelectedDate.Year)
+                {
+                    UpdateCalendarDaysState();
+                }
+            }
+            
+        }
+        public void ScrollToTopOfScrollViewer(UIElement targetElement, ScrollViewer scrollViewer)
+        {
+            // Convert the target element's top-left position to the scroll viewer's coordinate space.
+            GeneralTransform generalTransform = targetElement.TransformToVisual(scrollViewer);
+            Point offset = generalTransform.Transform(new Point(0, 0));
+            // Set the scroll viewer's vertical offset to the calculated position.
+            scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset + offset.Y);
+            isScrollChangedEventBlocked = true;
+
+        }
+        private void UpdateCalendarDaysState()
+        {
+            foreach (ScheduleForDayView scheduleForDayView in ScheduleForDayViews)
+            {
+                scheduleForDayView.TimeGrids.FirstOrDefault(t => t.Cabinet.Id == Options.DefaultSelectedTable)?.UpdateCalendarDayState();
+            }
+        }
     }
+    public enum CalendarDayButtonStates
+    {
+        White=0,Green=1,Yellow=2,Orange=3,Red=4
+    };
 }

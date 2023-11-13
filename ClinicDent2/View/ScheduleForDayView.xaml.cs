@@ -31,7 +31,6 @@ namespace ClinicDent2.View
         }
         public ScheduleMenuView Owner { get; set; }
         public List<ScheduleTimeGridView> TimeGrids { get; set; }
-        public static List<Cabinet> Cabinets { get; set; }
         private DateTime selectedDate;
         public DateTime SelectedDate
         {
@@ -52,7 +51,6 @@ namespace ClinicDent2.View
         }
         static ScheduleForDayView()
         {
-            Cabinets = HttpService.GetCabinets();
             CabinetColors = new CabinetColors[3];
 
             CabinetColors[0] = new CabinetColors();
@@ -94,9 +92,9 @@ namespace ClinicDent2.View
 
             TimeGrids = new List<ScheduleTimeGridView>();
             
-            for(int i = 0; i < Cabinets.Count; i++)
+            for(int i = 0; i < Options.AllCabinets.Length; i++)
             {
-                ScheduleTimeGridView scheduleTimeGridView = new ScheduleTimeGridView(Cabinets[i], this, CabinetColors[i]);
+                ScheduleTimeGridView scheduleTimeGridView = new ScheduleTimeGridView(Options.AllCabinets[i], this, CabinetColors[i]);
                 scheduleTimeGridView.Margin = new Thickness(15, 0, 0, 0);
                 TimeGrids.Add(scheduleTimeGridView);
                 timeGridsPanel.Children.Add(scheduleTimeGridView);
@@ -211,6 +209,7 @@ namespace ClinicDent2.View
             }
             ScheduleTimeGridElementView scheduleTimeGridElementView = timeGrid.TimeGridElementViews.FirstOrDefault(v => v.Schedule.Id == e.Id);
             scheduleTimeGridElementView.UpdateSchedule(e);
+            timeGrid.UpdateCalendarDayState();
         }
         public void DeleteRecord(int recordId, int cabinetId)
         {
@@ -267,6 +266,7 @@ namespace ClinicDent2.View
                         requestedSunday.AddToWeekSummary(e.DoctorIds, e.StagesPriceSum, e.StagesPaidSum, e.StagesExpensesSum);
                     }
                 }
+                timeGrid.UpdateCalendarDayState();
             }
         }
         public event PropertyChangedEventHandler PropertyChanged;

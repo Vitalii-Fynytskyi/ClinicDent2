@@ -45,9 +45,7 @@ namespace ClinicDent2.TcpClientToServer
         System.Timers.Timer timerPingServer;
         public TcpClient()
         {
-            //read server address from ini file
-            string serverAddress = IniService.GetPrivateString("Settings", "ServerAddress");
-            Uri uri= new Uri(serverAddress);
+            Uri uri = HttpService.httpClient.BaseAddress;
             serverIp = uri.Host;
             serverPort = Convert.ToInt32(IniService.GetPrivateString("Settings", "TcpPort"));
             timerPingServer=new System.Timers.Timer();

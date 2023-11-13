@@ -1,114 +1,42 @@
 ﻿using ClinicDent2.ViewModel;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using TeleSharp.TL;
-using TeleSharp.TL.Contacts;
-using TLSharp.Core;
-using TLSharp.Core.Exceptions;
-using TLSharp.Core.Utils;
+using TL;
+using WTelegram;
 
 namespace ClinicDent2
 {
     public static class TelegramMessageSender
     {
-        public static int apiId;
-        public static string apiHash;
-        public static string phoneNumber;
-        public static string hash;
-        public static TelegramClient client;
-        /// <summary>
-        /// This function initialize and authorize telegram client if required. Always begin TelegramMessageSender usage after calling Init 
-        /// </summary>
+        public static Client client;
+        private static string enteredVerificationCode;
         public static async Task InitAsync()
         {
-            apiId = Int32.Parse(IniService.GetPrivateString("Telegram", "apiId"));
-            apiHash = IniService.GetPrivateString("Telegram", "apiHash");
-            phoneNumber = IniService.GetPrivateString("Telegram", "phoneNumber");
-            client = new TelegramClient(apiId, apiHash);
-            await client.ConnectAsync().ConfigureAwait(false);
-
-            if (!client.IsUserAuthorized())
-            {
-                hash = await client.SendCodeRequestAsync(phoneNumber).ConfigureAwait(false);
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    WindowEnterMessage windowEnterMessage = new WindowEnterMessage();
-                    windowEnterMessage.ConfirmPressed += WindowEnterMessage_ConfirmPressed;
-                    windowEnterMessage.CancelPressed += WindowEnterMessage_CancelPressed;
-                    windowEnterMessage.ShowDialog();
-                });
-            }
+            enteredVerificationCode = "";
+            client = new Client(Config);
+            await client.LoginUserIfNeeded().ConfigureAwait(false);
         }
-        private static void WindowEnterMessage_CancelPressed(WindowEnterMessage sender)
+        public async static Task<InputPeer> SendTextMessage(string name, string receiverPhoneNumber, string message)
         {
-            Application.Current.Dispatcher.Invoke(() => sender.Close());
-            
-        }
-
-        private static async void WindowEnterMessage_ConfirmPressed(WindowEnterMessage sender, string text)
-        {
-            await TelegramMessageSender.SendCodeRequest(text).ConfigureAwait(false);
-            Application.Current.Dispatcher.Invoke(() => sender.Close());
-        }
-        public async static Task SendCodeRequest(string code)
-        {
+            Contacts_ResolvedPeer peer = null;
             try
             {
-                await client.MakeAuthAsync(phoneNumber, hash, code).ConfigureAwait(false); ;
+                peer = await client.Contacts_ResolvePhone(receiverPhoneNumber).ConfigureAwait(false);
             }
-            catch (CloudPasswordNeededException)
+            catch(RpcException)
             {
-                var password = IniService.GetPrivateString("Telegram", "optionalPassword");
-                var passwordSetting = await client.GetPasswordSetting().ConfigureAwait(false); ;
-                await client.MakeAuthWithPasswordAsync(passwordSetting, password).ConfigureAwait(false);
+                throw new Exception($"Не вдалось знайти контакт з номером \'{receiverPhoneNumber}\'");
             }
-        }
-        public async static Task<TLUser> SendTextMessage(string name, string receiverPhoneNumber, string message)
-        {
-            // this is because the contacts in the address come without the "+" prefix
-            string normalizedNumber = receiverPhoneNumber.StartsWith("+") ?
-                receiverPhoneNumber.Substring(1, receiverPhoneNumber.Length - 1) :
-                receiverPhoneNumber;
-
-            TLContacts result = await client.GetContactsAsync();
-
-            TLUser user = result.Users
-                .OfType<TLUser>()
-                .FirstOrDefault(x => x.Phone == normalizedNumber);
-
-            if(user != null)
+            await client.SendMessageAsync(peer, message).ConfigureAwait(false);
+            int[] contactIds = await client.Contacts_GetContactIDs().ConfigureAwait(false);
+            if (contactIds.Any(n => n == peer.peer.ID) == false)
             {
-                await client.SendMessageAsync(new TLInputPeerUser() { UserId = user.Id, AccessHash=user.AccessHash.Value }, message).ConfigureAwait(false); ;
+                await client.Contacts_AddContact(peer.User, name, "", $"+{receiverPhoneNumber}").ConfigureAwait(false);
             }
-            else
-            {
-                user = await ImportContact(name, "", receiverPhoneNumber).ConfigureAwait(false); ;
-                if(user == null)
-                {
-                    throw new Exception("Не вдалось відправити повідомлення. Не зареєстровано Telegram");
-                }
-                await client.SendMessageAsync(new TLInputPeerUser() { UserId = user.Id, AccessHash = user.AccessHash.Value }, message).ConfigureAwait(false); ;
-            }
-            return user;
-        }
-        public async static Task<TLUser> ImportContact(string firstName, string lastName, string phoneNumber)
-        {
-            var imported = await client.ImportContactsAsync(new List<TLInputPhoneContact> {
-            new TLInputPhoneContact {
-                Phone = phoneNumber,
-                FirstName = firstName,
-                LastName = lastName
-            }}).ConfigureAwait(false); ;
-            if (imported.Users.Count > 0)
-            {
-                var user = (TLUser)imported.Users[0];
-                return user;
-            }
-            return null;
+            return peer;
         }
         public static async Task SendStageAsync(string name, string phoneNumber, StageViewModel stage)
         {
@@ -116,32 +44,54 @@ namespace ClinicDent2
             {
                 await TelegramMessageSender.InitAsync();
             }
-            if (client.IsConnected == false)
-            {
-                await client.ConnectAsync();
-            }
             string message = $"{stage.StageDatetime}{Environment.NewLine}{stage.Title}{Environment.NewLine}Оплачено {stage.Payed}/{stage.Price} грн.";
-            TLUser user = await SendTextMessage(name, phoneNumber, message).ConfigureAwait(false);
+            InputPeer user = await SendTextMessage(name, phoneNumber, message).ConfigureAwait(false);
 
-            for(int i=0;i< stage.Images.Count; i++)
+            for (int i = 0; i < stage.Images.Count; i++)
             {
                 if (stage.Images[i].image.OriginalBytes == null)
                 {
                     stage.Images[i].image.OriginalBytes = HttpService.GetImageOriginalBytes(stage.Images[i].Id);
                 }
                 string extension = GetImageExtension(stage.Images[i].image.OriginalBytes);
-                string nameWithExtension = stage.Images[i].FileName + extension;
+                string nameWithExtension = $"{stage.Title} ({i+1}){extension}";
                 string mimeType = GetImageMimeType(stage.Images[i].image.OriginalBytes);
 
-                var fileResult = await client.UploadFile(nameWithExtension, new StreamReader(new MemoryStream(stage.Images[i].image.OriginalBytes))).ConfigureAwait(false);
-
-                var attributes = new TLVector<TLAbsDocumentAttribute>
-                {
-                    new TLDocumentAttributeFilename { FileName = $"{stage.Title} ({i+1}){extension}" }
-                };
-
-                await client.SendUploadedDocument(new TLInputPeerUser() { UserId = user.Id }, fileResult, "", mimeType, attributes).ConfigureAwait(false);
+                InputFileBase fileResult = await client.UploadFileAsync(new MemoryStream(stage.Images[i].image.OriginalBytes), nameWithExtension).ConfigureAwait(false);
+                await client.SendMediaAsync(user, "", fileResult, mimeType).ConfigureAwait(false);
             }
+        }
+        static string Config(string what)
+        {
+            switch (what)
+            {
+                case "api_id": return IniService.GetPrivateString("Telegram", "apiId");
+                case "api_hash": return IniService.GetPrivateString("Telegram", "apiHash");
+                case "phone_number": return IniService.GetPrivateString("Telegram", "phoneNumber");
+                case "verification_code":
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        WindowEnterMessage windowEnterMessage = new WindowEnterMessage();
+                        windowEnterMessage.ConfirmPressed += WindowEnterMessage_ConfirmPressed;
+                        windowEnterMessage.CancelPressed += WindowEnterMessage_CancelPressed;
+                        windowEnterMessage.ShowDialog();
+                    });
+                    return enteredVerificationCode;
+                case "password": return IniService.GetPrivateString("Telegram", "optionalPassword");
+                default: return null;                  // let WTelegramClient decide the default config
+            }
+        }
+        private static void WindowEnterMessage_CancelPressed(WindowEnterMessage sender)
+        {
+            Application.Current.Dispatcher.Invoke(() => sender.Close());
+            enteredVerificationCode = "";
+
+        }
+
+        private static void WindowEnterMessage_ConfirmPressed(WindowEnterMessage sender, string text)
+        {
+            Application.Current.Dispatcher.Invoke(() => sender.Close());
+            enteredVerificationCode = text;
         }
         public static string GetImageExtension(byte[] imageBytes)
         {
