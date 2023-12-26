@@ -481,7 +481,21 @@ namespace ClinicDent2.ViewModel
                 }
             }
         }
-
+        public int? ToothUnderObservationId
+        {
+            get
+            {
+                return stage.ToothUnderObservationId;
+            }
+            set
+            {
+                if (value != stage.ToothUnderObservationId)
+                {
+                    stage.ToothUnderObservationId = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
         public int Expenses
         {
             get

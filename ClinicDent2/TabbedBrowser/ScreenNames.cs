@@ -8,6 +8,10 @@
         public const string NEW_PATIENT = "Новий пацієнт";
         public const string DEBTORS = "Боржники";
         public const string SETTINGS = "Налаштування";
+        public const string STATISTICS = "Статистика";
+        public const string UNDER_OBSERVATION = "Під наглядом";
+
+
         public const string PHOTOFLOW = "Фотопотік";
         public const string PATIENTS_WITH_REQUESTED_IMAGE = "Пацієнти з вибраним зображенням";
 

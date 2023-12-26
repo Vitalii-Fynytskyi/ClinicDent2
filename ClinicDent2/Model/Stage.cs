@@ -44,6 +44,8 @@ namespace ClinicDent2.Model
             OldExpenses = d.OldExpenses;
             CommentText = d.CommentText;
             DoctorName = d.DoctorName;
+            ToothUnderObservationId = d.ToothUnderObservationId;
+
         }
         public int Id { get; set; }
         public int PatientId { get; set; }
@@ -78,6 +80,7 @@ namespace ClinicDent2.Model
         public int OldExpenses { get; set; }
         public string CommentText { get; set; }
         public string DoctorName { get; set; }
+        public int? ToothUnderObservationId { get; set; }
     }
     public class StageDTO
     {
@@ -110,6 +113,8 @@ namespace ClinicDent2.Model
             OldExpenses= d.OldExpenses;
             CommentText = d.CommentText;
             DoctorName = d.DoctorName;
+            ToothUnderObservationId = d.ToothUnderObservationId;
+
         }
         public int Id { get; set; }
         public int PatientId { get; set; }
@@ -146,5 +151,6 @@ namespace ClinicDent2.Model
 
         public string CommentText { get; set; }
         public string DoctorName { get; set; }
+        public int? ToothUnderObservationId { get; set; }
     }
 }

@@ -14,6 +14,8 @@ namespace ClinicDent2.ViewModel
     {
         public RelayCommand PhotoClickedCommand { get; set; }
         public RelayCommand EditPatientCommand { get; set; }
+        public RelayCommand UpdateCurePlanCommand { get; set; }
+
         public RelayCommand CreateNewStageCommand { get; set; }
         private void PhotoClicked(object arg)
         {
@@ -33,10 +35,9 @@ namespace ClinicDent2.ViewModel
                 App.Current.MainWindow.Activate();
             }
         }
-
-        internal void ServerUpdateStages()
+        private void UpdateCurePlan(object arg)
         {
-            if(Mark_IsCurePlanUpdated == true)
+            if (Mark_IsCurePlanUpdated == true)
             {
                 try
                 {
@@ -48,6 +49,11 @@ namespace ClinicDent2.ViewModel
                     MessageBox.Show($"Не вдалось оновити план лікування пацієнта", "Помилка");
                 }
             }
+        }
+
+        internal void ServerUpdateStages()
+        {
+            UpdateCurePlan(null);
             
             if(stages == null) { return; }
             System.Collections.Generic.List<StageViewModel> selectedStageViewModels = stages.Where(vm => vm.IsOwner == true && vm.ViewModelStatus == ViewModelStatus.Updated && vm.Error == string.Empty).ToList();
@@ -176,6 +182,7 @@ namespace ClinicDent2.ViewModel
             PhotoClickedCommand = new RelayCommand(PhotoClicked);
             EditPatientCommand = new RelayCommand(EditPatient);
             CreateNewStageCommand = new RelayCommand(CreateNewStage);
+            UpdateCurePlanCommand = new RelayCommand(UpdateCurePlan);
         }
 
 

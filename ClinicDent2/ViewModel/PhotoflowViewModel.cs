@@ -9,8 +9,36 @@ using System.Windows;
 
 namespace ClinicDent2.ViewModel
 {
+    public enum ImageType
+    {
+        Undefined=0,
+        Regular =1,
+        XRay=2,
+        All = 3,
+
+    }
     public class PhotoflowViewModel :BaseViewModel
     {
+        private ImageType imageType = ImageType.All;
+        public ImageType ImageType
+        {
+            get
+            {
+                return imageType;
+            }
+            set
+            {
+                if (imageType != value)
+                {
+                    imageType = value;
+                    SelectedPage = 1;
+                    ReceiveImages();
+
+                }
+                NotifyPropertyChanged();
+            }
+        }
+        public List<ImageType> ImageTypes { get; set; } = Enum.GetValues(typeof(ImageType)).Cast<ImageType>().ToList();
         public PhotoflowViewModel()
         {
             PageChangedCommand = new RelayCommand(pageChanged);
@@ -73,7 +101,14 @@ namespace ClinicDent2.ViewModel
                 }
                 if (Options.CanDeleteImage)
                     File.Delete(imagePath);
-                ImageViewModels.Insert(0, new ImageViewModel(image, photoflowViewModelToSet: this));
+                if(imageType == ImageType.All || (imageType == ImageType.XRay && image.IsXRay == true) || (imageType == ImageType.Regular && image.IsXRay == false) || image.IsXRay==null)
+                {
+                    ImageViewModels.Insert(0, new ImageViewModel(image, photoflowViewModelToSet: this));
+                    if(image.IsXRay == null)
+                    {
+                        MessageBox.Show("Не вдалось визначити точний тип зображення. Отримано статус Undefined");
+                    }
+                }
             }
         }
         private ObservableCollection<DoctorViewModel> doctorViewModels;
@@ -185,7 +220,7 @@ namespace ClinicDent2.ViewModel
             ImagesToClient imagesToClient= new ImagesToClient();
             try
             {
-                imagesToClient = HttpService.GetImages(selectedPage, Options.PhotosPerPage, SelectedDoctor.Id);
+                imagesToClient = HttpService.GetImages(selectedPage, Options.PhotosPerPage, SelectedDoctor.Id, imageType);
             }
             catch (Exception ex)
             {

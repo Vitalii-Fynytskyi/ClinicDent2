@@ -9,6 +9,8 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <DockPanel>
         <ComboBox ItemsSource="{Binding DoctorViewModels}" DisplayMemberPath="Name"  DockPanel.Dock="Top" HorizontalAlignment="Center" SelectedItem="{Binding SelectedDoctor, Mode=TwoWay}"/>
+        <ComboBox ItemsSource="{Binding ImageTypes}" DockPanel.Dock="Top" HorizontalAlignment="Center" SelectedItem="{Binding ImageType, Mode=TwoWay}"/>
+
         <Button HorizontalAlignment="Center" Content="Завантажити фото" Margin="0,10,0,0" Click="buttonAddPhotos_Click" DockPanel.Dock="Top" IsEnabled="{Binding CanAddPhotos}"/>
         <ScrollViewer>
             <StackPanel>

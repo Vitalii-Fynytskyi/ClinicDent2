@@ -15,6 +15,8 @@
     <None Remove="assets\images\TelegramLogo.png" />
     <None Remove="assets\images\TelegramLogoGray.png" />
     <None Remove="assets\images\TelegramLogoSent.png" />
+    <None Remove="assets\images\toothGlass.png" />
+    <None Remove="assets\images\toothPlus.png" />
     <None Remove="assets\images\viber icon.png" />
     <None Remove="assets\images\WRONG.png" />
   </ItemGroup>
@@ -34,6 +36,8 @@
     <Resource Include="assets\images\TelegramLogo.png" />
     <Resource Include="assets\images\TelegramLogoGray.png" />
     <Resource Include="assets\images\TelegramLogoSent.png" />
+    <Resource Include="assets\images\toothGlass.png" />
+    <Resource Include="assets\images\toothPlus.png" />
     <Resource Include="assets\images\viber icon.png" />
     <Resource Include="assets\images\WRONG.png" />
   </ItemGroup>

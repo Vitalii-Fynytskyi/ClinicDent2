@@ -49,7 +49,13 @@
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
-                        <TextBox Grid.Row="0" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Text="{Binding CurePlan}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" MinWidth="150" MinHeight="50" PreviewKeyDown="TextBox_PreviewKeyDown"/>
+                        <TextBox x:Name="textBoxCurePlan" Grid.Row="0" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Text="{Binding CurePlan}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" MinWidth="150" MinHeight="50" PreviewKeyDown="TextBox_PreviewKeyDown">
+                            <behaviors:Interaction.Triggers>
+                                <behaviors:EventTrigger EventName="LostFocus" SourceObject="{Binding ElementName=textBoxCurePlan}">
+                                    <behaviors:InvokeCommandAction Command="{Binding UpdateCurePlanCommand}" />
+                                </behaviors:EventTrigger>
+                            </behaviors:Interaction.Triggers>
+                        </TextBox>
                         <Thumb Grid.Row="1" Cursor="SizeNS" Height="5" HorizontalAlignment="Stretch" DragDelta="Thumb_DragDelta" />
                     </Grid>
                     
@@ -84,13 +90,31 @@
                         <DataTemplate>
                             <Border BorderThickness="2" BorderBrush="Black">
                                 <StackPanel Background="{Binding BoundBackground}">
-                                    <TextBox Text="{Binding Title}" Background="Transparent" BorderThickness="0" IsEnabled="{Binding IsOwner}">
-                                        <TextBox.ContextMenu>
-                                            <ContextMenu>
-                                                <MenuItem Header="Видалити етап" Command="{Binding DeleteStageCommand}"/>
-                                            </ContextMenu>
-                                        </TextBox.ContextMenu>
-                                    </TextBox>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition></ColumnDefinition>
+                                            <ColumnDefinition></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox Text="{Binding Title}" Background="Transparent" BorderThickness="0" IsEnabled="{Binding IsOwner}">
+                                            <TextBox.ContextMenu>
+                                                <ContextMenu>
+                                                    <MenuItem Header="Видалити етап" Command="{Binding DeleteStageCommand}"/>
+                                                </ContextMenu>
+                                            </TextBox.ContextMenu>
+                                        </TextBox>
+                                        <Image x:Name="imageButtonToothObservation" MouseLeftButtonDown="imageButtonToothObservation_MouseLeftButtonDown" Width="35" Height="35" Grid.Column="1" HorizontalAlignment="Right">
+                                            <Image.Style>
+                                                <Style TargetType="Image">
+                                                    <Setter Property="Source" Value="pack://application:,,,/assets/images/toothGlass.png" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding ToothUnderObservationId, TargetNullValue=-1}" Value="-1">
+                                                            <Setter Property="Source" Value="pack://application:,,,/assets/images/toothPlus.png" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Image.Style>
+                                        </Image>
+                                    </Grid>
                                     <TextBox Text="{Binding StageDatetime,UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" FontSize="18" Background="Transparent" BorderThickness="0" IsEnabled="{Binding IsOwner}">
                                         <TextBox.Style>
                                             <Style TargetType="TextBox">
@@ -119,7 +143,6 @@
                                                     </Style.Triggers>
                                                 </Style>
                                             </StackPanel.Style>
-
                                             <Label Content="Бонд"/>
                                             <ComboBox MinWidth="100" SelectedItem="{Binding Bond, Mode=TwoWay}" DisplayMemberPath="Value" ItemsSource="{x:Static vm:StageViewModel.Bonds}"/>
                                         </StackPanel>

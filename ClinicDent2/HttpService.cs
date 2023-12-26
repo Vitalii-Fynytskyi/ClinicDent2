@@ -1,6 +1,7 @@
 ﻿using ClinicDent2.Model;
 using ClinicDent2.RequestAnswers;
 using ClinicDent2.Requests;
+using ClinicDent2.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -469,14 +470,14 @@ namespace ClinicDent2
             }
             return result.Content.ReadAsAsync<List<Schedule>>(bsonFormatting).Result;
         }
-        public static ImagesToClient GetImages(int selectedPage, int photosPerPage,int doctorId)
+        public static ImagesToClient GetImages(int selectedPage, int photosPerPage,int doctorId, ImageType imageType)
         {
             httpClient.DefaultRequestHeaders.Accept.Clear();
             httpClient.DefaultRequestHeaders.Accept.Add(bsonHeaderValue);
-            HttpResponseMessage result = httpClient.GetAsync($"Images/{selectedPage}/{photosPerPage}/{doctorId}").Result;
+            HttpResponseMessage result = httpClient.GetAsync($"Images/{selectedPage}/{photosPerPage}/{doctorId}/{imageType}").Result;
             if (result.IsSuccessStatusCode == false)
             {
-                throw new Exception($"ImagesToClient GetImages(selectedPage={selectedPage}, photosPerPage={photosPerPage}, doctorId={doctorId}). Status code: {result.StatusCode}");
+                throw new Exception($"ImagesToClient GetImages(selectedPage={selectedPage}, photosPerPage={photosPerPage}, doctorId={doctorId}, imageType={imageType}). Status code: {result.StatusCode}");
             }
             return result.Content.ReadAsAsync<ImagesToClient>(bsonFormatting).Result;
         }
@@ -522,5 +523,78 @@ namespace ClinicDent2
             return result.Content.ReadAsAsync<WeekMoneySummaryRequestAnswer>(bsonFormatting).Result;
         }
 
+        public static int GetFutureWorkingMinutes(int cabinetId)
+        {
+            httpClient.DefaultRequestHeaders.Accept.Clear();
+            HttpResponseMessage result = httpClient.GetAsync($"Statistics/futureWorkingMinutes/{cabinetId}").Result;
+            if (result.IsSuccessStatusCode == false)
+            {
+                throw new Exception($"int GetFutureWorkingHours(int cabinetId = {cabinetId}). Status code: {result.StatusCode}");
+            }
+            return Convert.ToInt32(result.Content.ReadAsStringAsync().Result);
+        }
+
+        public static int GetFutureUniquePatients(int cabinetId)
+        {
+            httpClient.DefaultRequestHeaders.Accept.Clear();
+            HttpResponseMessage result = httpClient.GetAsync($"Statistics/futureUniquePatientsAmount/{cabinetId}").Result;
+            if (result.IsSuccessStatusCode == false)
+            {
+                throw new Exception($"int  GetFutureUniquePatients(int cabinetId = {cabinetId}). Status code: {result.StatusCode}");
+            }
+            return Convert.ToInt32(result.Content.ReadAsStringAsync().Result);
+        }
+        public static ToothUnderObservation GetToothUnderObservation(int toothObservationId)
+        {
+            httpClient.DefaultRequestHeaders.Accept.Clear();
+            httpClient.DefaultRequestHeaders.Accept.Add(bsonHeaderValue);
+            HttpResponseMessage result = httpClient.GetAsync($"Observations/tooth/{toothObservationId}").Result;
+            if (result.IsSuccessStatusCode == false)
+            {
+                throw new Exception($"ToothUnderObservation GetToothUnderObservation(toothObservationId = {toothObservationId}). Status code: {result.StatusCode}");
+            }
+            return result.Content.ReadAsAsync<ToothUnderObservation>(bsonFormatting).Result;
+        }
+        public static List<ToothUnderObservation> GetAllToothUnderObservation()
+        {
+            httpClient.DefaultRequestHeaders.Accept.Clear();
+            httpClient.DefaultRequestHeaders.Accept.Add(bsonHeaderValue);
+            HttpResponseMessage result = httpClient.GetAsync("Observations/allTooth").Result;
+            if (result.IsSuccessStatusCode == false)
+            {
+                throw new Exception($"List<ToothUnderObservation> GetAllToothUnderObservation(). Status code: {result.StatusCode}");
+            }
+            return result.Content.ReadAsAsync<List<ToothUnderObservation>>(bsonFormatting).Result;
+        }
+        internal static int PostToothUnderObservation(ToothUnderObservation newRecord)
+        {
+            httpClient.DefaultRequestHeaders.Accept.Clear();
+            HttpResponseMessage result = httpClient.PostAsync($"Observations/tooth", newRecord, BsonFormatter).Result;
+            if (result.IsSuccessStatusCode == false)
+            {
+                throw new Exception($"int PostToothUnderObservation(ToothUnderObservation newRecord). Status code: {result.StatusCode}");
+            }
+            return Convert.ToInt32(result.Content.ReadAsStringAsync().Result);
+        }
+        internal static void PutToothUnderObservation(ToothUnderObservation updatedRecord)
+        {
+            httpClient.DefaultRequestHeaders.Accept.Clear();
+            httpClient.DefaultRequestHeaders.Accept.Add(bsonHeaderValue);
+            HttpResponseMessage result = httpClient.PutAsync($"Observations/tooth", updatedRecord, BsonFormatter).Result;
+            if (result.IsSuccessStatusCode == false)
+            {
+                throw new Exception($"void PutToothUnderObservation(ToothUnderObservation updatedRecord). Status code: {result.StatusCode}");
+            }
+        }
+        public static void DeleteToothUnderObservation(int toothObservationId)
+        {
+            httpClient.DefaultRequestHeaders.Accept.Clear();
+            httpClient.DefaultRequestHeaders.Accept.Add(bsonHeaderValue);
+            HttpResponseMessage result = httpClient.DeleteAsync($"Observations/tooth/{toothObservationId}").Result;
+            if (result.IsSuccessStatusCode == false)
+            {
+                throw new Exception($"ToothUnderObservation DeleteToothUnderObservation(toothObservationId = {toothObservationId}). Status code: {result.StatusCode}");
+            }
+        }
     }
 }

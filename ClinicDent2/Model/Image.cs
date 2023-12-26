@@ -31,6 +31,7 @@ namespace ClinicDent2.Model
         public int DoctorId { get; set; }
 
         public byte[] CompressedBytes { get; set; }
+        public bool? IsXRay { get; set; }
         public string FileName
         {
             get

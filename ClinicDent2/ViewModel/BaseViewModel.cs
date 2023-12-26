@@ -1,14 +1,16 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
 namespace ClinicDent2.ViewModel
 {
+    [Flags]
     public enum ViewModelStatus:byte
     {
         NotChanged = 0,
         Updated = 1,
         Inserted = 2,
-        Deleted = 3
+        Deleted = 4
     }
     public class BaseViewModel : INotifyPropertyChanged
     {

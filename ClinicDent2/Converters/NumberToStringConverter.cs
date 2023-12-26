@@ -20,7 +20,6 @@ namespace ClinicDent2.Converters
             {
                 return value.ToString();
             }
-
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

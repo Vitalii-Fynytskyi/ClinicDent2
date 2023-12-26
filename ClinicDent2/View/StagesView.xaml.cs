@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography.Xml;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -223,6 +224,46 @@ namespace ClinicDent2.View
         {
             if (PropertyChanged != null)
                 PropertyChanged(this, new PropertyChangedEventArgs(prop));
+        }
+
+        private void imageButtonToothObservation_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            StageViewModel stageViewModel = ((FrameworkElement)sender).DataContext as StageViewModel;
+            if(stageViewModel.ToothUnderObservationId== null)
+            {
+                ToothUnderObservation toothUnderObservation = new ToothUnderObservation()
+                {
+                    StageId = stageViewModel.Stage.Id,
+                    PatientName = stagesViewModel.Patient.Name
+                };
+                ToothUnderObservationViewModel toothUnderObservationViewModel = new ToothUnderObservationViewModel(toothUnderObservation, stageViewModel);
+                toothUnderObservationViewModel.ViewModelStatus = ViewModelStatus.Inserted;
+                ToothUnderObservationView toothUnderObservationView = new ToothUnderObservationView(toothUnderObservationViewModel);
+                WindowContainer window = new WindowContainer();
+                window.Content = toothUnderObservationView;
+                window.Title = "Огляд спостереження";
+                window.Show();
+            }
+            else
+            {
+                ToothUnderObservation toothUnderObservation = null;
+                try
+                {
+                    toothUnderObservation = HttpService.GetToothUnderObservation(stageViewModel.ToothUnderObservationId.Value);
+                }
+                catch (Exception ex)
+                {
+                    stageViewModel.ToothUnderObservationId = null;
+                    MessageBox.Show(ex.Message + ". Запис було видалено");
+                    return;
+                }
+                ToothUnderObservationViewModel toothUnderObservationViewModel = new ToothUnderObservationViewModel(toothUnderObservation, stageViewModel);
+                ToothUnderObservationView toothUnderObservationView = new ToothUnderObservationView(toothUnderObservationViewModel);
+                WindowContainer window = new WindowContainer();
+                window.Content = toothUnderObservationView;
+                window.Title = "Огляд спостереження";
+                window.Show();
+            }
         }
     }
 }

@@ -129,5 +129,29 @@ namespace ClinicDent2
                 browserControl.AddNewTab(settings);
             }
         }
+
+        private void buttonStatistics_Click(object sender, RoutedEventArgs e)
+        {
+            if (browserControl.ScreenRequested(ScreenNames.STATISTICS) == false)
+            {
+                BrowserTabButton statistics = new BrowserTabButton();
+                statistics.TabText = ScreenNames.STATISTICS;
+                StatisticsView statisticsView = new StatisticsView();
+                statistics.Control = statisticsView;
+                browserControl.AddNewTab(statistics);
+            }
+        }
+
+        private void buttonUnderObservation_Click(object sender, RoutedEventArgs e)
+        {
+            if (browserControl.ScreenRequested(ScreenNames.UNDER_OBSERVATION) == false)
+            {
+                BrowserTabButton underObservation = new BrowserTabButton();
+                underObservation.TabText = ScreenNames.UNDER_OBSERVATION;
+                TeethUnderObservationView teethUnderObservationView  = new TeethUnderObservationView();
+                underObservation.Control = teethUnderObservationView;
+                browserControl.AddNewTab(underObservation);
+            }
+        }
     }
 }
