@@ -9,6 +9,10 @@
     <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
         <Label x:Name="labelInfo"/>
         <StackPanel Orientation="Horizontal">
+            <Label Content="Клініка" FontSize="22" />
+            <ComboBox ItemsSource="{Binding Tenants}" SelectedItem="{Binding SelectedTenant}" MinWidth="200"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal">
             <Label Content="Email" FontSize="22"/>
             <TextBox x:Name="TextBoxEmail" MinWidth="200" Height="24" Margin="24,0,0,0"/>
         </StackPanel>

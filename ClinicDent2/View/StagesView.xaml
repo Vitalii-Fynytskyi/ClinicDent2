@@ -49,7 +49,7 @@
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
-                        <TextBox x:Name="textBoxCurePlan" Grid.Row="0" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Text="{Binding CurePlan}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" MinWidth="150" MinHeight="50" PreviewKeyDown="TextBox_PreviewKeyDown">
+                        <TextBox x:Name="textBoxCurePlan" Grid.Row="0" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Text="{Binding CurePlan, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" MinWidth="150" MinHeight="50" PreviewKeyDown="TextBox_PreviewKeyDown">
                             <behaviors:Interaction.Triggers>
                                 <behaviors:EventTrigger EventName="LostFocus" SourceObject="{Binding ElementName=textBoxCurePlan}">
                                     <behaviors:InvokeCommandAction Command="{Binding UpdateCurePlanCommand}" />
@@ -58,7 +58,7 @@
                         </TextBox>
                         <Thumb Grid.Row="1" Cursor="SizeNS" Height="5" HorizontalAlignment="Stretch" DragDelta="Thumb_DragDelta" />
                     </Grid>
-                    
+                    <Button Command="{Binding UpdateCurePlanCommand}" Content="Зберегти план" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="5,0,0,0"/>
                 </StackPanel>
                 <StackPanel x:Name="futureAppointmentsSection" Visibility="{Binding FutureAppointmentsViewModels.Count,  Converter={StaticResource collectionCountToVisibilityConverter}}">
                     <TextBlock Text="Заплановані візити" HorizontalAlignment="Center"/>

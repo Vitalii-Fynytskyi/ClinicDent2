@@ -658,6 +658,9 @@ namespace ClinicDent2.ViewModel
         {
             owner = ownerToSet;
             stage = stageToSet;
+            stage.OldPrice=stage.Price;
+            stage.OldExpenses=stage.Expenses;
+            stage.OldPayed=stage.Payed;
             if(ownerToSet.MarkedDate != null)
             {
                 if(ownerToSet.MarkedDate == DateTime.ParseExact(stageToSet.StageDatetime,Options.DateTimePattern,null).Date)

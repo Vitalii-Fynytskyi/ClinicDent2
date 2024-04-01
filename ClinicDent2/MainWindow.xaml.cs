@@ -37,8 +37,6 @@ namespace ClinicDent2
                 return;
             }
             goToLoginMenu();
-            
-            
         }
         private Doctor TryAuthenticateWithCookies()
         {

@@ -42,10 +42,13 @@ namespace ClinicDent2
 
         public static void WriteCookies(string path, LoginModel loginModel)
         {
+            IniService.WritePrivateString("Settings", "DefaultTenant", loginModel.Tenant);
             using (BinaryWriter writer = new BinaryWriter(File.Open(path, FileMode.Create)))
             {
                 writer.Write(loginModel.Email);
                 writer.Write(loginModel.Password);
+                writer.Write(loginModel.Tenant);
+
             }
         }
         public static LoginModel ReadCookies(string path)
@@ -56,6 +59,7 @@ namespace ClinicDent2
             {
                 loginModel.Email = reader.ReadString();
                 loginModel.Password = reader.ReadString();
+                loginModel.Tenant = reader.ReadString();
             }
             return loginModel;
         }

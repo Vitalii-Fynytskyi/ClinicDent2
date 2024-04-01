@@ -50,7 +50,10 @@ namespace ClinicDent2.ViewModel
                 }
             }
         }
-
+        private bool CanUpdateCurePlan(object arg)
+        {
+            return Mark_IsCurePlanUpdated;
+        }
         internal void ServerUpdateStages()
         {
             UpdateCurePlan(null);
@@ -71,6 +74,9 @@ namespace ClinicDent2.ViewModel
             foreach(StageViewModel vm in selectedStageViewModels)
             {
                 vm.ViewModelStatus= ViewModelStatus.NotChanged;
+                vm.Stage.OldPrice = vm.Stage.Price;
+                vm.Stage.OldPayed = vm.Stage.Payed;
+                vm.Stage.OldExpenses = vm.Stage.Expenses;
             }
         }
 
@@ -182,7 +188,7 @@ namespace ClinicDent2.ViewModel
             PhotoClickedCommand = new RelayCommand(PhotoClicked);
             EditPatientCommand = new RelayCommand(EditPatient);
             CreateNewStageCommand = new RelayCommand(CreateNewStage);
-            UpdateCurePlanCommand = new RelayCommand(UpdateCurePlan);
+            UpdateCurePlanCommand = new RelayCommand(UpdateCurePlan, CanUpdateCurePlan);
         }
 
 

@@ -142,6 +142,28 @@ namespace ClinicDent2
                 throw new Exception($"DebtPatientsToClient GetDebtors( ... doctorId={doctorId} ). Status code: {result.StatusCode}");
             }
         }
+        public static string[] GetTenantList()
+        {
+            httpClient = CreateHttpClient(IniService.GetPrivateString("Settings", "ServerAddress"), TimeSpan.FromSeconds(10));
+            HttpResponseMessage result = null;
+            try
+            {
+                result = httpClient.GetAsync($"Account/tenantNames").Result;
+            }
+            catch (Exception)
+            {
+                httpClient.Dispose();
+                httpClient = CreateHttpClient(IniService.GetPrivateString("Settings", "LanServerAddress"), TimeSpan.FromSeconds(10));
+                result = httpClient.GetAsync($"Account/tenantNames").Result;
+            }
+            if (result.IsSuccessStatusCode == false)
+            {
+                httpClient.Dispose();
+                throw new Exception("Can't retrieve tenant list");
+            }
+            httpClient.Dispose();
+            return result.Content.ReadAsAsync<string[]>(bsonFormatting).Result;
+        }
         public static Doctor Authenticate(LoginModel loginModel)
         {
 
@@ -160,7 +182,7 @@ namespace ClinicDent2
             if (result.IsSuccessStatusCode == false)
             {
                 httpClient.Dispose();
-                throw new Exception("Not authorized");
+                return null;
             }
             Doctor doctor = result.Content.ReadAsAsync<Doctor>(bsonFormatting).Result;
             httpClient.Dispose();
