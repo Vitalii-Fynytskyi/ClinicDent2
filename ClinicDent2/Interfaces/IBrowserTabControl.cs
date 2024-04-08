@@ -3,7 +3,7 @@
     public interface IBrowserTabControl
     {
         public void TabActivated();
-        public void TabDeactivated();
+        public bool TabDeactivated();
         public void TabClosed();
         public void Notify(int notificationCode, object param);
     }

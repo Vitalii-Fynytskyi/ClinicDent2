@@ -244,9 +244,10 @@ namespace ClinicDent2.View
         {
 
         }
-        public void TabDeactivated()
+        public bool TabDeactivated()
         {
             DesiredVerticalScrollOffset=scrollViewerSchedule.VerticalOffset;
+            return true;
         }
         public void TabClosed()
         {

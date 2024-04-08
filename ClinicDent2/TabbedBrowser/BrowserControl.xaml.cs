@@ -1,4 +1,5 @@
 ﻿using ClinicDent2.Interfaces;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Windows;
 using System.Windows.Controls;
@@ -11,36 +12,44 @@ namespace ClinicDent2.TabbedBrowser
     /// </summary>
     public partial class BrowserControl : UserControl
     {
-        public BrowserTabButton SelectedTab
-        {
-            get
-            {
-                return selectedTab;
-            }
-            set
-            {
-                if (value != selectedTab)
-                {
-                    if (selectedTab != null)
-                    {
-                        selectedTab.BackgroundBorder.Background = Brushes.Transparent;
-                        selectedTab.TabLabel.Foreground = Brushes.Black;
-                        (selectedTab.Control as IBrowserTabControl)?.TabDeactivated();
-                    }
-                    selectedTab = value;
-
-                    if(selectedTab != null)
-                    {
-                        selectedTab.BackgroundBorder.Background = Brushes.Black;
-                        selectedTab.TabLabel.Foreground = Brushes.White;
-                        currentTabOpened.Content = selectedTab.Control;
-                        (selectedTab.Control as IBrowserTabControl)?.TabActivated();
-                    }
-                    
-                }
-            }
-        }
         private BrowserTabButton selectedTab;
+        public BrowserTabButton GetSelectedTab()
+        {
+            return selectedTab;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="browserTab"></param>
+        /// <returns>false if currently selected tab cannot be deactivated</returns>
+        public bool SetSelectedTab(BrowserTabButton browserTab)
+        {
+            if (browserTab != selectedTab)
+            {
+                if (selectedTab != null) //try deactivate tab
+                {
+                    if ((selectedTab.Control as IBrowserTabControl)?.TabDeactivated() == false)
+                    {
+                        return false; //can't deactivate tab
+                    }
+                    selectedTab.BackgroundBorder.Background = Brushes.Transparent;
+                    selectedTab.TabLabel.Foreground = Brushes.Black;
+                }
+                
+                
+                selectedTab = browserTab;
+
+                if (selectedTab != null)
+                {
+                    selectedTab.BackgroundBorder.Background = Brushes.Black;
+                    selectedTab.TabLabel.Foreground = Brushes.White;
+                    currentTabOpened.Content = selectedTab.Control;
+                    (selectedTab.Control as IBrowserTabControl)?.TabActivated();
+                }
+                return true;
+            }
+            return true;
+        }
         public BrowserControl()
         {
             InitializeComponent();
@@ -58,7 +67,7 @@ namespace ClinicDent2.TabbedBrowser
                 {
                     if(tabButton.TabText == screenName)
                     {
-                        SelectedTab= tabButton;
+                        SetSelectedTab(tabButton);
                         return true;
                     }
                 }
@@ -73,7 +82,7 @@ namespace ClinicDent2.TabbedBrowser
                 {
                     if (tabButton.PatientViewModel?.PatientId == patientId && tabButton.ButtonType == tabButtonType)
                     {
-                        SelectedTab = tabButton;
+                        SetSelectedTab(tabButton);
                         return true;
                     }
                 }
@@ -88,7 +97,7 @@ namespace ClinicDent2.TabbedBrowser
                 {
                     if (tabButton.PatientViewModel?.PatientId == patientId && tabButton.ButtonType == tabButtonType && dayOfMonth==ExtractDate(tabButton.TabText))
                     {
-                        SelectedTab = tabButton;
+                        SetSelectedTab(tabButton);
                         return true;
                     }
                 }
@@ -121,39 +130,47 @@ namespace ClinicDent2.TabbedBrowser
             panelTabs.Children.Add(newTab);
             if(autoRedirect)
             {
-                SelectedTab = newTab;
+                SetSelectedTab(newTab);
             }
         }
-        public void RemoveTabIfInBrowser(FrameworkElement element)
+        public bool RemoveTabIfInBrowser(FrameworkElement element)
         {
             if (element.Parent is BrowserOpenedTab scrollViewer)
             {
-                RemoveTab(SelectedTab);
+                return RemoveTab(GetSelectedTab());
             }
+            return true;
         }
-        public void RemoveTab(BrowserTabButton tab)
+        public bool RemoveTab(BrowserTabButton tab)
         {
-            if(SelectedTab == tab)
+            if(GetSelectedTab() == tab)
             {
+                if (SetSelectedTab(null) == false)
+                    return false;
                 currentTabOpened.Content= null;
-                SelectedTab = null;
+
             }
-            if(tab.Parent == panelTabs)
+            (tab.Control as IBrowserTabControl)?.TabClosed();
+            if (tab.Parent == panelTabs)
             {
                 panelTabs.Children.Remove(tab);
             }
+            return true;
             
         }
         private void BrowserTabButton_CloseButtonClick(object sender, EventArgs e)
         {
             BrowserTabButton browserTabButton = sender as BrowserTabButton;
-            RemoveTab(browserTabButton);
-            (browserTabButton.Control as IBrowserTabControl)?.TabClosed();
+            if(RemoveTab(browserTabButton) == false)
+            {
+                return;
+            }
+            
         }
 
         private void BrowserTabButton_TabSelected(object sender, EventArgs e)
         {
-            SelectedTab = sender as BrowserTabButton;
+            SetSelectedTab(sender as BrowserTabButton);
         }
         public string ExtractDate(string input)
         {
@@ -168,7 +185,7 @@ namespace ClinicDent2.TabbedBrowser
         {
             foreach(UIElement element in panelTabs.Children)
             {
-                if(element != SelectedTab && element is BrowserTabButton tabButton && tabButton.Control is IBrowserTabControl browserTabButton)
+                if(element != GetSelectedTab() && element is BrowserTabButton tabButton && tabButton.Control is IBrowserTabControl browserTabButton)
                 {
                     browserTabButton.Notify(notificationCode, param);
                 }

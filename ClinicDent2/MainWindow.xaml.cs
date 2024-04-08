@@ -3,7 +3,10 @@ using ClinicDent2.Model;
 using ClinicDent2.TabbedBrowser;
 using ClinicDent2.View;
 using System;
+using System.Diagnostics;
+using System.IO;
 using System.Net.Http;
+using System.Reflection;
 using System.Windows;
 
 namespace ClinicDent2
@@ -24,9 +27,22 @@ namespace ClinicDent2
 
             Options.MainWindow = this;
         }
+        private void CheckForUpdates()
+        {
+            string clientVersion = "1";
+            string apiVersion = HttpService.GetApiVersion();
+            if(apiVersion != clientVersion)
+            {
+                string directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                string executablePath = Path.Combine(directory, "ClientUpdater.exe");
+                Process.Start(executablePath);
+                Application.Current.Shutdown();
+            }
+        }
 
         public MainWindow()
         {
+            CheckForUpdates();
             InitializeComponent();
             Init();
             Doctor doctor = TryAuthenticateWithCookies();
@@ -50,7 +66,10 @@ namespace ClinicDent2
         {
             if(mainMenu.browserControl.currentTabOpened.Content is IBrowserTabControl openedBrowserTabControl)
             {
-                openedBrowserTabControl.TabDeactivated();
+                if(openedBrowserTabControl.TabDeactivated() == false)
+                {
+                    return;
+                }
             }
             foreach (UIElement element in mainMenu.browserControl.panelTabs.Children)
             {

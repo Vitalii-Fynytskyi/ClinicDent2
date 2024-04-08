@@ -1,8 +1,11 @@
 ﻿using ClinicDent2.Commands;
+using ClinicDent2.Exceptions;
 using ClinicDent2.Model;
+using ClinicDent2.RequestAnswers;
 using ClinicDent2.TabbedBrowser;
 using ClinicDent2.View;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
@@ -10,6 +13,11 @@ using System.Windows.Documents;
 
 namespace ClinicDent2.ViewModel
 {
+    public class OperationResult
+    {
+        public bool AllowDeactivateWindow { get; set; } = true;
+        public List<Exception> Exceptions { get; set; } = new List<Exception>();
+    }
     public class StagesViewModel : BaseViewModel
     {
         public RelayCommand PhotoClickedCommand { get; set; }
@@ -41,45 +49,139 @@ namespace ClinicDent2.ViewModel
             {
                 try
                 {
-                    HttpService.PutPatientCurePlan(patient.PatientId, patient.CurePlan);
+                    Patient.Patient.LastModifiedDateTime = HttpService.PutPatientCurePlan(patient.PatientId, patient.CurePlan, patient.Patient.LastModifiedDateTime);
                     Mark_IsCurePlanUpdated = false;
                 }
-                catch
+                catch (ConflictException e)
                 {
-                    MessageBox.Show($"Не вдалось оновити план лікування пацієнта", "Помилка");
+                    MessageBoxResult result = MessageBox.Show("Інший користувач редагував дані пацієнта. Натисніть 'Так' шоб завантажити нові дані.", "Конфлікт", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.Cancel);
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        Patient.Patient = HttpService.GetPatient(patient.PatientId);
+                        NotifyPropertyChanged(nameof(CurePlan));
+                        Mark_IsCurePlanUpdated = false;
+                        
+                    }
+                    if (arg is OperationResult operationResult)
+                    {
+                        operationResult.AllowDeactivateWindow = false;
+                    }
                 }
+                catch (NotFoundException)
+                {
+                    MessageBox.Show($"Пацієнт не існує або був видалений", "Помилка");
+                }
+                catch (Exception e)
+                {
+                    if (arg is OperationResult operationResult)
+                    {
+                        operationResult.Exceptions.Add(e);
+                    }
+                    else
+                    {
+                        MessageBox.Show($"Не вдалось оновити план лікування пацієнта: {e.Message}", "Помилка");
+                    }
+                }
+
             }
         }
         private bool CanUpdateCurePlan(object arg)
         {
             return Mark_IsCurePlanUpdated;
         }
-        internal void ServerUpdateStages()
+        #region Added funcions
+        internal OperationResult ServerUpdateStages()
         {
-            UpdateCurePlan(null);
-            
-            if(stages == null) { return; }
-            System.Collections.Generic.List<StageViewModel> selectedStageViewModels = stages.Where(vm => vm.IsOwner == true && vm.ViewModelStatus == ViewModelStatus.Updated && vm.Error == string.Empty).ToList();
-            System.Collections.Generic.List<StageDTO> stagesToUpdate = selectedStageViewModels.Select(vm => new StageDTO(vm.Stage)).ToList();
+            OperationResult operationResult = new OperationResult();
+            UpdateCurePlan(operationResult);
+            if (stages == null)
+            {
+                return operationResult;
+            }
+
+            var selectedStageViewModels = stages
+                .Where(vm => vm.IsOwner && vm.ViewModelStatus == ViewModelStatus.Updated && string.IsNullOrEmpty(vm.Error))
+                .ToList();
+
+            var stagesToUpdate = selectedStageViewModels
+                .Select(vm => new StageDTO(vm.Stage))
+                .ToList();
+
+            if (stagesToUpdate.Count == 0)
+            {
+                return operationResult;
+            }
+
             try
             {
-                if(stagesToUpdate.Count>0)
-                    HttpService.PutStages(stagesToUpdate);
+                var putStagesRequestAnswer = HttpService.PutStages(stagesToUpdate);
+                UpdateViewModels(selectedStageViewModels, putStagesRequestAnswer);
             }
-            catch
+            catch (ConflictException ex)
             {
-                MessageBox.Show($"Не вдалось оновити дані робіт пацієнта: {patient.Name}", "Помилка");
-                return;
+                HandleConflictException(selectedStageViewModels, ex, operationResult);
             }
-            foreach(StageViewModel vm in selectedStageViewModels)
+            catch(Exception ex)
             {
-                vm.ViewModelStatus= ViewModelStatus.NotChanged;
-                vm.Stage.OldPrice = vm.Stage.Price;
-                vm.Stage.OldPayed = vm.Stage.Payed;
-                vm.Stage.OldExpenses = vm.Stage.Expenses;
+                operationResult.Exceptions.Add(ex);
             }
+            return operationResult;
         }
+        public void ReloadStages()
+        {
+            if (MarkedDate != null)
+                LoadAllPatientStagesWithRelatedMarked(MarkedDate.Value, Patient.PatientId);
+            else
+                LoadAllPatientStages(Patient);
+        }
+        private void UpdateViewModels(List<StageViewModel> viewModels, PutStagesRequestAnswer response)
+        {
+            foreach (var vm in viewModels)
+            {
+                UpdateViewModel(vm, response.NewLastModifiedDateTime);
+            }
+            Options.MainWindow.mainMenu.browserControl.NotifyOtherTabs(NotificationCodes.PatientStagesUpdated, Patient.PatientId);
 
+        }
+        private void UpdateViewModel(StageViewModel viewModel, string lastModifiedDateTime)
+        {
+            viewModel.ViewModelStatus = ViewModelStatus.NotChanged;
+            viewModel.Stage.OldPrice = viewModel.Stage.Price;
+            viewModel.Stage.OldPayed = viewModel.Stage.Payed;
+            viewModel.Stage.OldExpenses = viewModel.Stage.Expenses;
+            viewModel.Stage.LastModifiedDateTime = lastModifiedDateTime;
+        }
+        private void HandleConflictException(List<StageViewModel> viewModels, ConflictException ex, OperationResult operationResult)
+        {
+            var conflictedIds = ex.Param as PutStagesRequestAnswer;
+            var conflictedStageViewModels = viewModels
+                .Where(s => conflictedIds.ConflictedStagesIds.Contains(s.Stage.Id))
+                .ToList();
+
+            viewModels.RemoveAll(s => conflictedStageViewModels.Contains(s));
+            UpdateViewModels(viewModels, ex.Param as PutStagesRequestAnswer);
+
+            MessageBoxResult result = MessageBox.Show(
+                $"Інший користувач редагував етапи пацієнта ({String.Join("|", conflictedStageViewModels.Select(s => s.Stage.Title))}). Натисніть 'Так' шоб завантажити нові дані.",
+                "Конфлікт", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.Cancel);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    ReloadStages();
+                }
+                catch(Exception e)
+                {
+                    operationResult.Exceptions.Add(e);
+                    return;
+                }
+                MessageBox.Show("Оновлено етапи робіт.");
+            }
+            operationResult.AllowDeactivateWindow = false;
+
+        }
+        #endregion
         /// <summary>
         /// Create stage attached to schedule if schedule is available, otherwise create stage with no associated schedule 
         /// </summary>
@@ -162,26 +264,9 @@ namespace ClinicDent2.ViewModel
         public void LoadAllPatientStagesWithRelatedMarked(DateTime markedDateToSet, int patientId)
         {
             MarkedDate= markedDateToSet;
-            Patient loadedPatient = null;
-            try
-            {
-                loadedPatient = HttpService.GetPatient(patientId);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Не вдалось завантажити пацієнта: {ex.Message}");
-                return;
-            }
+            Patient loadedPatient = HttpService.GetPatient(patientId);
             Patient = new PatientViewModel(loadedPatient);
-            try
-            {
-                Stages = new ObservableCollection<StageViewModel>(HttpService.GetPatientStages(patient.PatientId).Select(s => new StageViewModel(s, this)));
-            }
-            catch(Exception ex)
-            {
-                MessageBox.Show($"Не вдалось завантажити етапи робіт пацієнта: {ex.Message}");
-                return;
-            }
+            Stages = new ObservableCollection<StageViewModel>(HttpService.GetPatientStages(patient.PatientId).Select(s => new StageViewModel(s, this)));
         }
         public StagesViewModel()
         {
@@ -190,9 +275,6 @@ namespace ClinicDent2.ViewModel
             CreateNewStageCommand = new RelayCommand(CreateNewStage);
             UpdateCurePlanCommand = new RelayCommand(UpdateCurePlan, CanUpdateCurePlan);
         }
-
-
-        //use when StagesViewModel is closed, if true then make request to server
         public bool Mark_IsCurePlanUpdated = false;
     }
 }

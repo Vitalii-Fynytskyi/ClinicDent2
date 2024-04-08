@@ -95,7 +95,7 @@
                                             <ColumnDefinition></ColumnDefinition>
                                             <ColumnDefinition></ColumnDefinition>
                                         </Grid.ColumnDefinitions>
-                                        <TextBox Text="{Binding Title}" Background="Transparent" BorderThickness="0" IsEnabled="{Binding IsOwner}">
+                                        <TextBox Text="{Binding Title,UpdateSourceTrigger=PropertyChanged}" Background="Transparent" BorderThickness="0" IsEnabled="{Binding IsOwner}">
                                             <TextBox.ContextMenu>
                                                 <ContextMenu>
                                                     <MenuItem Header="Видалити етап" Command="{Binding DeleteStageCommand}"/>
@@ -286,7 +286,7 @@
                                         <TextBox Text="{Binding Price, Converter={StaticResource numberToStringConverter}, TargetNullValue=0, FallbackValue=0, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Grid.Row="1" Margin="5,0,0,0" MinWidth="100"/>
                                         <Image Source="{Binding PaymentStatusImagePath}" MaxWidth="24" MaxHeight="24" Grid.Row="1" Grid.Column="2"/>
                                     </Grid>
-                                    <TextBox Background="Transparent" BorderThickness="0" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Text="{Binding CommentText}" IsEnabled="{Binding IsOwner}"/>
+                                    <TextBox Background="Transparent" BorderThickness="0" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Text="{Binding CommentText,UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsOwner}"/>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                                         <Button Command="{Binding SendStageViaViberCommand}" CommandParameter="{Binding ElementName=textBoxPhone, Path=Text}">
                                             <Button.ContextMenu>

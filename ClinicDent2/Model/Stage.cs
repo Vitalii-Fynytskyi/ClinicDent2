@@ -45,6 +45,8 @@ namespace ClinicDent2.Model
             CommentText = d.CommentText;
             DoctorName = d.DoctorName;
             ToothUnderObservationId = d.ToothUnderObservationId;
+            CreatedDateTime = d.CreatedDateTime;
+            LastModifiedDateTime = d.LastModifiedDateTime;
 
         }
         public int Id { get; set; }
@@ -81,6 +83,8 @@ namespace ClinicDent2.Model
         public string CommentText { get; set; }
         public string DoctorName { get; set; }
         public int? ToothUnderObservationId { get; set; }
+        public string CreatedDateTime { get; set; }
+        public string LastModifiedDateTime { get; set; }
     }
     public class StageDTO
     {
@@ -114,6 +118,8 @@ namespace ClinicDent2.Model
             CommentText = d.CommentText;
             DoctorName = d.DoctorName;
             ToothUnderObservationId = d.ToothUnderObservationId;
+            CreatedDateTime = d.CreatedDateTime;
+            LastModifiedDateTime = d.LastModifiedDateTime;
 
         }
         public int Id { get; set; }
@@ -152,5 +158,7 @@ namespace ClinicDent2.Model
         public string CommentText { get; set; }
         public string DoctorName { get; set; }
         public int? ToothUnderObservationId { get; set; }
+        public string CreatedDateTime { get; set; }
+        public string LastModifiedDateTime { get; set; }
     }
 }

@@ -25,13 +25,13 @@ namespace ClinicDent2.View
             
         }
 
-        public void TabDeactivated()
+        public bool TabDeactivated()
         {
             IniService.WritePrivateString("Settings", "CanDeleteImage", Options.CanDeleteImage.ToString());
             IniService.WritePrivateString("Settings", "PatientsPerPage", Options.PatientsPerPage.ToString());
             IniService.WritePrivateString("Settings", "PhotosPerPage", Options.PhotosPerPage.ToString());
             IniService.WritePrivateString("Settings", "DefaultSelectedTable", Options.DefaultSelectedCabinet.Id.ToString());
-
+            return true;
         }
 
         private void ButtonEditClinicMaterials_Click(object sender, RoutedEventArgs e)

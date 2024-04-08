@@ -1,4 +1,5 @@
-﻿using ClinicDent2.Interfaces;
+﻿using ClinicDent2.Exceptions;
+using ClinicDent2.Interfaces;
 using ClinicDent2.Model;
 using ClinicDent2.TabbedBrowser;
 using ClinicDent2.ViewModel;
@@ -93,10 +94,27 @@ namespace ClinicDent2.View
         {
         }
 
-        public void TabDeactivated()
+        public bool TabDeactivated()
         {
-            stagesViewModel.ServerUpdateStages();
-            Options.MainWindow.mainMenu.browserControl.NotifyOtherTabs(NotificationCodes.PatientStagesUpdated, stagesViewModel.Patient.PatientId);
+
+            OperationResult operationResult = stagesViewModel.ServerUpdateStages();
+            if (operationResult.Exceptions.Count > 0)
+            {
+                foreach (Exception e in operationResult.Exceptions)
+                {
+                    MessageBox.Show(e.Message);
+                }
+                MessageBoxResult result = MessageBox.Show(
+                "Закрити вікно етапів?",
+                "Помилки", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.Cancel);
+                if (result == MessageBoxResult.Yes)
+                {
+                    return true;
+                }
+                return false;
+            }
+            
+            return operationResult.AllowDeactivateWindow;
         }
 
         public void TabClosed()
@@ -128,22 +146,16 @@ namespace ClinicDent2.View
         }
         private void Notification_PatientStagesUpdated(int patientId)
         {
-            if (stagesViewModel.Patient.PatientId == patientId)
+            try
             {
-                if (stagesViewModel.MarkedDate != null)
-                    stagesViewModel.LoadAllPatientStagesWithRelatedMarked(stagesViewModel.MarkedDate.Value, stagesViewModel.Patient.PatientId);
-                else
+                if (stagesViewModel.Patient.PatientId == patientId)
                 {
-                    try
-                    {
-                        stagesViewModel.LoadAllPatientStages(stagesViewModel.Patient);
-                    }
-                    catch (Exception e)
-                    {
-                        MessageBox.Show($"Не вдалось завантажити етапи робіт пацієнта: {e.Message}");
-                        return;
-                    }
+                    stagesViewModel.ReloadStages();
                 }
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show($"Не вдалось завантажити етапи робіт пацієнта {stagesViewModel.Patient.Name}: {e.Message}");
             }
         }
         private void Notification_ScheduleRecordDeleted(int recordId)
@@ -168,7 +180,7 @@ namespace ClinicDent2.View
             {
                 FutureAppointmentsViewModels.Insert(index, scheduleViewModel);
             }
-            else
+            else if(scheduleViewModel.StartDateTimeDT.Date>=DateTime.Now.Date) //add only future or today records
             {
                 FutureAppointmentsViewModels.Add(scheduleViewModel);
             }
@@ -213,7 +225,7 @@ namespace ClinicDent2.View
                 scheduleTabButton.Control = newScheduleMenuView;
                 Options.MainWindow.mainMenu.browserControl.AddNewTab(scheduleTabButton);
             }
-            ScheduleMenuView scheduleMenuView = Options.MainWindow.mainMenu.browserControl.SelectedTab.Control as ScheduleMenuView;
+            ScheduleMenuView scheduleMenuView = Options.MainWindow.mainMenu.browserControl.GetSelectedTab().Control as ScheduleMenuView;
             ScheduleMenuView.DesiredVerticalScrollOffset = null;
             scheduleMenuView.SelectedDate= scheduleStartDate;
         }

@@ -30,6 +30,7 @@ namespace ClinicDent2
 
         public static string DateTimePattern { get; set; } = "yyyy-MM-dd HH:mm";
         public static string DatePattern { get; set; } = "dd.MM.yyyy";
+        public static string ExactDateTimePattern { get; set; } = "yyyy-MM-dd HH:mm:ss.fffffff";
 
         #region IniFile data
         public static bool CanDeleteImage { get; set; }

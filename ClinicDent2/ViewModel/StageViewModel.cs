@@ -597,6 +597,14 @@ namespace ClinicDent2.ViewModel
         public string BoundBackground { get; set; }
         public Stage Stage
         {
+            set
+            {
+                if(stage != value)
+                {
+                    stage = value;
+                    NotifyPropertyChanged(nameof(Stage),nameof(Title), nameof(CommentText), nameof(StageDatetime), nameof(IsSentViaViber), nameof(Operation), nameof(Cement),nameof(Calcium),nameof(Bond),nameof(Dentin),nameof(Pin), nameof(Enamel), nameof(CanalMethod), nameof(Sealer), nameof(Technician), nameof(Price), nameof(Payed), nameof(Expenses), nameof(ToothUnderObservationId), nameof(DoctorName));
+                }
+            }
             get
             {
                 return stage;

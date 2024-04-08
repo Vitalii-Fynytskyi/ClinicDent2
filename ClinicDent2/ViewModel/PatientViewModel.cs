@@ -8,7 +8,22 @@ namespace ClinicDent2.ViewModel
 {
     public class PatientViewModel : BaseViewModel
     {
-        public Patient patient;
+        private Patient patient;
+        public Patient Patient
+        { 
+            get
+            {
+                return patient; 
+            }
+            set
+            {
+                if(patient != value)
+                {
+                    patient = value;
+                    NotifyPropertyChanged(nameof(Patient), nameof(PatientId), nameof(Name), nameof(Gender), nameof(Phone), nameof(Address), nameof(Birthdate), nameof(Illness), nameof(Notes), nameof(RegisterDate), nameof(Statuses), nameof(CurePlan), nameof(ImageBytes));
+                }
+            }
+        }
         public int PatientId
         {
             get
@@ -218,7 +233,7 @@ namespace ClinicDent2.ViewModel
         }
         public void PutPatient()
         {
-            HttpService.PutPatient(patient);
+            patient.LastModifiedDateTime = HttpService.PutPatient(patient);
         }
         public void RemovePatient()
         {

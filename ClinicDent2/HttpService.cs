@@ -1,10 +1,12 @@
-﻿using ClinicDent2.Model;
+﻿using ClinicDent2.Exceptions;
+using ClinicDent2.Model;
 using ClinicDent2.RequestAnswers;
 using ClinicDent2.Requests;
 using ClinicDent2.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Formatting;
@@ -44,21 +46,41 @@ namespace ClinicDent2
             ScheduleRecordsForDayInCabinet receivedRecords = responseMessage.Content.ReadAsAsync<ScheduleRecordsForDayInCabinet>(bsonFormatting).Result;
             return receivedRecords;
         }
-        internal static void PutPatientCurePlan(int patientIdToSet, string curePlanToSet)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="patientIdToSet"></param>
+        /// <param name="curePlanToSet"></param>
+        /// <param name="lastModifiedDateTime"></param>
+        /// <returns>new patient's lastmodified datetime from server</returns>
+        /// <exception cref="ConflictException"></exception>
+        /// <exception cref="Exception"></exception>
+        internal static string PutPatientCurePlan(int patientIdToSet, string curePlanToSet, string lastModifiedDateTime)
         {
             httpClient.DefaultRequestHeaders.Accept.Clear();
             httpClient.DefaultRequestHeaders.Accept.Add(bsonHeaderValue);
             ChangeCurePlanRequest r = new ChangeCurePlanRequest()
             {
                 CurePlan = curePlanToSet,
-                PatientId = patientIdToSet
+                PatientId = patientIdToSet,
+                LastModifiedDateTime=lastModifiedDateTime
             };
             HttpResponseMessage result = httpClient.PutAsync($"Patients/changeCurePlan", r, BsonFormatter).Result;
             if(result.IsSuccessStatusCode == false)
             {
+                if (result.StatusCode == System.Net.HttpStatusCode.Conflict)
+                {
+                    throw new ConflictException(result.Content.ReadAsAsync<ServerErrorMessage>(bsonFormatting).Result.errorMessage);
+                }
+                if (result.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    throw new NotFoundException(result.Content.ReadAsAsync<ServerErrorMessage>(bsonFormatting).Result.errorMessage);
+                }
                 throw new Exception($"void PutPatientCurePlan(patientIdToSet={patientIdToSet},curePlanToSet={curePlanToSet}). Status code: {result.StatusCode}");
             }
+            return result.Content.ReadAsStringAsync().Result;
         }
+
         internal static List<Stage> GetPatientStages(int patientId)
         {
             httpClient.DefaultRequestHeaders.Accept.Clear();
@@ -67,6 +89,21 @@ namespace ClinicDent2
             if (result.IsSuccessStatusCode == false)
             {
                 throw new Exception($"List<Stage> GetPatientStages(patientId = {patientId}). Status code: {result.StatusCode}");
+            }
+            List<Stage> stages = result.Content.ReadAsAsync<List<StageDTO>>(bsonFormatting).Result.Select(d => new Stage(d)).ToList();
+            return stages;
+        }
+        internal static List<Stage> GetManyStages(List<int> stagesId)
+        {
+            httpClient.DefaultRequestHeaders.Accept.Clear();
+            httpClient.DefaultRequestHeaders.Accept.Add(bsonHeaderValue);
+
+            string body = String.Join(",", stagesId);
+            StringContent str = new StringContent(String.Join(",", stagesId), Encoding.UTF8, "text/plain");
+            HttpResponseMessage result = httpClient.PostAsync($"Stages/getMany", str).Result;
+            if (result.IsSuccessStatusCode == false)
+            {
+                throw new Exception($"List<Stage> GetManyStages(stagesId = {body}). Status code: {result.StatusCode}");
             }
             List<Stage> stages = result.Content.ReadAsAsync<List<StageDTO>>(bsonFormatting).Result.Select(d => new Stage(d)).ToList();
             return stages;
@@ -163,6 +200,28 @@ namespace ClinicDent2
             }
             httpClient.Dispose();
             return result.Content.ReadAsAsync<string[]>(bsonFormatting).Result;
+        }
+        public static string GetApiVersion()
+        {
+            httpClient = CreateHttpClient(IniService.GetPrivateString("Settings", "ServerAddress"), TimeSpan.FromSeconds(10));
+            HttpResponseMessage result = null;
+            try
+            {
+                result = httpClient.GetAsync($"Account/apiVersion").Result;
+            }
+            catch (Exception)
+            {
+                httpClient.Dispose();
+                httpClient = CreateHttpClient(IniService.GetPrivateString("Settings", "LanServerAddress"), TimeSpan.FromSeconds(10));
+                result = httpClient.GetAsync($"Account/apiVersion").Result;
+            }
+            if (result.IsSuccessStatusCode == false)
+            {
+                httpClient.Dispose();
+                throw new Exception("Can't retrieve server version");
+            }
+            httpClient.Dispose();
+            return result.Content.ReadAsStringAsync().Result;
         }
         public static Doctor Authenticate(LoginModel loginModel)
         {
@@ -311,7 +370,14 @@ namespace ClinicDent2
                 throw new Exception($"void PutStages(List<Stage> s). Status code: {result.StatusCode}");
             }
         }
-        internal static void PutStages(List<StageDTO> s)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="s"></param>
+        /// <returns></returns>
+        /// <exception cref="ConflictException">returns ids of conflict stages separated by comma.Example "1,2,3,4"</exception>
+        /// <exception cref="Exception"></exception>
+        internal static PutStagesRequestAnswer PutStages(List<StageDTO> s)
         {
             httpClient.DefaultRequestHeaders.Accept.Clear();
             httpClient.DefaultRequestHeaders.Accept.Add(bsonHeaderValue);
@@ -322,7 +388,17 @@ namespace ClinicDent2
             HttpResponseMessage result = httpClient.PutAsync($"Stages/putMany", putStagesRequest, BsonFormatter).Result;
             if (result.IsSuccessStatusCode == false)
             {
+                if (result.StatusCode == System.Net.HttpStatusCode.Conflict)
+                {
+                    PutStagesRequestAnswer putStagesRequestAnswer = result.Content.ReadAsAsync<PutStagesRequestAnswer>(bsonFormatting).Result;
+                    throw new ConflictException("", putStagesRequestAnswer);
+                }
                 throw new Exception($"void PutStages(List<StageDTO> s). Status code: {result.StatusCode}");
+            }
+            else
+            {
+                PutStagesRequestAnswer putStagesRequestAnswer = result.Content.ReadAsAsync<PutStagesRequestAnswer>(bsonFormatting).Result;
+                return putStagesRequestAnswer;
             }
         }
         internal static Schedule PostScheduleRecord(Schedule newRecord)
@@ -374,15 +450,20 @@ namespace ClinicDent2
             patient = result.Content.ReadAsAsync<Patient>(bsonFormatting).Result;
             return patient;
         }
-        internal static void PutPatient(Patient patient)
+        internal static string PutPatient(Patient patient)
         {
             httpClient.DefaultRequestHeaders.Accept.Clear();
             httpClient.DefaultRequestHeaders.Accept.Add(bsonHeaderValue);
             HttpResponseMessage result = httpClient.PutAsync($"Patients", patient, BsonFormatter).Result;
             if (result.IsSuccessStatusCode == false)
             {
+                if (result.StatusCode == System.Net.HttpStatusCode.Conflict)
+                {
+                    throw new ConflictException(result.Content.ReadAsAsync<ServerErrorMessage>(bsonFormatting).Result.errorMessage);
+                }
                 throw new Exception($"Patient PutPatient(Patient patient). Status code: {result.StatusCode}");
             }
+            return result.Content.ReadAsStringAsync().Result;
         }
         internal static void AddImageToStage(int imageId, int stageId)
         {

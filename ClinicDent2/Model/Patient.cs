@@ -19,6 +19,8 @@ namespace ClinicDent2.Model
         public string Statuses { get; set; }
         public string CurePlan { get; set; }
         public byte[] ImageBytes { get; set; }
+        public string CreatedDateTime { get; set; }
+        public string LastModifiedDateTime { get; set; }
     }
     public class PatientsToClient
     {
