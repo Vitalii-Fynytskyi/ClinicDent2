@@ -31,11 +31,11 @@ namespace ClinicDent2
                 throw new Exception($"Не вдалось знайти контакт з номером \'{receiverPhoneNumber}\'");
             }
             await client.SendMessageAsync(peer, message).ConfigureAwait(false);
-            int[] contactIds = await client.Contacts_GetContactIDs().ConfigureAwait(false);
-            if (contactIds.Any(n => n == peer.peer.ID) == false)
-            {
-                await client.Contacts_AddContact(peer.User, name, "", $"+{receiverPhoneNumber}").ConfigureAwait(false);
-            }
+            //int[] contactIds = await client.Contacts_GetContactIDs().ConfigureAwait(false);
+            //if (contactIds.Any(n => n == peer.peer.ID) == false)
+            //{
+            //    await client.Contacts_AddContact(peer.User, name, "", $"+{receiverPhoneNumber}").ConfigureAwait(false);
+            //}
             return peer;
         }
         public static async Task SendStageAsync(string name, string phoneNumber, StageViewModel stage)

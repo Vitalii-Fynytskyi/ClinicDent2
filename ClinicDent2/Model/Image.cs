@@ -1,15 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
-using System.Text;
-
-namespace ClinicDent2.Model
+﻿namespace ClinicDent2.Model
 {
-    public class Image :INotifyPropertyChanged
+    public class Image
     {
         public int Id { get; set; }
         public byte[] OriginalBytes
@@ -25,32 +16,12 @@ namespace ClinicDent2.Model
                     CompressedBytes = ImageCompressor.CompressImage(originalBytes, new System.Drawing.Size(200,150));
             }
         }
-
         private byte[] originalBytes;
-
         public int DoctorId { get; set; }
 
         public byte[] CompressedBytes { get; set; }
         public bool? IsXRay { get; set; }
-        public string FileName
-        {
-            get
-            {
-                return fileName;
-            }
-            set
-            {
-                fileName = value;
-                OnPropertyChanged("FileName");
-            }
-        }
-        private string fileName;
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        public void OnPropertyChanged([CallerMemberName] string prop = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
-        }
+        public string FileName{ get; set; }
     }
     public class ImagesToClient
     {

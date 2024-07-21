@@ -26,8 +26,6 @@ namespace ClinicDent2
         public static Doctor CurrentDoctor { get; set; }
         public static Doctor[] AllDoctors { get; set; }
         public static Cabinet[] AllCabinets { get; set; }
-
-
         public static string DateTimePattern { get; set; } = "yyyy-MM-dd HH:mm";
         public static string DatePattern { get; set; } = "dd.MM.yyyy";
         public static string ExactDateTimePattern { get; set; } = "yyyy-MM-dd HH:mm:ss.fffffff";

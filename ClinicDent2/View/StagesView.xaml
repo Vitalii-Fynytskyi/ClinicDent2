@@ -15,11 +15,12 @@
             <RowDefinition MaxHeight="150" Height="Auto"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <Grid Margin="0,0,0,5" HorizontalAlignment="Left">
+        <Grid Margin="0,0,0,5" HorizontalAlignment="Stretch">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
@@ -39,6 +40,7 @@
             </StackPanel>
             <TextBox x:Name="textBoxPhone" Text="{Binding Patient.Phone, Mode=OneWay}" IsReadOnly="True" Background="Transparent" BorderThickness="0" Grid.Row="1" Grid.Column="1"/>
             <Button Content="Редагувати" Grid.Column="2" VerticalAlignment="Top" Command="{Binding EditPatientCommand}"/>
+            <Label Content="{Binding LastHygieneText}" Grid.Column="3" HorizontalAlignment="Right"/>
         </Grid>
         <ScrollViewer Grid.Row="1" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" Focusable="True">
             <StackPanel VerticalAlignment="Stretch">
@@ -79,7 +81,7 @@
                 <DockPanel HorizontalAlignment="Center" Margin="0,5,0,0">
                     <Label DockPanel.Dock="Left">Новий етап</Label>
                     <Button  Content="Створити" DockPanel.Dock="Right" Command="{Binding CreateNewStageCommand}" CommandParameter="{Binding Path=Text, ElementName=textBoxStageName}"/>
-                    <TextBox x:Name="textBoxStageName" Margin="20,0,20,0" MinWidth="200" AcceptsReturn="False">
+                    <TextBox x:Name="textBoxStageName" Margin="20,0,20,0" MinWidth="200" AcceptsReturn="False" >
                         <TextBox.InputBindings>
                             <KeyBinding Key="Enter" Command="{Binding CreateNewStageCommand}"  CommandParameter="{Binding Path=Text, RelativeSource={RelativeSource AncestorType={x:Type TextBox}}}" />
                         </TextBox.InputBindings>

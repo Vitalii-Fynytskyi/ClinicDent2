@@ -7,6 +7,7 @@ using ClinicDent2.View;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Documents;
@@ -23,8 +24,23 @@ namespace ClinicDent2.ViewModel
         public RelayCommand PhotoClickedCommand { get; set; }
         public RelayCommand EditPatientCommand { get; set; }
         public RelayCommand UpdateCurePlanCommand { get; set; }
-
         public RelayCommand CreateNewStageCommand { get; set; }
+        public string LastHygieneText
+        {
+            get
+            {
+                return lastHygieneText;
+            }
+            set
+            {
+                if (value != lastHygieneText)
+                {
+                    lastHygieneText = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        public string lastHygieneText;
         private void PhotoClicked(object arg)
         {
             Options.MainWindow.mainMenu.createFullSizeImageControl(patient.ImageBytes);
@@ -133,6 +149,32 @@ namespace ClinicDent2.ViewModel
                 LoadAllPatientStagesWithRelatedMarked(MarkedDate.Value, Patient.PatientId);
             else
                 LoadAllPatientStages(Patient);
+        }
+        public void UpdateHygienaState()
+        {
+            StageViewModel hygieneStage = stages.FirstOrDefault(s => s.Operation != null && s.Operation.Value == "Гігієна");
+            if(hygieneStage == null)
+            {
+                LastHygieneText = "Гігієна не проведена";
+                return;
+            }
+            TimeSpan timespan = DateTime.Now - DateTime.ParseExact(hygieneStage.StageDatetime, Options.DateTimePattern, new CultureInfo("uk-UA"));
+            int days = timespan.Days;
+            string daysText;
+            if (days % 10 == 1 && days % 100 != 11)
+            {
+                daysText = "день";
+            }
+            else if (days % 10 >= 2 && days % 10 <= 4 && (days % 100 < 10 || days % 100 >= 20))
+            {
+                daysText = "дні";
+            }
+            else
+            {
+                daysText = "днів";
+            }
+
+            LastHygieneText = $"Гігієна виконана {days} {daysText} тому";
         }
         private void UpdateViewModels(List<StageViewModel> viewModels, PutStagesRequestAnswer response)
         {
@@ -250,6 +292,7 @@ namespace ClinicDent2.ViewModel
                 if(value != stages)
                 {
                     stages = value;
+                    UpdateHygienaState();
                     NotifyPropertyChanged();
 
                 }

@@ -614,7 +614,35 @@ namespace ClinicDent2.ViewModel
         public static void LoadAssets()
         {
             List<StageAsset> allAssets = HttpService.GetStageAssets();
-            Operations = new List<StageAsset>();
+
+            List<StageAsset> operations = allAssets.Where(a => a.Type == AssetType.Operation).ToList();
+            
+            List<string> desiredOperationsOrder = new List<string>
+            {
+                "Реставрація",
+                "Пломбування каналів",
+                "Цементування коронок",
+                "Відновлення культі",
+                "Гігієна",
+                "Інше"
+            };
+            // Create a dictionary to map the desired order to indices
+            Dictionary<string, int> orderDict = desiredOperationsOrder
+                .Select((value, index) => new { value, index })
+                .ToDictionary(x => x.value, x => x.index);
+
+            // Sort the operations list based on the desired order
+            operations.Sort((x, y) =>
+            {
+                int indexX = orderDict.ContainsKey(x.Value) ? orderDict[x.Value] : int.MaxValue;
+                int indexY = orderDict.ContainsKey(y.Value) ? orderDict[y.Value] : int.MaxValue;
+                return indexX.CompareTo(indexY);
+            });
+
+            allAssets.RemoveAll(a => a.Type == AssetType.Operation);
+            allAssets = allAssets.OrderBy(a => a.Value).ToList();
+
+            Operations = operations;
             Bonds = new List<StageAsset>();
             Enamels = new List<StageAsset>();
             Dentins = new List<StageAsset>();
@@ -651,9 +679,6 @@ namespace ClinicDent2.ViewModel
                         break;
                     case AssetType.Pin:
                         Pins.Add(asset);
-                        break;
-                    case AssetType.Operation:
-                        Operations.Add(asset);
                         break;
                     case AssetType.Calcium:
                         Calciums.Add(asset);

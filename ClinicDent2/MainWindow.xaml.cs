@@ -29,7 +29,7 @@ namespace ClinicDent2
         }
         private void CheckForUpdates()
         {
-            string clientVersion = "1";
+            string clientVersion = "3";
             string apiVersion = HttpService.GetApiVersion();
             if(apiVersion != clientVersion)
             {
