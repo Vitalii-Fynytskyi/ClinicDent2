@@ -1,4 +1,5 @@
-﻿using ClinicDent2.Model;
+﻿using ClinicDentClientCommon.Model;
+using ClinicDentClientCommon.Services;
 using System;
 using System.Windows;
 using System.Windows.Controls;
@@ -22,7 +23,7 @@ namespace ClinicDent2
             Options.MainWindow.goToLoginMenu();
         }
 
-        private void buttonRegister_Click(object sender, RoutedEventArgs e)
+        private async void buttonRegister_Click(object sender, RoutedEventArgs e)
         {
             RegisterModel registerModel = new RegisterModel();
             registerModel.Email = TextBoxEmail.Text;
@@ -32,7 +33,7 @@ namespace ClinicDent2
             Doctor doctor = null;
             try
             {
-                doctor = HttpService.Register(registerModel);
+                doctor = await HttpService.Register(registerModel);
             }
             catch(Exception ex)
             {

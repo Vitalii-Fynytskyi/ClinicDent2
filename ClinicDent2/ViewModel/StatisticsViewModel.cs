@@ -1,18 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Windows;
-
+using System.Threading.Tasks;
+using ClinicDentClientCommon.Model;
+using ClinicDentClientCommon.Services;
 namespace ClinicDent2.ViewModel
 {
     public class StatisticsViewModel:BaseViewModel
     {
         public StatisticsViewModel()
         {
-            int cabinetId = Options.DefaultSelectedCabinet.Id;
-            futureWorkingHours = TimeSpan.FromMinutes(HttpService.GetFutureWorkingMinutes(cabinetId));
-            futureUniquePatients = HttpService.GetFutureUniquePatients(cabinetId);
-
+            Init();
+        }
+        public async Task Init()
+        {
+            FutureWorkingHours = TimeSpan.FromMinutes(await HttpService.GetFutureWorkingMinutes(Options.DefaultSelectedCabinet.Id));
+            FutureUniquePatients = await HttpService.GetFutureUniquePatients(Options.DefaultSelectedCabinet.Id);
         }
         public TimeSpan FutureWorkingHours
         {

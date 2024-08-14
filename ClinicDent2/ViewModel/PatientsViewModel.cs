@@ -1,14 +1,14 @@
 ﻿using ClinicDent2.Commands;
-using ClinicDent2.Model;
 using ClinicDent2.TabbedBrowser;
+using ClinicDentClientCommon;
+using ClinicDentClientCommon.Model;
+using ClinicDentClientCommon.Services;
 using System;
-using System.Collections.ObjectModel;
 using System.Collections.Generic;
-
+using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Documents;
-using System.Windows.Markup;
 
 namespace ClinicDent2.ViewModel
 {
@@ -18,8 +18,7 @@ namespace ClinicDent2.ViewModel
     }
     public class PatientsViewModel:BaseViewModel
     {
-        public static string[] AvailableSorts { get; set; } = new string[] { "За замовчуванням", "Ім'я: від А до Я", "Ім'я: від Я до А", "За замовчуванням навпаки", "Дата реєстрації: спочатку недавні", "Дата реєстрації: спочатку старіші",  "Вік: спочатку молодші", "Вік: спочатку старші" };
-        public static string[] AvailableStatuses { get; set; } = new string[] { "Всі статуси", "Новий", "Запланований", "В роботі", "Виконаний", "Відмовився", "Ортодонтія" };
+        
         private Doctor selectedDoctor = null;
         public Doctor SelectedDoctor
         {
@@ -86,7 +85,7 @@ namespace ClinicDent2.ViewModel
             patientListMode= patientListModeToSet;
             SearchPressedCommand = new RelayCommand(searchPressed);
             PageChangedCommand = new RelayCommand(pageChanged);
-            selectedDoctor = Options.AllDoctors.FirstOrDefault(d => d.Id == Options.CurrentDoctor.Id);
+            selectedDoctor = SharedData.AllDoctors.FirstOrDefault(d => d.Id == SharedData.CurrentDoctor.Id);
             switch(patientListModeToSet)
             {
                 case PatientListMode.MyPatients:
@@ -101,8 +100,8 @@ namespace ClinicDent2.ViewModel
 
             }
             imageId= imageIdToSet;
-            selectedSorting = AvailableSorts[0];
-            selectedStatus = AvailableStatuses[0];
+            selectedSorting = Patient.AvailableSorts[0];
+            selectedStatus = Patient.AvailableStatuses[0];
             selectedPage = 1;
             searchText= string.Empty;
             visiblePages = new ObservableCollection<int>();
@@ -206,7 +205,7 @@ namespace ClinicDent2.ViewModel
             SelectedPage = Convert.ToInt32(param.ToString());
             ReceivePatients();
         }
-        public void ReceivePatients()
+        public async Task ReceivePatients()
         {
             string searchTextForRequest = SearchText == "" ? "<null>" : SearchText;
             PatientsToClient patientsToClient = null;
@@ -215,13 +214,13 @@ namespace ClinicDent2.ViewModel
                 switch (patientListMode)
                 {
                     case PatientListMode.AllPatients:
-                        patientsToClient= HttpService.GetPatients(selectedStatus, selectedSorting, selectedPage, Options.PatientsPerPage, searchTextForRequest);
+                        patientsToClient= await HttpService.GetPatients(selectedStatus, selectedSorting, selectedPage, Options.PatientsPerPage, searchTextForRequest);
                         break;
                     case PatientListMode.MyPatients:
-                        patientsToClient = HttpService.GetPatients(selectedStatus, selectedSorting, selectedPage, Options.PatientsPerPage, searchTextForRequest, SelectedDoctor.Id);
+                        patientsToClient = await HttpService.GetPatients(selectedStatus, selectedSorting, selectedPage, Options.PatientsPerPage, searchTextForRequest, SelectedDoctor.Id);
                         break;
                     case PatientListMode.SearchPatientsWithImage:
-                        patientsToClient = HttpService.GetPatientsByImage(imageId.Value, selectedStatus, selectedSorting, selectedPage, Options.PatientsPerPage, searchTextForRequest);
+                        patientsToClient = await HttpService.GetPatientsByImage(imageId.Value, selectedStatus, selectedSorting, selectedPage, Options.PatientsPerPage, searchTextForRequest);
                         break;
                 }
             }

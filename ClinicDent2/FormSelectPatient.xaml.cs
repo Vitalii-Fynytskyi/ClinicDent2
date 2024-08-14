@@ -1,6 +1,8 @@
-﻿using ClinicDent2.Model;
+﻿using ClinicDentClientCommon.Model;
+using ClinicDentClientCommon.Services;
 using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -15,7 +17,7 @@ namespace ClinicDent2
     {
         Label labelThreeDots1;
         Label labelThreeDots2;
-        Model.Patient[] shownPatients;
+        Patient[] shownPatients;
         Patient selectedPatient;
         PatientsToClient receivedPatients;
         public event EventHandler<Patient> PatientSelected;
@@ -43,13 +45,13 @@ namespace ClinicDent2
             ReceivePatients();
 
         }
-        public void ReceivePatients()
+        public async Task ReceivePatients()
         {
             if (searchText == "")
                 searchText = "<null>";
             try
             {
-                receivedPatients = HttpService.GetPatients(selectedStatus, selectedSortDescription, Convert.ToInt32(selectedPage), Options.PatientsPerPage, searchText);
+                receivedPatients = await HttpService.GetPatients(selectedStatus, selectedSortDescription, Convert.ToInt32(selectedPage), Options.PatientsPerPage, searchText);
             }
             catch (Exception ex)
             {

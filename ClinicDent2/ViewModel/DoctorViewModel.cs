@@ -1,9 +1,11 @@
-﻿namespace ClinicDent2.ViewModel
+﻿using ClinicDentClientCommon.Model;
+using ClinicDentClientCommon.Services;
+namespace ClinicDent2.ViewModel
 {
     public class DoctorViewModel:BaseViewModel
     {
-        private Model.Doctor doctor;
-        public DoctorViewModel(Model.Doctor doctorToSet)
+        private Doctor doctor;
+        public DoctorViewModel(Doctor doctorToSet)
         {
             doctor= doctorToSet;
         }

@@ -1,31 +1,18 @@
-﻿using ClinicDent2.Model;
+﻿using ClinicDent2.TabbedBrowser;
+using ClinicDentClientCommon.Model;
 using System;
-using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
-using System.Text;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using ClinicDent2.Commands;
-using System.Diagnostics;
-using System.Windows.Controls.Primitives;
-using ClinicDent2.TabbedBrowser;
-using ClinicDent2.ViewModel;
-using System.Linq;
 
 namespace ClinicDent2.View
 {
-    /// <summary>
-    /// Логика взаимодействия для ScheduleTimeGridElementView.xaml
-    /// </summary>
     public partial class ScheduleTimeGridElementView : UserControl, INotifyPropertyChanged
     {
         public bool isMovingMode = false;
@@ -60,7 +47,8 @@ namespace ClinicDent2.View
             string date = ParentGridView.Owner.SelectedDate.ToString("yyyy-MM-dd ");
             Schedule.StartDatetime = date + ScheduleStartTime.ToString(@"hh\:mm");
             Schedule.EndDatetime = date + ScheduleEndTime.ToString(@"hh\:mm");
-            ParentGridView.Owner.Owner.TcpClient.UpdateRecord(Schedule);
+            Options.MainWindow.mainMenu.TcpClient.UpdateRecord(Schedule);
+            Options.MainWindow.mainMenu.browserControl.NotifyOtherTabs(NotificationCodes.ScheduleRecordUpdated,Schedule);
             ParentGridView.UpdateCalendarDayState();
         }
         private void WillAppearChanged()
@@ -68,16 +56,16 @@ namespace ClinicDent2.View
             switch (Schedule.State)
             {
                 case SchedulePatientState.Unknown:
-                    ParentGridView.Owner.Owner.TcpClient.UpdateRecordState(Schedule.Id, SchedulePatientState.WillAppear);
-                    this.Schedule.State = Model.SchedulePatientState.WillAppear;
+                    Options.MainWindow.mainMenu.TcpClient.UpdateRecordState(Schedule.Id, SchedulePatientState.WillAppear);
+                    this.Schedule.State = SchedulePatientState.WillAppear;
                     break;
                 case SchedulePatientState.WillAppear:
-                    ParentGridView.Owner.Owner.TcpClient.UpdateRecordState(Schedule.Id, SchedulePatientState.Refused);
-                    this.Schedule.State = Model.SchedulePatientState.Refused;
+                    Options.MainWindow.mainMenu.TcpClient.UpdateRecordState(Schedule.Id, SchedulePatientState.Refused);
+                    this.Schedule.State = SchedulePatientState.Refused;
                     break;
                 case SchedulePatientState.Refused:
-                    ParentGridView.Owner.Owner.TcpClient.UpdateRecordState(Schedule.Id, SchedulePatientState.Unknown);
-                    this.Schedule.State = Model.SchedulePatientState.Unknown;
+                    Options.MainWindow.mainMenu.TcpClient.UpdateRecordState(Schedule.Id, SchedulePatientState.Unknown);
+                    this.Schedule.State = SchedulePatientState.Unknown;
                     break;
             }
             OnPropertyChanged("State");
@@ -162,7 +150,7 @@ namespace ClinicDent2.View
             {
                 Schedule.Comment = value;
                 OnPropertyChanged();
-                ParentGridView.Owner.Owner.TcpClient.UpdateRecordComment(Schedule.Id, value);
+                Options.MainWindow.mainMenu.TcpClient.UpdateRecordComment(Schedule.Id, value);
             }
         }
         public ScheduleIsSentViaMessagetState StagesSentViaMessagerState
@@ -409,7 +397,8 @@ namespace ClinicDent2.View
             Schedule.PatientId = e.Id;
             Schedule.PatientName = e.Name;
             OnPropertyChanged("PatientName");
-            ParentGridView.Owner.Owner.TcpClient.UpdateRecord(Schedule);
+            Options.MainWindow.mainMenu.TcpClient.UpdateRecord(Schedule);
+            Options.MainWindow.mainMenu.browserControl.NotifyOtherTabs(NotificationCodes.ScheduleRecordUpdated, Schedule);
         }
 
         private void menuItemDeleteRecord_Click(object sender, RoutedEventArgs e)
@@ -417,7 +406,8 @@ namespace ClinicDent2.View
             ParentGridView.TimeGridElementViews.Remove(this);
             ParentGridView.grid.Children.Remove(this);
             ParentGridView.UpdateCalendarDayState();
-            ParentGridView.Owner.Owner.TcpClient.DeleteRecord(Schedule.Id);
+            Options.MainWindow.mainMenu.TcpClient.DeleteRecord(Schedule.Id);
+            Options.MainWindow.mainMenu.browserControl.NotifyOtherTabs(NotificationCodes.ScheduleRecordDeletedIdOnly, Schedule.Id);
         }
 
         private void buttonWillAppear_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)

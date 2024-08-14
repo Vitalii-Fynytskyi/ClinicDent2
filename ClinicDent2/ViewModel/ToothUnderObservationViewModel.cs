@@ -1,8 +1,7 @@
 ﻿using ClinicDent2.Commands;
-using ClinicDent2.Model;
+using ClinicDentClientCommon.Model;
+using ClinicDentClientCommon.Services;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ClinicDent2.ViewModel
 {
@@ -40,11 +39,11 @@ namespace ClinicDent2.ViewModel
         {
             return !(ViewModelStatus.HasFlag(ViewModelStatus.Inserted) == true || ViewModelStatus.HasFlag(ViewModelStatus.Deleted) == true);
         }
-        public void SaveObservation(object param)
+        public async void SaveObservation(object param)
         {
             if(toothUnderObservation.Id == 0) //decide to create or update record on server
             {
-                int toothObservationId = HttpService.PostToothUnderObservation(toothUnderObservation);
+                int toothObservationId = await HttpService.PostToothUnderObservation(toothUnderObservation);
                 toothUnderObservation.Id = toothObservationId;
                 if (stageViewModel != null)
                 {
@@ -53,7 +52,7 @@ namespace ClinicDent2.ViewModel
             }
             else
             {
-                HttpService.PutToothUnderObservation(toothUnderObservation);
+                await HttpService.PutToothUnderObservation(toothUnderObservation);
             }
             SessionCompleted?.Invoke(this, EventArgs.Empty);
 

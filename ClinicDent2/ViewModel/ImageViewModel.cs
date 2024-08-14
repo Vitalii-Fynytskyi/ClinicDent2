@@ -1,5 +1,6 @@
 ﻿using ClinicDent2.Commands;
-using ClinicDent2.Model;
+using ClinicDentClientCommon.Model;
+using ClinicDentClientCommon.Services;
 using ClinicDent2.TabbedBrowser;
 using ClinicDent2.View;
 using System;
@@ -75,13 +76,13 @@ namespace ClinicDent2.ViewModel
                 }
             }
         }
-        private void ImageClicked(object arg)
+        private async void ImageClicked(object arg)
         {
             if(image.OriginalBytes == null)
             {
                 try
                 {
-                    image.OriginalBytes = HttpService.GetImageOriginalBytes(image.Id);
+                    image.OriginalBytes = await HttpService.GetImageOriginalBytes(image.Id);
                 }
                 catch(Exception ex)
                 {
@@ -91,13 +92,13 @@ namespace ClinicDent2.ViewModel
             }
             Options.MainWindow.mainMenu.createFullSizeImageControl(image.OriginalBytes);
         }
-        private void CopyImage(object arg)
+        private async void CopyImage(object arg)
         {
             if (image.OriginalBytes == null)
             {
                 try
                 {
-                    image.OriginalBytes = HttpService.GetImageOriginalBytes(image.Id);
+                    image.OriginalBytes = await HttpService.GetImageOriginalBytes(image.Id);
                 }
                 catch (Exception ex)
                 {
@@ -158,7 +159,7 @@ namespace ClinicDent2.ViewModel
             windowContainer.SizeToContent = SizeToContent.WidthAndHeight;
             windowContainer.Show();
         }
-        public Model.Image image;
+        public Image image;
         StageViewModel ownerStage;
         PhotoflowViewModel photoflowOwner;
         public ImageViewModel(Image imageToSet, StageViewModel ownerToSet=null, PhotoflowViewModel photoflowViewModelToSet = null)

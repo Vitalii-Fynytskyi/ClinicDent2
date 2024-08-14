@@ -1,14 +1,6 @@
-﻿using ClinicDent2.Model;
+﻿using ClinicDentClientCommon.Model;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Net.Http;
-using System.Net.Http.Formatting;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
-
 namespace ClinicDent2
 {
     public static class Options
@@ -23,12 +15,6 @@ namespace ClinicDent2
             return dt;
         }
         public static MainWindow MainWindow { get; set; }
-        public static Doctor CurrentDoctor { get; set; }
-        public static Doctor[] AllDoctors { get; set; }
-        public static Cabinet[] AllCabinets { get; set; }
-        public static string DateTimePattern { get; set; } = "yyyy-MM-dd HH:mm";
-        public static string DatePattern { get; set; } = "dd.MM.yyyy";
-        public static string ExactDateTimePattern { get; set; } = "yyyy-MM-dd HH:mm:ss.fffffff";
 
         #region IniFile data
         public static bool CanDeleteImage { get; set; }

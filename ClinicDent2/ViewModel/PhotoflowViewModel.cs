@@ -1,22 +1,17 @@
 ﻿using ClinicDent2.Commands;
-using ClinicDent2.Model;
+using ClinicDentClientCommon;
+using ClinicDentClientCommon.Model;
+using ClinicDentClientCommon.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace ClinicDent2.ViewModel
 {
-    public enum ImageType
-    {
-        Undefined=0,
-        Regular =1,
-        XRay=2,
-        All = 3,
-
-    }
     public class PhotoflowViewModel :BaseViewModel
     {
         private ImageType imageType = ImageType.All;
@@ -44,8 +39,8 @@ namespace ClinicDent2.ViewModel
             PageChangedCommand = new RelayCommand(pageChanged);
             selectedPage = 1;
             visiblePages = new ObservableCollection<int>();
-            DoctorViewModels = new ObservableCollection<DoctorViewModel>(Options.AllDoctors.Select(d => new DoctorViewModel(d)));
-            SelectedDoctor = DoctorViewModels.FirstOrDefault(d => d.Id == Options.CurrentDoctor.Id);
+            DoctorViewModels = new ObservableCollection<DoctorViewModel>(SharedData.AllDoctors.Select(d => new DoctorViewModel(d)));
+            SelectedDoctor = DoctorViewModels.FirstOrDefault(d => d.Id == SharedData.CurrentDoctor.Id);
 
         }
         public bool IsAnyImageSelected
@@ -78,21 +73,21 @@ namespace ClinicDent2.ViewModel
         {
             get
             {
-                return SelectedDoctor.Id == Options.CurrentDoctor.Id;
+                return SelectedDoctor.Id == SharedData.CurrentDoctor.Id;
             }
         }
-        public void AddPhotos(string[] fileNames)
+        public async Task AddPhotos(string[] fileNames)
         {
             foreach (string imagePath in fileNames)
             {
-                Model.Image image = new Model.Image();
+                Image image = new Image();
 
                 image.OriginalBytes = File.ReadAllBytes(imagePath);
                 image.FileName = System.IO.Path.GetFileNameWithoutExtension(imagePath);
-                image.DoctorId = Options.CurrentDoctor.Id;
+                image.DoctorId = SharedData.CurrentDoctor.Id;
                 try
                 {
-                    image = HttpService.PostImage(image);
+                    image = await HttpService.PostImage(image);
                 }
                 catch (Exception ex)
                 {
@@ -215,12 +210,12 @@ namespace ClinicDent2.ViewModel
             }
             VisiblePages = new ObservableCollection<int>(pages);
         }
-        public void ReceiveImages()
+        public async Task ReceiveImages()
         {
             ImagesToClient imagesToClient= new ImagesToClient();
             try
             {
-                imagesToClient = HttpService.GetImages(selectedPage, Options.PhotosPerPage, SelectedDoctor.Id, imageType);
+                imagesToClient = await HttpService.GetImages(selectedPage, Options.PhotosPerPage, SelectedDoctor.Id, imageType);
             }
             catch (Exception ex)
             {

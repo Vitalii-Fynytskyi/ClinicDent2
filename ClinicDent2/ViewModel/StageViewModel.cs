@@ -1,6 +1,8 @@
 ﻿using ClinicDent2.Commands;
-using ClinicDent2.Model;
 using ClinicDent2.View;
+using ClinicDentClientCommon;
+using ClinicDentClientCommon.Model;
+using ClinicDentClientCommon.Services;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -27,26 +29,16 @@ namespace ClinicDent2.ViewModel
                 error= string.Empty;
                 if(propertyName == nameof(StageDatetime))
                 {
-                    bool isValid = DateTime.TryParseExact(StageDatetime, Options.DateTimePattern, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime result);
+                    bool isValid = DateTime.TryParseExact(StageDatetime, SharedData.DateTimePattern, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime result);
                     if(isValid == false)
                     {
-                        error = $"Дата має бути в форматі {Options.DateTimePattern}. Етап не буде збережено";
+                        error = $"Дата має бути в форматі {SharedData.DateTimePattern}. Етап не буде збережено";
                     }
                 }
                 return error;
             }
         }
         #endregion
-        public static List<StageAsset> Operations { get; set; }
-        public static List<StageAsset> Bonds { get; set; }
-        public static List<StageAsset> CanalMethods { get; set; }
-        public static List<StageAsset> Cements { get; set; }
-        public static List<StageAsset> Calciums { get; set; }
-        public static List<StageAsset> Dentins { get; set; }
-        public static List<StageAsset> Enamels { get; set; }
-        public static List<StageAsset> Pins { get; set; }
-        public static List<StageAsset> Sealers { get; set; }
-        public static List<StageAsset> Technicians { get; set; }
         public RelayCommand DeleteStageCommand { get; set; }
         public RelayCommand MarkSentViaMessagerCommand { get; set; }
         public RelayCommandAsync SendStageViaViberCommand { get; set; }
@@ -55,7 +47,7 @@ namespace ClinicDent2.ViewModel
         public RelayCommand AttachImageCommand { get; set; }
 
 
-        private void AddImageFromClipboard(object arg)
+        private async void AddImageFromClipboard(object arg)
         {
             if (Clipboard.ContainsImage())
             {
@@ -66,13 +58,13 @@ namespace ClinicDent2.ViewModel
                 encoder.Frames.Add(outputFrame);
                 MemoryStream memoryStream = new MemoryStream();
                 encoder.Save(memoryStream);
-                Model.Image imageToStage = new Model.Image();
+                Image imageToStage = new Image();
                 imageToStage.OriginalBytes = memoryStream.ToArray();
                 imageToStage.FileName = "Image from clipboard";
-                imageToStage.DoctorId = Options.CurrentDoctor.Id;
+                imageToStage.DoctorId = SharedData.CurrentDoctor.Id;
                 try
                 {
-                    imageToStage = HttpService.PostImage(imageToStage);
+                    imageToStage = await HttpService.PostImage(imageToStage);
                 }
                 catch(Exception ex)
                 {
@@ -81,7 +73,7 @@ namespace ClinicDent2.ViewModel
                 }
                 try
                 {
-                    HttpService.AddImageToStage(imageToStage.Id, stage.Id);
+                    await HttpService.AddImageToStage(imageToStage.Id, stage.Id);
                 }
                 catch (Exception ex)
                 { 
@@ -139,7 +131,7 @@ namespace ClinicDent2.ViewModel
                 MessageBox.Show(e.Message);
             }
         }
-        private void AddImageFromDisk(object arg)
+        private async void AddImageFromDisk(object arg)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "Image files (*.jpg, *.jpeg, *.png, *.bmp, *.tif, *.tiff)|*.jpg;*.jpeg;*.png;*.bmp;*.tif;*.tiff|All files(*.*)|*.*";
@@ -148,13 +140,13 @@ namespace ClinicDent2.ViewModel
             {
                 foreach (string imagePath in openFileDialog.FileNames)
                 {
-                    Model.Image imageToStage = new Model.Image();
+                    ClinicDentClientCommon.Model.Image imageToStage = new ClinicDentClientCommon.Model.Image();
                     imageToStage.OriginalBytes = File.ReadAllBytes(imagePath);
                     imageToStage.FileName = System.IO.Path.GetFileNameWithoutExtension(imagePath);
-                    imageToStage.DoctorId = Options.CurrentDoctor.Id;
+                    imageToStage.DoctorId = SharedData.CurrentDoctor.Id;
                     if (Options.CanDeleteImage)
                         File.Delete(imagePath);
-                    imageToStage = HttpService.PostImage(imageToStage);
+                    imageToStage = await HttpService.PostImage(imageToStage);
                     if (imageToStage == null)
                     {
                         MessageBox.Show("Помилка", "Не вдалось завантажити зображення");
@@ -162,7 +154,7 @@ namespace ClinicDent2.ViewModel
                     }
                     try
                     {
-                        HttpService.AddImageToStage(imageToStage.Id, stage.Id);
+                        await HttpService.AddImageToStage(imageToStage.Id, stage.Id);
                     }
                     catch
                     {
@@ -550,7 +542,7 @@ namespace ClinicDent2.ViewModel
         {
             get
             {
-                return DoctorId == Options.CurrentDoctor.Id;
+                return DoctorId == SharedData.CurrentDoctor.Id;
             }
         }
         private string paymentStatusImagePath = "..\\assets/images/OK.png";
@@ -611,9 +603,9 @@ namespace ClinicDent2.ViewModel
             }
         }
         private Stage stage;
-        public static void LoadAssets()
+        public static async Task LoadAssets()
         {
-            List<StageAsset> allAssets = HttpService.GetStageAssets();
+            List<StageAsset> allAssets = await HttpService.GetStageAssets().ConfigureAwait(false);
 
             List<StageAsset> operations = allAssets.Where(a => a.Type == AssetType.Operation).ToList();
             
@@ -642,46 +634,46 @@ namespace ClinicDent2.ViewModel
             allAssets.RemoveAll(a => a.Type == AssetType.Operation);
             allAssets = allAssets.OrderBy(a => a.Value).ToList();
 
-            Operations = operations;
-            Bonds = new List<StageAsset>();
-            Enamels = new List<StageAsset>();
-            Dentins = new List<StageAsset>();
-            CanalMethods = new List<StageAsset>();
-            Sealers = new List<StageAsset>();
-            Cements = new List<StageAsset>();
-            Technicians = new List<StageAsset>();
-            Pins = new List<StageAsset>();
-            Calciums = new List<StageAsset>();
+            StageAsset.Operations = operations;
+            StageAsset.Bonds = new List<StageAsset>();
+            StageAsset.Enamels = new List<StageAsset>();
+            StageAsset.Dentins = new List<StageAsset>();
+            StageAsset.CanalMethods = new List<StageAsset>();
+            StageAsset.Sealers = new List<StageAsset>();
+            StageAsset.Cements = new List<StageAsset>();
+            StageAsset.Technicians = new List<StageAsset>();
+            StageAsset.Pins = new List<StageAsset>();
+            StageAsset.Calciums = new List<StageAsset>();
             foreach(StageAsset asset in allAssets)
             {
                 switch (asset.Type)
                 {
                     case AssetType.Bond:
-                        Bonds.Add(asset);
+                        StageAsset.Bonds.Add(asset);
                         break;
                     case AssetType.Dentin:
-                        Dentins.Add(asset);
+                        StageAsset.Dentins.Add(asset);
                         break;
                     case AssetType.Enamel:
-                        Enamels.Add(asset);
+                        StageAsset.Enamels.Add(asset);
                         break;
                     case AssetType.CanalMethod:
-                        CanalMethods.Add(asset);
+                        StageAsset.CanalMethods.Add(asset);
                         break;
                     case AssetType.Sealer:
-                        Sealers.Add(asset);
+                        StageAsset.Sealers.Add(asset);
                         break;
                     case AssetType.Cement:
-                        Cements.Add(asset);
+                        StageAsset.Cements.Add(asset);
                         break;
                     case AssetType.Technician:
-                        Technicians.Add(asset);
+                        StageAsset.Technicians.Add(asset);
                         break;
                     case AssetType.Pin:
-                        Pins.Add(asset);
+                        StageAsset.Pins.Add(asset);
                         break;
                     case AssetType.Calcium:
-                        Calciums.Add(asset);
+                        StageAsset.Calciums.Add(asset);
                         break;
                 }
             }
@@ -696,7 +688,7 @@ namespace ClinicDent2.ViewModel
             stage.OldPayed=stage.Payed;
             if(ownerToSet.MarkedDate != null)
             {
-                if(ownerToSet.MarkedDate == DateTime.ParseExact(stageToSet.StageDatetime,Options.DateTimePattern,null).Date)
+                if(ownerToSet.MarkedDate == DateTime.ParseExact(stageToSet.StageDatetime, SharedData.DateTimePattern,null).Date)
                 {
                     BoundBackground = "PaleGreen";
                 }
@@ -711,8 +703,7 @@ namespace ClinicDent2.ViewModel
                 BoundBackground = "Transparent";
 
             }
-            Images = new ObservableCollection<ImageViewModel>(HttpService.GetImagesForStage(stageToSet.Id).Select(i => new ImageViewModel(i, this)));
-
+            LoadImages();
             DeleteStageCommand = new RelayCommand(DeleteStage);
             SendStageViaViberCommand = new RelayCommandAsync(SendStageViaTelegram);
             AddImageFromDiskCommand = new RelayCommand(AddImageFromDisk);
@@ -720,7 +711,10 @@ namespace ClinicDent2.ViewModel
             AddImageFromClipboardCommand = new RelayCommand(AddImageFromClipboard);
             MarkSentViaMessagerCommand = new RelayCommand(MarkSentViaMessager);
         }
-
+        private async Task LoadImages()
+        {
+            Images = new ObservableCollection<ImageViewModel>((await HttpService.GetImagesForStage(stage.Id)).Select(i => new ImageViewModel(i, this)));
+        }
         private void MarkSentViaMessager(object obj)
         {
             int mark = Convert.ToInt32(obj as string);

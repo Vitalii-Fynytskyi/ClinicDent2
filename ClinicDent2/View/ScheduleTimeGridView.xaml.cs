@@ -1,9 +1,12 @@
-﻿using ClinicDent2.Model;
+﻿using ClinicDentClientCommon;
+using ClinicDentClientCommon.Model;
+using ClinicDentClientCommon.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -54,7 +57,7 @@ namespace ClinicDent2.View
                 if(value != cabinetComment)
                 {
                     cabinetComment = value;
-                    Owner.Owner.TcpClient.UpdateCabinetComment(Owner.SelectedDate.ToString(Options.DateTimePattern), Cabinet.Id, cabinetComment);
+                    Options.MainWindow.mainMenu.TcpClient.UpdateCabinetComment(Owner.SelectedDate.ToString(SharedData.DateTimePattern), Cabinet.Id, cabinetComment);
                     OnPropertyChanged();
                 }
             }
@@ -90,13 +93,13 @@ namespace ClinicDent2.View
             Schedule newRecord = new Schedule();
             newRecord.PatientId = e.Id;
             newRecord.PatientName = e.Name;
-            newRecord.DoctorId = Options.CurrentDoctor.Id;
+            newRecord.DoctorId = SharedData.CurrentDoctor.Id;
             newRecord.State = SchedulePatientState.Unknown;
-            newRecord.StartDatetime = (Owner.SelectedDate.Date + target.Time).ToString(Options.DateTimePattern);
-            newRecord.EndDatetime = (Owner.SelectedDate.Date + target.Time + TimeSpan.FromMinutes(30)).ToString(Options.DateTimePattern);
+            newRecord.StartDatetime = (Owner.SelectedDate.Date + target.Time).ToString(SharedData.DateTimePattern);
+            newRecord.EndDatetime = (Owner.SelectedDate.Date + target.Time + TimeSpan.FromMinutes(30)).ToString(SharedData.DateTimePattern);
             newRecord.CabinetId = Cabinet.Id;
 
-            Owner.Owner.TcpClient.AddRecord(newRecord);
+            Options.MainWindow.mainMenu.TcpClient.AddRecord(newRecord);
         }
 
         private void Emptiness_MouseUp(object sender, MouseButtonEventArgs e)
@@ -162,11 +165,11 @@ namespace ClinicDent2.View
         {
         }
 
-        internal void LoadSchedule(DateTime date)
+        public async Task LoadSchedule(DateTime date)
         {
             ClearTimeGrid();
 
-            ScheduleRecordsForDayInCabinet schedules = HttpService.GetSchedule(date, Cabinet.Id.ToString());
+            ScheduleRecordsForDayInCabinet schedules = await HttpService.GetSchedule(date, Cabinet.Id.ToString());
             foreach(Schedule s in schedules.Schedules)
             {
                 ScheduleTimeGridElementView scheduleTimeGridElementView = new ScheduleTimeGridElementView(s, this);
@@ -176,7 +179,7 @@ namespace ClinicDent2.View
             cabinetComment = schedules.CabinetComment;
             OnPropertyChanged(nameof(CabinetComment));
             PlaceRecords();
-            //UpdateCalendarDayState();
+            UpdateCalendarDayState();
 
         }
 

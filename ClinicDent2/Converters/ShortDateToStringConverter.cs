@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ClinicDentClientCommon;
+using System;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
@@ -16,7 +17,7 @@ namespace ClinicDent2.Converters
                 return DateTime.Today;
             }
             DateTime resultDateTime;
-            if (DateTime.TryParseExact(strValue,Options.DatePattern, CultureInfo.InvariantCulture, DateTimeStyles.None, out resultDateTime))
+            if (DateTime.TryParseExact(strValue, SharedData.DatePattern, CultureInfo.InvariantCulture, DateTimeStyles.None, out resultDateTime))
             {
                 return resultDateTime;
             }
@@ -31,7 +32,7 @@ namespace ClinicDent2.Converters
             {
                 return DependencyProperty.UnsetValue;
             }
-            return selectedDate.GetValueOrDefault().ToString(Options.DatePattern);
+            return selectedDate.GetValueOrDefault().ToString(SharedData.DatePattern);
         }
     }
 }

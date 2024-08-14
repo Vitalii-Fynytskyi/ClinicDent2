@@ -1,4 +1,6 @@
-﻿using ClinicDent2.Model;
+﻿using ClinicDentClientCommon;
+using ClinicDentClientCommon.Model;
+using ClinicDentClientCommon.Services;
 using System;
 
 namespace ClinicDent2.ViewModel
@@ -9,7 +11,7 @@ namespace ClinicDent2.ViewModel
         public ScheduleViewModel(Schedule scheduleToSet)
         {
             schedule = scheduleToSet;
-            startDateTimeDT = DateTime.ParseExact(scheduleToSet.StartDatetime, Options.DateTimePattern, null);
+            startDateTimeDT = DateTime.ParseExact(scheduleToSet.StartDatetime, SharedData.DateTimePattern, null);
         }
         public string StartDateTime
         {

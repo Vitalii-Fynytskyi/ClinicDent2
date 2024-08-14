@@ -1,16 +1,18 @@
-﻿using ClinicDent2.Exceptions;
-using ClinicDent2.Interfaces;
-using ClinicDent2.Model;
+﻿using ClinicDent2.Interfaces;
 using ClinicDent2.TabbedBrowser;
 using ClinicDent2.ViewModel;
+using ClinicDentClientCommon;
+using ClinicDentClientCommon.Model;
+using ClinicDentClientCommon.Services;
+
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Generic;
+
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Security.Cryptography.Xml;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -43,20 +45,21 @@ namespace ClinicDent2.View
             DataContext = stagesViewModel;
             futureAppointmentsSection.DataContext = this;
         }
-        public void LoadAllPatientStages(PatientViewModel patientToSet)
+        public async Task LoadAllPatientStages(PatientViewModel patientToSet)
         {
             stagesViewModel.LoadAllPatientStages(patientToSet);
             if(FutureAppointmentsViewModels == null)
             {
-                FutureAppointmentsViewModels = new ObservableCollection<ScheduleViewModel>(HttpService.GetPatientFutureAppointments(patientToSet.PatientId).Select(s => new ScheduleViewModel(s)).ToList());
+                List<ScheduleViewModel> scheduleViewModels = (await HttpService.GetPatientFutureAppointments(patientToSet.PatientId)).Select(s => new ScheduleViewModel(s)).ToList();
+                FutureAppointmentsViewModels = new ObservableCollection<ScheduleViewModel>(scheduleViewModels);
             }
         }
-        public void LoadAllPatientStagesWithScheduleMarked(DateTime date, int patientId)
+        public async Task LoadAllPatientStagesWithScheduleMarked(DateTime date, int patientId)
         {
             stagesViewModel.LoadAllPatientStagesWithRelatedMarked(date, patientId);
             if (FutureAppointmentsViewModels == null)
             {
-                FutureAppointmentsViewModels = new ObservableCollection<ScheduleViewModel>(HttpService.GetPatientFutureAppointments(patientId).Select(s => new ScheduleViewModel(s)).ToList());
+                FutureAppointmentsViewModels = new ObservableCollection<ScheduleViewModel>((await HttpService.GetPatientFutureAppointments(patientId)).Select(s => new ScheduleViewModel(s)).ToList());
             }
         }
         private void Thumb_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
@@ -94,10 +97,10 @@ namespace ClinicDent2.View
         {
         }
 
-        public bool TabDeactivated()
+        public async Task<bool> TabDeactivated()
         {
 
-            OperationResult operationResult = stagesViewModel.ServerUpdateStages();
+            OperationResult operationResult = await stagesViewModel.ServerUpdateStages();
             if (operationResult.Exceptions.Count > 0)
             {
                 foreach (Exception e in operationResult.Exceptions)
@@ -129,9 +132,9 @@ namespace ClinicDent2.View
                     int patientId = (int)param;
                     Notification_PatientStagesUpdated(patientId);
                     break;
-                case NotificationCodes.ScheduleRecordDeleted:
+                case NotificationCodes.ScheduleRecordDeletedIdOnly:
                     int recordId = (int)param;
-                    Notification_ScheduleRecordDeleted(recordId);
+                    Notification_ScheduleRecordDeletedIdOnly(recordId);
                     break;
                 case NotificationCodes.ScheduleRecordAdded:
                     Schedule newRecord = (Schedule)param;
@@ -158,7 +161,7 @@ namespace ClinicDent2.View
                 MessageBox.Show($"Не вдалось завантажити етапи робіт пацієнта {stagesViewModel.Patient.Name}: {e.Message}");
             }
         }
-        private void Notification_ScheduleRecordDeleted(int recordId)
+        private void Notification_ScheduleRecordDeletedIdOnly(int recordId)
         {
             if (FutureAppointmentsViewModels != null)
             {
@@ -200,7 +203,7 @@ namespace ClinicDent2.View
                     {
                         if(updatedRecord.StartDatetime != scheduleViewModel.StartDateTime)
                         {
-                            scheduleViewModel.StartDateTimeDT = DateTime.ParseExact(updatedRecord.StartDatetime, Options.DateTimePattern, null);
+                            scheduleViewModel.StartDateTimeDT = DateTime.ParseExact(updatedRecord.StartDatetime, SharedData.DateTimePattern, null);
                             scheduleViewModel.StartDateTime = scheduleViewModel.StartDateTime;
                             FutureAppointmentsViewModels = new ObservableCollection<ScheduleViewModel>(FutureAppointmentsViewModels.OrderBy(s => s.StartDateTimeDT));
                         }
@@ -216,7 +219,7 @@ namespace ClinicDent2.View
         private void ListViewItem_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             ScheduleViewModel item = ((ListViewItem)sender).DataContext as ScheduleViewModel;
-            DateTime scheduleStartDate = DateTime.ParseExact(item.StartDateTime, Options.DateTimePattern, null);
+            DateTime scheduleStartDate = DateTime.ParseExact(item.StartDateTime, SharedData.DateTimePattern, null);
             if (Options.MainWindow.mainMenu.browserControl.ScreenRequested(ScreenNames.SCHEDULE) == false)
             {
                 BrowserTabButton scheduleTabButton = new BrowserTabButton();
@@ -238,7 +241,7 @@ namespace ClinicDent2.View
                 PropertyChanged(this, new PropertyChangedEventArgs(prop));
         }
 
-        private void imageButtonToothObservation_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private async void imageButtonToothObservation_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             StageViewModel stageViewModel = ((FrameworkElement)sender).DataContext as StageViewModel;
             if(stageViewModel.ToothUnderObservationId== null)
@@ -261,7 +264,7 @@ namespace ClinicDent2.View
                 ToothUnderObservation toothUnderObservation = null;
                 try
                 {
-                    toothUnderObservation = HttpService.GetToothUnderObservation(stageViewModel.ToothUnderObservationId.Value);
+                    toothUnderObservation = await HttpService.GetToothUnderObservation(stageViewModel.ToothUnderObservationId.Value);
                 }
                 catch (Exception ex)
                 {

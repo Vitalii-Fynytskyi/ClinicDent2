@@ -1,4 +1,5 @@
-﻿using ClinicDent2.Model;
+﻿using ClinicDentClientCommon.Model;
+using ClinicDentClientCommon.Services;
 
 namespace ClinicDent2.ViewModel
 {

@@ -1,6 +1,6 @@
 ﻿using ClinicDent2.Interfaces;
-using Newtonsoft.Json.Linq;
 using System;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -22,13 +22,14 @@ namespace ClinicDent2.TabbedBrowser
         /// </summary>
         /// <param name="browserTab"></param>
         /// <returns>false if currently selected tab cannot be deactivated</returns>
-        public bool SetSelectedTab(BrowserTabButton browserTab)
+        public async Task<bool> SetSelectedTab(BrowserTabButton browserTab)
         {
             if (browserTab != selectedTab)
             {
                 if (selectedTab != null) //try deactivate tab
                 {
-                    if ((selectedTab.Control as IBrowserTabControl)?.TabDeactivated() == false)
+                    IBrowserTabControl c = selectedTab.Control as IBrowserTabControl;
+                    if (c != null && (await c.TabDeactivated() == false))
                     {
                         return false; //can't deactivate tab
                     }
@@ -133,19 +134,19 @@ namespace ClinicDent2.TabbedBrowser
                 SetSelectedTab(newTab);
             }
         }
-        public bool RemoveTabIfInBrowser(FrameworkElement element)
+        public async Task<bool> RemoveTabIfInBrowser(FrameworkElement element)
         {
             if (element.Parent is BrowserOpenedTab scrollViewer)
             {
-                return RemoveTab(GetSelectedTab());
+                return await RemoveTab(GetSelectedTab());
             }
             return true;
         }
-        public bool RemoveTab(BrowserTabButton tab)
+        public async Task<bool> RemoveTab(BrowserTabButton tab)
         {
             if(GetSelectedTab() == tab)
             {
-                if (SetSelectedTab(null) == false)
+                if (await SetSelectedTab(null) == false)
                     return false;
                 currentTabOpened.Content= null;
 
@@ -158,10 +159,10 @@ namespace ClinicDent2.TabbedBrowser
             return true;
             
         }
-        private void BrowserTabButton_CloseButtonClick(object sender, EventArgs e)
+        private async void BrowserTabButton_CloseButtonClick(object sender, EventArgs e)
         {
             BrowserTabButton browserTabButton = sender as BrowserTabButton;
-            if(RemoveTab(browserTabButton) == false)
+            if(await RemoveTab(browserTabButton) == false)
             {
                 return;
             }

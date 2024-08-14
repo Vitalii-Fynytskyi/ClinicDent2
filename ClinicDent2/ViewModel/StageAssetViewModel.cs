@@ -1,5 +1,6 @@
 ﻿using ClinicDent2.Commands;
-using ClinicDent2.Model;
+using ClinicDentClientCommon.Model;
+using ClinicDentClientCommon.Services;
 using System;
 using System.Windows;
 
@@ -17,34 +18,34 @@ namespace ClinicDent2.ViewModel
                 switch (stageAsset.Type)
                 {
                     case AssetType.Bond:
-                        StageViewModel.Bonds.Add(stageAsset);
+                        StageAsset.Bonds.Add(stageAsset);
                         break;
                     case AssetType.Dentin:
-                        StageViewModel.Dentins.Add(stageAsset);
+                        StageAsset.Dentins.Add(stageAsset);
                         break;
                     case AssetType.Enamel:
-                        StageViewModel.Enamels.Add(stageAsset);
+                        StageAsset.Enamels.Add(stageAsset);
                         break;
                     case AssetType.CanalMethod:
-                        StageViewModel.CanalMethods.Add(stageAsset);
+                        StageAsset.CanalMethods.Add(stageAsset);
                         break;
                     case AssetType.Sealer:
-                        StageViewModel.Sealers.Add(stageAsset);
+                        StageAsset.Sealers.Add(stageAsset);
                         break;
                     case AssetType.Cement:
-                        StageViewModel.Cements.Add(stageAsset);
+                        StageAsset.Cements.Add(stageAsset);
                         break;
                     case AssetType.Technician:
-                        StageViewModel.Technicians.Add(stageAsset);
+                        StageAsset.Technicians.Add(stageAsset);
                         break;
                     case AssetType.Pin:
-                        StageViewModel.Pins.Add(stageAsset);
+                        StageAsset.Pins.Add(stageAsset);
                         break;
                     case AssetType.Operation:
-                        StageViewModel.Operations.Add(stageAsset);
+                        StageAsset.Operations.Add(stageAsset);
                         break;
                     case AssetType.Calcium:
-                        StageViewModel.Calciums.Add(stageAsset);
+                        StageAsset.Calciums.Add(stageAsset);
                         break;
                 }
                 MessageBox.Show("Додано");

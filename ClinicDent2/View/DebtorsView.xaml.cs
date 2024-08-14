@@ -1,7 +1,7 @@
 ﻿using ClinicDent2.TabbedBrowser;
 using ClinicDent2.ViewModel;
-using System.Windows;
 using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
@@ -26,7 +26,7 @@ namespace ClinicDent2.View
         {
             InitializeComponent();
         }
-        private void ButtonPatient_Click(object sender, RoutedEventArgs e)
+        private async void ButtonPatient_Click(object sender, RoutedEventArgs e)
         {
             PatientViewModel patientViewModel = (sender as Button).DataContext as PatientViewModel;
             if (Options.MainWindow.mainMenu.browserControl.ScreenRequested(patientViewModel.PatientId, TabButtonType.PatientStages) == false)
@@ -38,7 +38,7 @@ namespace ClinicDent2.View
                 StagesView stagesView = new StagesView();
                 try
                 {
-                    stagesView.LoadAllPatientStages(patientViewModel);
+                    await stagesView.LoadAllPatientStages(patientViewModel);
                 }
                 catch (Exception ex)
                 {

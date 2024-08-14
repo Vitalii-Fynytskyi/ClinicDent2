@@ -5,6 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ClinicDent2.View"
              xmlns:main="clr-namespace:ClinicDent2"
+             xmlns:common="clr-namespace:ClinicDentClientCommon;assembly=ClinicDentClientCommon"
+             
              
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
@@ -20,7 +22,7 @@
         </StackPanel>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
             <Label Content="Вибране крісло в розкладі: "/>
-            <ComboBox MinWidth="100" SelectedItem="{Binding Path=(main:Options.DefaultSelectedCabinet)}" DisplayMemberPath="CabinetName" ItemsSource="{x:Static main:Options.AllCabinets}"/>
+            <ComboBox MinWidth="100" SelectedItem="{Binding Path=(main:Options.DefaultSelectedCabinet)}" DisplayMemberPath="CabinetName" ItemsSource="{x:Static common:SharedData.AllCabinets}"/>
         </StackPanel>
         <Button Content="Редагувати списки матеріалів клініки" HorizontalAlignment="Center" Margin="0,5,0,0" Click="ButtonEditClinicMaterials_Click"/>
     </StackPanel>

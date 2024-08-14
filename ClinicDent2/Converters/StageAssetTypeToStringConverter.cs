@@ -1,4 +1,4 @@
-﻿using ClinicDent2.Model;
+﻿using ClinicDentClientCommon.Model;
 using System;
 using System.Globalization;
 using System.Windows;

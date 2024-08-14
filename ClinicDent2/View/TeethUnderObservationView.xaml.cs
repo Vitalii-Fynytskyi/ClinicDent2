@@ -1,4 +1,4 @@
-﻿using ClinicDent2.Model;
+﻿using ClinicDentClientCommon.Model;
 using ClinicDent2.ViewModel;
 using System;
 using System.Collections.Generic;

@@ -1,12 +1,10 @@
 ﻿using ClinicDent2.ViewModel;
 using System;
 using System.Windows;
+using ClinicDentClientCommon.Services;
 
 namespace ClinicDent2
 {
-    /// <summary>
-    /// Логика взаимодействия для WindowChangeImageName.xaml
-    /// </summary>
     public partial class WindowChangeImageName : Window
     {
         ImageViewModel image;

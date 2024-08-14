@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:local="clr-namespace:ClinicDent2.View"
-             xmlns:model="clr-namespace:ClinicDent2.Model"
+             xmlns:model="clr-namespace:ClinicDentClientCommon.Model;assembly=ClinicDentClientCommon"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800" MouseDoubleClick="UserControl_MouseDoubleClick" PreviewMouseDoubleClick="UserControl_PreviewMouseDoubleClick">
     <Grid x:Name="grid" Background="#77ff0000"  MouseMove="Grid_MouseMove" MouseLeftButtonDown="Grid_MouseDown" MouseLeftButtonUp="Grid_MouseUp" MouseEnter="Grid_MouseEnter" MouseLeave="Grid_MouseLeave" Margin="0,2,0,0">

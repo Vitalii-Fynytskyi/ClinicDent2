@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using ClinicDentClientCommon.Services;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
+using System.Threading.Tasks;
 
 namespace ClinicDent2.ViewModel
 {
@@ -23,7 +22,11 @@ namespace ClinicDent2.ViewModel
         }
         public TeethUnderObservationViewModel()
         {
-            ToothViewModels = new ObservableCollection<ToothUnderObservationViewModel>(HttpService.GetAllToothUnderObservation().Select(t => new ToothUnderObservationViewModel(t,null,this)));
+            Init();
+        }
+        private async Task Init()
+        {
+            ToothViewModels = new ObservableCollection<ToothUnderObservationViewModel>((await HttpService.GetAllToothUnderObservation()).Select(t => new ToothUnderObservationViewModel(t, null, this)));
         }
     }
 }

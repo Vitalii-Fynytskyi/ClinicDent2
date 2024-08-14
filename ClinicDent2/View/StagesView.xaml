@@ -7,6 +7,7 @@
              xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:mybehaviors="clr-namespace:ClinicDent2.Behaviors"
              xmlns:main="clr-namespace:ClinicDent2"
+             xmlns:model="clr-namespace:ClinicDentClientCommon.Model;assembly=ClinicDentClientCommon"
              xmlns:local="clr-namespace:ClinicDent2.View"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
@@ -130,7 +131,7 @@
                                         </TextBox.Style>
                                     </TextBox>
                                     <WrapPanel Margin="0,5,0,0" IsEnabled="{Binding IsOwner}">
-                                        <ComboBox ItemsSource="{x:Static vm:StageViewModel.Operations}" DisplayMemberPath="Value" MinWidth="100" SelectedItem="{Binding Operation, Mode=TwoWay}" IsEditable="True" IsReadOnly="True" Text="Операція" HorizontalAlignment="Left"/>
+                                        <ComboBox ItemsSource="{x:Static model:StageAsset.Operations}" DisplayMemberPath="Value" MinWidth="100" SelectedItem="{Binding Operation, Mode=TwoWay}" IsEditable="True" IsReadOnly="True" Text="Операція" HorizontalAlignment="Left"/>
                                         <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
                                             <StackPanel.Style>
                                                 <Style TargetType="StackPanel">
@@ -146,7 +147,7 @@
                                                 </Style>
                                             </StackPanel.Style>
                                             <Label Content="Бонд"/>
-                                            <ComboBox MinWidth="100" SelectedItem="{Binding Bond, Mode=TwoWay}" DisplayMemberPath="Value" ItemsSource="{x:Static vm:StageViewModel.Bonds}"/>
+                                            <ComboBox MinWidth="100" SelectedItem="{Binding Bond, Mode=TwoWay}" DisplayMemberPath="Value" ItemsSource="{x:Static model:StageAsset.Bonds}"/>
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
                                             <StackPanel.Style>
@@ -160,7 +161,7 @@
                                                 </Style>
                                             </StackPanel.Style>
                                             <Label Content="Штифт"/>
-                                            <ComboBox MinWidth="100" SelectedItem="{Binding Pin, Mode=TwoWay}" DisplayMemberPath="Value" ItemsSource="{x:Static vm:StageViewModel.Pins}"/>
+                                            <ComboBox MinWidth="100" SelectedItem="{Binding Pin, Mode=TwoWay}" DisplayMemberPath="Value" ItemsSource="{x:Static model:StageAsset.Pins}"/>
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
                                             <StackPanel.Style>
@@ -175,7 +176,7 @@
                                                 </Style>
                                             </StackPanel.Style>
                                             <Label Content="Дентин"/>
-                                            <ComboBox MinWidth="100" SelectedItem="{Binding Dentin, Mode=TwoWay}" DisplayMemberPath="Value" ItemsSource="{x:Static vm:StageViewModel.Dentins}"/>
+                                            <ComboBox MinWidth="100" SelectedItem="{Binding Dentin, Mode=TwoWay}" DisplayMemberPath="Value" ItemsSource="{x:Static model:StageAsset.Dentins}"/>
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
                                             <StackPanel.Style>
@@ -189,7 +190,7 @@
                                                 </Style>
                                             </StackPanel.Style>
                                             <Label Content="Емаль"/>
-                                            <ComboBox MinWidth="100" SelectedItem="{Binding Enamel, Mode=TwoWay}" DisplayMemberPath="Value" ItemsSource="{x:Static vm:StageViewModel.Enamels}"/>
+                                            <ComboBox MinWidth="100" SelectedItem="{Binding Enamel, Mode=TwoWay}" DisplayMemberPath="Value" ItemsSource="{x:Static model:StageAsset.Enamels}"/>
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
                                             <StackPanel.Style>
@@ -203,7 +204,7 @@
                                                 </Style>
                                             </StackPanel.Style>
                                             <Label Content="Метод"/>
-                                            <ComboBox MinWidth="100" SelectedItem="{Binding CanalMethod, Mode=TwoWay}" DisplayMemberPath="Value" ItemsSource="{x:Static vm:StageViewModel.CanalMethods}"/>
+                                            <ComboBox MinWidth="100" SelectedItem="{Binding CanalMethod, Mode=TwoWay}" DisplayMemberPath="Value" ItemsSource="{x:Static model:StageAsset.CanalMethods}"/>
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
                                             <StackPanel.Style>
@@ -217,7 +218,7 @@
                                                 </Style>
                                             </StackPanel.Style>
                                             <Label Content="Кальцій"/>
-                                            <ComboBox MinWidth="100" SelectedItem="{Binding Calcium, Mode=TwoWay}" DisplayMemberPath="Value" ItemsSource="{x:Static vm:StageViewModel.Calciums}"/>
+                                            <ComboBox MinWidth="100" SelectedItem="{Binding Calcium, Mode=TwoWay}" DisplayMemberPath="Value" ItemsSource="{x:Static model:StageAsset.Calciums}"/>
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
                                             <StackPanel.Style>
@@ -232,7 +233,7 @@
                                                 </Style>
                                             </StackPanel.Style>
                                             <Label Content="Силер"/>
-                                            <ComboBox MinWidth="100" SelectedItem="{Binding Sealer, Mode=TwoWay}" DisplayMemberPath="Value" ItemsSource="{x:Static vm:StageViewModel.Sealers}"/>
+                                            <ComboBox MinWidth="100" SelectedItem="{Binding Sealer, Mode=TwoWay}" DisplayMemberPath="Value" ItemsSource="{x:Static model:StageAsset.Sealers}"/>
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
                                             <StackPanel.Style>
@@ -249,7 +250,7 @@
                                                 </Style>
                                             </StackPanel.Style>
                                             <Label Content="Цемент"/>
-                                            <ComboBox MinWidth="100" SelectedItem="{Binding Cement, Mode=TwoWay}" DisplayMemberPath="Value" ItemsSource="{x:Static vm:StageViewModel.Cements}"/>
+                                            <ComboBox MinWidth="100" SelectedItem="{Binding Cement, Mode=TwoWay}" DisplayMemberPath="Value" ItemsSource="{x:Static model:StageAsset.Cements}"/>
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
                                             <StackPanel.Style>
@@ -263,7 +264,7 @@
                                                 </Style>
                                             </StackPanel.Style>
                                             <Label Content="Технік"/>
-                                            <ComboBox MinWidth="100" SelectedItem="{Binding Technician, Mode=TwoWay}" DisplayMemberPath="Value" ItemsSource="{x:Static vm:StageViewModel.Technicians}"/>
+                                            <ComboBox MinWidth="100" SelectedItem="{Binding Technician, Mode=TwoWay}" DisplayMemberPath="Value" ItemsSource="{x:Static model:StageAsset.Technicians}"/>
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
                                             <Label Content="Витрати"/>

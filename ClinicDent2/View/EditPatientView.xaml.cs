@@ -1,5 +1,6 @@
 ﻿using ClinicDent2.TabbedBrowser;
 using ClinicDent2.ViewModel;
+using ClinicDentClientCommon.Services;
 using Microsoft.Win32;
 using System;
 using System.IO;
@@ -22,7 +23,7 @@ namespace ClinicDent2.View
             InitializeComponent();
             fillListBoxStatuses();
         }
-        private void buttonSave_Click(object sender, RoutedEventArgs e)
+        private async void buttonSave_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -33,7 +34,7 @@ namespace ClinicDent2.View
                 MessageBox.Show($"Не вдалось оновити дані пацієнта: {ex.Message}", "Помилка");
                 return;
             }
-            Options.MainWindow.mainMenu.browserControl.RemoveTabIfInBrowser(this);
+            await Options.MainWindow.mainMenu.browserControl.RemoveTabIfInBrowser(this);
             if (Options.MainWindow.mainMenu.browserControl.ScreenRequested(patientViewModel.PatientId, TabButtonType.PatientStages) == false)
             {
                 BrowserTabButton stagesPatient = new BrowserTabButton();
@@ -71,12 +72,12 @@ namespace ClinicDent2.View
                 listBoxStatus.SelectedItems.Add(status);
             }
         }
-        private void deleteButton_Click(object sender, RoutedEventArgs e)
+        private async void deleteButton_Click(object sender, RoutedEventArgs e)
         {
             
             try
             {
-                HttpService.DeletePatient(patientViewModel.PatientId);
+                await HttpService.DeletePatient(patientViewModel.PatientId);
             }
             catch (Exception ex)
             {
@@ -87,14 +88,14 @@ namespace ClinicDent2.View
             BrowserTabButton tabButton = Options.MainWindow.mainMenu.browserControl.GetTabButton(patientViewModel.PatientId, TabButtonType.PatientStages);
             if (tabButton != null)
             {
-                Options.MainWindow.mainMenu.browserControl.RemoveTab(tabButton);
+                await Options.MainWindow.mainMenu.browserControl.RemoveTab(tabButton);
             }
-            Options.MainWindow.mainMenu.browserControl.RemoveTabIfInBrowser(this);
+            await Options.MainWindow.mainMenu.browserControl.RemoveTabIfInBrowser(this);
             
         }
-        private void cancelButton_Click(object sender, RoutedEventArgs e)
+        private async void cancelButton_Click(object sender, RoutedEventArgs e)
         {
-            Options.MainWindow.mainMenu.browserControl.RemoveTabIfInBrowser(this);
+            await Options.MainWindow.mainMenu.browserControl.RemoveTabIfInBrowser(this);
         }
 
         private void buttonSelectImageFromDisk_Click(object sender, RoutedEventArgs e)

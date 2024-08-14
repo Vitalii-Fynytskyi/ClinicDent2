@@ -1,6 +1,8 @@
 ﻿using ClinicDent2.Commands;
-using ClinicDent2.Model;
+using ClinicDentClientCommon.Model;
+using ClinicDentClientCommon.Services;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
 
@@ -226,18 +228,18 @@ namespace ClinicDent2.ViewModel
         {
             ImageBytes = null;
         }
-        public void PostPatient()
+        public async Task PostPatient()
         {
-            patient = HttpService.PostPatient(patient);
+            patient = await HttpService.PostPatient(patient);
             NotifyPropertyChanged(nameof(PatientId));
         }
-        public void PutPatient()
+        public async Task PutPatient()
         {
-            patient.LastModifiedDateTime = HttpService.PutPatient(patient);
+            patient.LastModifiedDateTime = await HttpService.PutPatient(patient);
         }
-        public void RemovePatient()
+        public async Task RemovePatient()
         {
-            HttpService.DeletePatient(patient.Id);
+            await HttpService.DeletePatient(patient.Id);
         }
     }
 }

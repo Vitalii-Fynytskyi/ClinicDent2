@@ -1,12 +1,13 @@
 ﻿using ClinicDent2.Interfaces;
-using ClinicDent2.Model;
 using ClinicDent2.TabbedBrowser;
-using ClinicDent2.View;
+using ClinicDentClientCommon;
+using ClinicDentClientCommon.Model;
+using ClinicDentClientCommon.Services;
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Net.Http;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace ClinicDent2
@@ -14,39 +15,43 @@ namespace ClinicDent2
     public partial class MainWindow : Window
     {
         public MainMenu mainMenu;
-        public void Init()
-        {
-            Width = SystemParameters.WorkArea.Width;
-            Height = SystemParameters.WorkArea.Height;
-            Top = 0;
-            Left = 0;
-            Options.CanDeleteImage = Convert.ToBoolean(IniService.GetPrivateString("Settings","CanDeleteImage"));
-            Options.PatientsPerPage = Convert.ToInt32(IniService.GetPrivateString("Settings","PatientsPerPage"));
-            Options.PhotosPerPage = Convert.ToInt32(IniService.GetPrivateString("Settings","PhotosPerPage"));
-            Options.DefaultSelectedTable = Convert.ToInt32(IniService.GetPrivateString("Settings", "DefaultSelectedTable"));
-
-            Options.MainWindow = this;
-        }
         private void CheckForUpdates()
         {
             string clientVersion = "3";
-            string apiVersion = HttpService.GetApiVersion();
+            string apiVersion = HttpService.GetApiVersion().Result;
             if(apiVersion != clientVersion)
             {
                 string directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
                 string executablePath = Path.Combine(directory, "ClientUpdater.exe");
                 Process.Start(executablePath);
-                Application.Current.Shutdown();
+                Environment.Exit(0);
             }
         }
 
         public MainWindow()
         {
+            ConfigData.ServerAddress = IniService.GetPrivateString("Settings", "ServerAddress");
+            ConfigData.LanServerAddress = IniService.GetPrivateString("Settings", "LanServerAddress");
             CheckForUpdates();
             InitializeComponent();
-            Init();
-            Doctor doctor = TryAuthenticateWithCookies();
-            if(doctor != null)
+
+            Width = SystemParameters.WorkArea.Width;
+            Height = SystemParameters.WorkArea.Height;
+            Top = 0;
+            Left = 0;
+            Options.CanDeleteImage = Convert.ToBoolean(IniService.GetPrivateString("Settings", "CanDeleteImage"));
+            Options.PatientsPerPage = Convert.ToInt32(IniService.GetPrivateString("Settings", "PatientsPerPage"));
+            Options.PhotosPerPage = Convert.ToInt32(IniService.GetPrivateString("Settings", "PhotosPerPage"));
+            Options.DefaultSelectedTable = Convert.ToInt32(IniService.GetPrivateString("Settings", "DefaultSelectedTable"));
+            Options.MainWindow = this;
+
+            Authenticate();
+        }
+
+        public void Authenticate()
+        {
+            Doctor doctor = TryAuthenticateWithCookies().Result;
+            if (doctor != null)
             {
 
                 goToMainMenu(doctor);
@@ -54,19 +59,19 @@ namespace ClinicDent2
             }
             goToLoginMenu();
         }
-        private Doctor TryAuthenticateWithCookies()
+        private async Task<Doctor> TryAuthenticateWithCookies()
         {
             LoginModel loginModel = Options.ReadCookies(Environment.CurrentDirectory + "\\data\\cookies.dat");
             if(loginModel == null) { return null; }
-            Doctor doctor = HttpService.Authenticate(loginModel);
+            Doctor doctor = await HttpService.Authenticate(loginModel).ConfigureAwait(false);
             return doctor;
         }
 
-        public void CloseApp()
+        public async Task CloseApp()
         {
             if(mainMenu.browserControl.currentTabOpened.Content is IBrowserTabControl openedBrowserTabControl)
             {
-                if(openedBrowserTabControl.TabDeactivated() == false)
+                if(await openedBrowserTabControl.TabDeactivated() == false)
                 {
                     return;
                 }
@@ -81,7 +86,8 @@ namespace ClinicDent2
                     }
                 }
             }
-            App.Current.Shutdown();
+            mainMenu.TcpClient.DisconnectFromServer();
+            Environment.Exit(0);
         }
         public void goToMainMenu(Doctor doctor)
         {

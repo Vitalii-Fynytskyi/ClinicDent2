@@ -1,16 +1,18 @@
 ﻿using ClinicDent2.Commands;
-using ClinicDent2.Exceptions;
-using ClinicDent2.Model;
-using ClinicDent2.RequestAnswers;
 using ClinicDent2.TabbedBrowser;
 using ClinicDent2.View;
+using ClinicDentClientCommon;
+using ClinicDentClientCommon.Exceptions;
+using ClinicDentClientCommon.Model;
+using ClinicDentClientCommon.RequestAnswers;
+using ClinicDentClientCommon.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Documents;
 
 namespace ClinicDent2.ViewModel
 {
@@ -59,13 +61,19 @@ namespace ClinicDent2.ViewModel
                 App.Current.MainWindow.Activate();
             }
         }
-        private void UpdateCurePlan(object arg)
+        private async void UpdateCurePlan(object arg)
+        {
+            await UpdateCurePlanInternal(arg);
+
+
+        }
+        private async Task UpdateCurePlanInternal(object arg)
         {
             if (Mark_IsCurePlanUpdated == true)
             {
                 try
                 {
-                    Patient.Patient.LastModifiedDateTime = HttpService.PutPatientCurePlan(patient.PatientId, patient.CurePlan, patient.Patient.LastModifiedDateTime);
+                    Patient.Patient.LastModifiedDateTime = await HttpService.PutPatientCurePlan(patient.PatientId, patient.CurePlan, patient.Patient.LastModifiedDateTime);
                     Mark_IsCurePlanUpdated = false;
                 }
                 catch (ConflictException e)
@@ -73,10 +81,10 @@ namespace ClinicDent2.ViewModel
                     MessageBoxResult result = MessageBox.Show("Інший користувач редагував дані пацієнта. Натисніть 'Так' шоб завантажити нові дані.", "Конфлікт", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.Cancel);
                     if (result == MessageBoxResult.Yes)
                     {
-                        Patient.Patient = HttpService.GetPatient(patient.PatientId);
+                        Patient.Patient = await HttpService.GetPatient(patient.PatientId);
                         NotifyPropertyChanged(nameof(CurePlan));
                         Mark_IsCurePlanUpdated = false;
-                        
+
                     }
                     if (arg is OperationResult operationResult)
                     {
@@ -106,10 +114,10 @@ namespace ClinicDent2.ViewModel
             return Mark_IsCurePlanUpdated;
         }
         #region Added funcions
-        internal OperationResult ServerUpdateStages()
+        public async Task<OperationResult> ServerUpdateStages()
         {
             OperationResult operationResult = new OperationResult();
-            UpdateCurePlan(operationResult);
+            await UpdateCurePlanInternal(operationResult);
             if (stages == null)
             {
                 return operationResult;
@@ -130,7 +138,7 @@ namespace ClinicDent2.ViewModel
 
             try
             {
-                var putStagesRequestAnswer = HttpService.PutStages(stagesToUpdate);
+                var putStagesRequestAnswer = await HttpService.PutStages(stagesToUpdate);
                 UpdateViewModels(selectedStageViewModels, putStagesRequestAnswer);
             }
             catch (ConflictException ex)
@@ -158,7 +166,7 @@ namespace ClinicDent2.ViewModel
                 LastHygieneText = "Гігієна не проведена";
                 return;
             }
-            TimeSpan timespan = DateTime.Now - DateTime.ParseExact(hygieneStage.StageDatetime, Options.DateTimePattern, new CultureInfo("uk-UA"));
+            TimeSpan timespan = DateTime.Now - DateTime.ParseExact(hygieneStage.StageDatetime, SharedData.DateTimePattern, new CultureInfo("uk-UA"));
             int days = timespan.Days;
             string daysText;
             if (days % 10 == 1 && days % 100 != 11)
@@ -228,17 +236,17 @@ namespace ClinicDent2.ViewModel
         /// Create stage attached to schedule if schedule is available, otherwise create stage with no associated schedule 
         /// </summary>
         /// <param name="stageName">Name of the stage (string type)</param>
-        private void CreateNewStage(object stageName)
+        private async void CreateNewStage(object stageName)
         {
             Stage stage = new Stage();
             stage.PatientId = patient.PatientId;
-            stage.DoctorId = Options.CurrentDoctor.Id;
+            stage.DoctorId = SharedData.CurrentDoctor.Id;
             stage.DoctorName = "<null>";
             stage.Title = stageName as string;
-            stage.StageDatetime = DateTime.Now.ToString(Options.DateTimePattern);
+            stage.StageDatetime = DateTime.Now.ToString(SharedData.DateTimePattern);
             try
             {
-                stage = HttpService.PostStage(stage);
+                stage = await HttpService.PostStage(stage);
             }
             catch(Exception ex)
             {
@@ -298,18 +306,18 @@ namespace ClinicDent2.ViewModel
                 }
             }
         }
-        public void LoadAllPatientStages(PatientViewModel patientToSet)
+        public async Task LoadAllPatientStages(PatientViewModel patientToSet)
         {
             patient = patientToSet;
-            Stages = new ObservableCollection<StageViewModel>(HttpService.GetPatientStages(patient.PatientId).Select(s => new StageViewModel(s, this)));
+            Stages = new ObservableCollection<StageViewModel>((await HttpService.GetPatientStages(patient.PatientId)).Select(s => new StageViewModel(s, this)));
         }
         public DateTime? MarkedDate { get; set; } = null;
-        public void LoadAllPatientStagesWithRelatedMarked(DateTime markedDateToSet, int patientId)
+        public async Task LoadAllPatientStagesWithRelatedMarked(DateTime markedDateToSet, int patientId)
         {
             MarkedDate= markedDateToSet;
-            Patient loadedPatient = HttpService.GetPatient(patientId);
+            Patient loadedPatient = await HttpService.GetPatient(patientId);
             Patient = new PatientViewModel(loadedPatient);
-            Stages = new ObservableCollection<StageViewModel>(HttpService.GetPatientStages(patient.PatientId).Select(s => new StageViewModel(s, this)));
+            Stages = new ObservableCollection<StageViewModel>((await HttpService.GetPatientStages(patient.PatientId)).Select(s => new StageViewModel(s, this)));
         }
         public StagesViewModel()
         {

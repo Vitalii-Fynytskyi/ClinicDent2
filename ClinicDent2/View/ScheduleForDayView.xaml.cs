@@ -1,6 +1,8 @@
-﻿using ClinicDent2.Model;
-using ClinicDent2.RequestAnswers;
-using ClinicDent2.ViewModel;
+﻿using ClinicDent2.ViewModel;
+using ClinicDentClientCommon;
+using ClinicDentClientCommon.Model;
+using ClinicDentClientCommon.RequestAnswers;
+using ClinicDentClientCommon.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -8,6 +10,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -92,9 +95,9 @@ namespace ClinicDent2.View
 
             TimeGrids = new List<ScheduleTimeGridView>();
             
-            for(int i = 0; i < Options.AllCabinets.Length; i++)
+            for(int i = 0; i < SharedData.AllCabinets.Length; i++)
             {
-                ScheduleTimeGridView scheduleTimeGridView = new ScheduleTimeGridView(Options.AllCabinets[i], this, CabinetColors[i]);
+                ScheduleTimeGridView scheduleTimeGridView = new ScheduleTimeGridView(SharedData.AllCabinets[i], this, CabinetColors[i]);
                 scheduleTimeGridView.Margin = new Thickness(15, 0, 0, 0);
                 TimeGrids.Add(scheduleTimeGridView);
                 timeGridsPanel.Children.Add(scheduleTimeGridView);
@@ -105,30 +108,30 @@ namespace ClinicDent2.View
         {
             InitializeComponent();
         }
-        private void loadSchedule(DateTime selectedDate)
+        private async Task loadSchedule(DateTime selectedDate)
         {
             daySummaryList.Clear();
             weekSummaryList.Clear();
             DaySummaryPatientsId.Clear();
             foreach (ScheduleTimeGridView timeGridView in TimeGrids)
             {
-                timeGridView.LoadSchedule(selectedDate.Date);
+                await timeGridView.LoadSchedule(selectedDate.Date);
             }
             OnPropertyChanged(nameof(DaySummaryList));
             if (SelectedDate.DayOfWeek == System.DayOfWeek.Sunday)
             {
-                GenerateWeekSummary();
+                await GenerateWeekSummary();
             }
             OnPropertyChanged(nameof(WeekSummaryList));
         }
-        private void GenerateWeekSummary()
+        private async Task GenerateWeekSummary()
         {
             if (SelectedDate.Day < 7) //request to server required
             {
                 WeekMoneySummaryRequestAnswer weekMoneySummaryRequestAnswer = null;
                 try
                 {
-                    weekMoneySummaryRequestAnswer = HttpService.GetWeekMoneySummary(SelectedDate);
+                    weekMoneySummaryRequestAnswer = await HttpService.GetWeekMoneySummary(SelectedDate);
                     AddToWeekSummary(weekMoneySummaryRequestAnswer.DoctorIds, weekMoneySummaryRequestAnswer.StagesPriceSum, weekMoneySummaryRequestAnswer.StagesPaidSum, weekMoneySummaryRequestAnswer.StagesExpensesSum);
                 }
                 catch (Exception ex)
@@ -254,7 +257,7 @@ namespace ClinicDent2.View
                 timeGrid.TimeGridElementViews.Add(scheduleTimeGridElementView);
                 timeGrid.grid.Children.Add(scheduleTimeGridElementView);
                 AddToDaySummary(e.DoctorIds, e.StagesPriceSum, e.StagesPaidSum, e.PatientId.Value, e.StagesExpensesSum);
-                DateTime stageDatetime = DateTime.ParseExact(e.StartDatetime, Options.DateTimePattern, null);
+                DateTime stageDatetime = DateTime.ParseExact(e.StartDatetime, SharedData.DateTimePattern, null);
                 int daysInWeek = 7;
                 int daysTillNextSunday = (daysInWeek - (int)stageDatetime.DayOfWeek) % daysInWeek;
                 DateTime nextSunday = stageDatetime + TimeSpan.FromDays(daysTillNextSunday);
@@ -300,7 +303,7 @@ namespace ClinicDent2.View
                 }
                 else
                 {
-                    Doctor doctor = Options.AllDoctors.FirstOrDefault(d => d.Id == doctorIds[i]);
+                    Doctor doctor = SharedData.AllDoctors.FirstOrDefault(d => d.Id == doctorIds[i]);
                     if (doctor == null)
                         throw new Exception("Doctor not found");
                     ScheduleSummaryViewModel vmToAdd = new ScheduleSummaryViewModel(doctor, priceSums[i], paidSums[i], expensesSum[i]);
@@ -323,7 +326,7 @@ namespace ClinicDent2.View
             }
             else
             {
-                Doctor doctor = Options.AllDoctors.FirstOrDefault(d => d.Id == doctorId);
+                Doctor doctor = SharedData.AllDoctors.FirstOrDefault(d => d.Id == doctorId);
                 if (doctor == null)
                     throw new Exception("DoctorId not found");
                 ScheduleSummaryViewModel vmToAdd = new ScheduleSummaryViewModel(doctor, priceDifference, paidDifference,expensesDifference);
@@ -345,7 +348,7 @@ namespace ClinicDent2.View
                 }
                 else
                 {
-                    Doctor doctor = Options.AllDoctors.FirstOrDefault(d => d.Id == doctorIds[i]);
+                    Doctor doctor = SharedData.AllDoctors.FirstOrDefault(d => d.Id == doctorIds[i]);
                     if (doctor == null)
                         throw new Exception("DoctorId not found");
                     ScheduleSummaryViewModel vmToAdd = new ScheduleSummaryViewModel(doctor, priceSums[i], paidSums[i], expensesSums[i]);
@@ -367,7 +370,7 @@ namespace ClinicDent2.View
             }
             else
             {
-                Doctor doctor = Options.AllDoctors.FirstOrDefault(d => d.Id == doctorId);
+                Doctor doctor = SharedData.AllDoctors.FirstOrDefault(d => d.Id == doctorId);
                 if (doctor == null)
                     throw new Exception("DoctorId not found");
                 ScheduleSummaryViewModel vmToAdd = new ScheduleSummaryViewModel(doctor, priceDifference, paidDifference, expensesDifference);
@@ -390,7 +393,7 @@ namespace ClinicDent2.View
             }
             else
             {
-                Doctor doctor = Options.AllDoctors.FirstOrDefault(d => d.Id == scheduleSummaryViewModel.Doctor.Id);
+                Doctor doctor = SharedData.AllDoctors.FirstOrDefault(d => d.Id == scheduleSummaryViewModel.Doctor.Id);
                 if (doctor == null)
                     throw new Exception("DoctorId not found");
                 ScheduleSummaryViewModel vmToAdd = new ScheduleSummaryViewModel(doctor, scheduleSummaryViewModel.Price, scheduleSummaryViewModel.Payed, scheduleSummaryViewModel.Expenses);

@@ -1,7 +1,7 @@
 ﻿using ClinicDent2.ViewModel;
+using ClinicDentClientCommon.Services;
 using System;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using TL;
@@ -51,7 +51,7 @@ namespace ClinicDent2
             {
                 if (stage.Images[i].image.OriginalBytes == null)
                 {
-                    stage.Images[i].image.OriginalBytes = HttpService.GetImageOriginalBytes(stage.Images[i].Id);
+                    stage.Images[i].image.OriginalBytes = await HttpService.GetImageOriginalBytes(stage.Images[i].Id);
                 }
                 string extension = GetImageExtension(stage.Images[i].image.OriginalBytes);
                 string nameWithExtension = $"{stage.Title} ({i+1}){extension}";

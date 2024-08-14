@@ -1,4 +1,4 @@
-﻿using ClinicDent2.Model;
+﻿using ClinicDentClientCommon.Model;
 using ClinicDent2.TabbedBrowser;
 using ClinicDent2.ViewModel;
 using Microsoft.Win32;
@@ -6,6 +6,7 @@ using System;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using ClinicDentClientCommon;
 
 namespace ClinicDent2.View
 {
@@ -19,18 +20,18 @@ namespace ClinicDent2.View
         {
             Patient p = new Patient()
             {
-                RegisterDate = DateTime.Today.ToString(Options.DatePattern),
+                RegisterDate = DateTime.Today.ToString(SharedData.DatePattern),
                 Statuses=""
             };
             newPatientViewModel = new PatientViewModel(p);
             DataContext = newPatientViewModel;
             InitializeComponent();
         }
-        private void buttonCreate_Click(object sender, RoutedEventArgs e)
+        private async void buttonCreate_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                newPatientViewModel.PostPatient();
+                await newPatientViewModel.PostPatient();
             }
             catch (Exception ex)
             {
@@ -44,7 +45,7 @@ namespace ClinicDent2.View
             StagesView stagesView = new StagesView();
             try
             {
-                stagesView.LoadAllPatientStages(newPatientViewModel);
+                await stagesView.LoadAllPatientStages(newPatientViewModel);
             }
             catch (Exception ex)
             {
@@ -52,7 +53,7 @@ namespace ClinicDent2.View
                 return;
             }
             stagesPatient.Control = stagesView;
-            Options.MainWindow.mainMenu.browserControl.RemoveTabIfInBrowser(this);
+            await Options.MainWindow.mainMenu.browserControl.RemoveTabIfInBrowser(this);
             Options.MainWindow.mainMenu.browserControl.AddNewTab(stagesPatient);
         }
         private void listBoxStatus_SelectionChanged(object sender, SelectionChangedEventArgs e)

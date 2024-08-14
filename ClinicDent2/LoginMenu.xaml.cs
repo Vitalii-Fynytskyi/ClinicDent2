@@ -1,23 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Formatting;
-using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
-using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using ClinicDent2.Model;
+using ClinicDentClientCommon.Model;
+using ClinicDentClientCommon.Services;
 
 namespace ClinicDent2
 {
@@ -78,17 +67,21 @@ namespace ClinicDent2
             InitializeComponent();
             Width = SystemParameters.WorkArea.Width;
             Height = SystemParameters.WorkArea.Height;
-            Tenants = HttpService.GetTenantList();
+            GetTenantList();
             DataContext = this;
         }
+        public async Task GetTenantList()
+        {
+            Tenants = await HttpService.GetTenantList();
 
-        private void buttonLogin_Click(object sender, RoutedEventArgs e)
+        }
+        private async void buttonLogin_Click(object sender, RoutedEventArgs e)
         {
             LoginModel loginModel = new LoginModel();
             loginModel.Email = TextBoxEmail.Text;
             loginModel.Password = TextBoxPassword.Password;
             loginModel.Tenant = SelectedTenant;
-            Doctor doctor = HttpService.Authenticate(loginModel);
+            Doctor doctor = await HttpService.Authenticate(loginModel);
             if(doctor == null)
             {
                 labelInfo.Content = "Неправильно введено пошту або пароль";

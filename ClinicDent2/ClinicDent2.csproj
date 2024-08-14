@@ -2,13 +2,30 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net8.0-windows7.0</TargetFramework>
     <UseWPF>true</UseWPF>
     <CanDeleteImage>true</CanDeleteImage>
+    <SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <None Remove="assets\images\birthdateIcon.png" />
+    <None Remove="assets\images\nav_bar\addNewPatient.png" />
+    <None Remove="assets\images\nav_bar\allPatients.png" />
+    <None Remove="assets\images\nav_bar\closeBtn_default.png" />
+    <None Remove="assets\images\nav_bar\closeBtn_MouseOver.png" />
+    <None Remove="assets\images\nav_bar\debtors.png" />
+    <None Remove="assets\images\nav_bar\exit.png" />
+    <None Remove="assets\images\nav_bar\exitAccount.png" />
+    <None Remove="assets\images\nav_bar\img_setting.png" />
+    <None Remove="assets\images\nav_bar\myPatients.png" />
+    <None Remove="assets\images\nav_bar\photoflow.png" />
+    <None Remove="assets\images\nav_bar\schedule.png" />
+    <None Remove="assets\images\nav_bar\settings.png" />
+    <None Remove="assets\images\nav_bar\statistics.png" />
+    <None Remove="assets\images\nav_bar\tgBtn_default.png" />
+    <None Remove="assets\images\nav_bar\tgBtn_MouseOver.png" />
+    <None Remove="assets\images\nav_bar\underObservation.png" />
     <None Remove="assets\images\OK.png" />
     <None Remove="assets\images\phoneIcon.png" />
     <None Remove="assets\images\questionMark.png" />
@@ -22,14 +39,29 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.39" />
-    <PackageReference Include="System.Drawing.Common" Version="5.0.2" />
     <PackageReference Include="WTelegramClient" Version="3.5.6" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\ClinicDentClientCommon\ClinicDentClientCommon\ClinicDentClientCommon.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Resource Include="assets\images\birthdateIcon.png" />
+    <Resource Include="assets\images\nav_bar\addNewPatient.png" />
+    <Resource Include="assets\images\nav_bar\allPatients.png" />
+    <Resource Include="assets\images\nav_bar\exit.png" />
+    <Resource Include="assets\images\nav_bar\myPatients.png" />
+    <Resource Include="assets\images\nav_bar\underObservation.png" />
+    <Resource Include="assets\images\nav_bar\statistics.png" />
+    <Resource Include="assets\images\nav_bar\photoflow.png" />
+    <Resource Include="assets\images\nav_bar\debtors.png" />
+    <Resource Include="assets\images\nav_bar\schedule.png" />
+    <Resource Include="assets\images\nav_bar\exitAccount.png" />
+    <Resource Include="assets\images\nav_bar\settings.png" />
+    <Resource Include="assets\images\nav_bar\tgBtn_default.png" />
+    <Resource Include="assets\images\nav_bar\tgBtn_MouseOver.png" />
     <Resource Include="assets\images\OK.png" />
     <Resource Include="assets\images\phoneIcon.png" />
     <Resource Include="assets\images\questionMark.png" />

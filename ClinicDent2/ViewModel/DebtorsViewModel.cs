@@ -1,16 +1,18 @@
 ﻿using ClinicDent2.Commands;
-using ClinicDent2.Model;
+using ClinicDentClientCommon;
+using ClinicDentClientCommon.Model;
+using ClinicDentClientCommon.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace ClinicDent2.ViewModel
 {
     public class DebtorsViewModel:BaseViewModel
     {
-        public static string[] AvailableSorts { get; set; } = new string[] { "За замовчуванням", "Ім'я: від А до Я", "Ім'я: від Я до А", "За замовчуванням навпаки", "Дата реєстрації: спочатку недавні", "Дата реєстрації: спочатку старіші", "Вік: спочатку молодші", "Вік: спочатку старші", "Сума боргу: спочатку більші", "Сума боргу: спочатку менші" };
         private Doctor selectedDoctor = null;
         public Doctor SelectedDoctor
         {
@@ -62,8 +64,8 @@ namespace ClinicDent2.ViewModel
         {
             SearchPressedCommand = new RelayCommand(searchPressed);
             PageChangedCommand = new RelayCommand(pageChanged);
-            selectedDoctor = Options.AllDoctors.FirstOrDefault(d => d.Id == Options.CurrentDoctor.Id);
-            selectedSorting = AvailableSorts[0];
+            selectedDoctor = SharedData.AllDoctors.FirstOrDefault(d => d.Id == SharedData.CurrentDoctor.Id);
+            selectedSorting = PatientWithDebt.AvailableSorts[0];
             selectedPage = 1;
             searchText = string.Empty;
             visiblePages = new ObservableCollection<int>();
@@ -139,13 +141,13 @@ namespace ClinicDent2.ViewModel
             SelectedPage = Convert.ToInt32(param.ToString());
             ReceivePatients();
         }
-        public void ReceivePatients()
+        public async Task ReceivePatients()
         {
             string searchTextForRequest = SearchText == "" ? "<null>" : SearchText;
             DebtPatientsToClient patientsToClient = null;
             try
             {
-                patientsToClient = HttpService.GetDebtors(selectedSorting, selectedPage, Options.PatientsPerPage, searchTextForRequest, SelectedDoctor.Id);
+                patientsToClient = await HttpService.GetDebtors(selectedSorting, selectedPage, Options.PatientsPerPage, searchTextForRequest, SelectedDoctor.Id);
 
             }
             catch (Exception ex)

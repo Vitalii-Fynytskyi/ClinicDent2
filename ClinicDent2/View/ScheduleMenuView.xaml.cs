@@ -1,14 +1,15 @@
 ﻿using ClinicDent2.Attached;
 using ClinicDent2.Interfaces;
-using ClinicDent2.Model;
-using ClinicDent2.TcpClientToServer;
-using Newtonsoft.Json.Linq;
+using ClinicDentClientCommon;
+using ClinicDentClientCommon.Model;
+using ClinicDentClientCommon.Services;
+using ClinicDentClientCommon.TcpClientToServer;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -21,117 +22,182 @@ namespace ClinicDent2.View
     public partial class ScheduleMenuView : UserControl, INotifyPropertyChanged, IBrowserTabControl
     {
         public static double? DesiredVerticalScrollOffset = null;
-        public TcpClient TcpClient;
         public bool isInitialized = false;
         private bool isScrollChangedEventBlocked = false;
         public List<ScheduleForDayView> ScheduleForDayViews { get; set; }
         public ScheduleMenuView()
         {
-            TcpClient = new TcpClient();
-            TcpClient.ScheduleRecordAdded += TcpConnection_ScheduleRecordAdded;
-            TcpClient.ScheduleRecordUpdated += TcpConnection_ScheduleRecordUpdated;
-            TcpClient.ScheduleRecordDeleted += TcpConnection_ScheduleRecordDeleted;
-            TcpClient.ScheduleRecordStateUpdated += TcpConnection_ScheduleStateUpdated;
-            TcpClient.ScheduleRecordCommentUpdated += TcpConnection_ScheduleCommentUpdated;
-            TcpClient.SchedlueCabinetCommentUpdated += TcpClient_SchedlueCabinetCommentUpdated;
 
             InitializeComponent();
             selectedDate = DefaultSelectedDate;
             DataContext = this;
-            
-            TcpClient.ConnectToServer();
-
         }
-        private void TcpClient_SchedlueCabinetCommentUpdated(string datetime, int cabinetId, string newComment)
+        private void Notification_SchedlueCabinetCommentUpdated(string datetime, int cabinetId, string newComment)
         {
-            Application.Current.Dispatcher.Invoke(new Action(() => {
-                if (selectedDate.ToString("yyyy-MM") == datetime.Substring(0, 7)) // check if updated record related to current month
-                {
-                    //find day to which record belongs
-                    ScheduleForDayView dayView = ScheduleForDayViews.FirstOrDefault(v => v.SelectedDate.ToString("dd") == datetime.Substring(8, 2));
-                    if (dayView != null)
-                    {
-                        dayView.UpdateCabinetComment(newComment, cabinetId);
-                    }
-                }
-            }));
-        }
-        private void TcpConnection_ScheduleCommentUpdated(int recordId, string newComment, string date, int cabinetId)
-        {
-            Application.Current.Dispatcher.Invoke(new Action(() => {
-                if (selectedDate.ToString("yyyy-MM") == date.Substring(0, 7)) // check if updated record related to current month
-                {
-                    //find day to which record belongs
-                    ScheduleForDayView dayView = ScheduleForDayViews.FirstOrDefault(v => v.SelectedDate.ToString("dd") == date.Substring(8, 2));
-                    if (dayView != null)
-                    {
-                        dayView.UpdateRecordComment(recordId, cabinetId, newComment);
-                    }
-                }
-            }));
-        }
-        private void TcpConnection_ScheduleStateUpdated(int recordId, SchedulePatientState newState, string date, int cabinetId)
-        {
-            Application.Current.Dispatcher.Invoke(new Action(() => {
-                if (selectedDate.ToString("yyyy-MM") == date.Substring(0, 7)) // check if updated record related to current month
-                {
-                    //find day to which record belongs
-                    ScheduleForDayView dayView = ScheduleForDayViews.FirstOrDefault(v => v.SelectedDate.ToString("dd") == date.Substring(8, 2));
-                    if (dayView != null)
-                    {
-                        dayView.UpdateRecordState(recordId, cabinetId, newState);
-                    }
-                }
-            }));
-
-        }
-        private void TcpConnection_ScheduleRecordDeleted(int recordId, string date, int cabinetId)
-        {
-            Application.Current.Dispatcher.Invoke(new Action(() => {
-                if (selectedDate.ToString("yyyy-MM") == date.Substring(0, 7)) // check if updated record related to current month
-                {
-                    //find day to which record belongs
-                    ScheduleForDayView dayView = ScheduleForDayViews.FirstOrDefault(v => v.SelectedDate.ToString("dd") == date.Substring(8, 2));
-                    if (dayView != null)
-                    {
-                        dayView.DeleteRecord(recordId, cabinetId);
-                    }
-                }
-                Options.MainWindow.mainMenu.browserControl.NotifyOtherTabs(NotificationCodes.ScheduleRecordDeleted, recordId);
-            }));
-
-        }
-        private void TcpConnection_ScheduleRecordUpdated(object sender, Schedule e)
-        {
-            Application.Current.Dispatcher.Invoke(new Action(() => {
-                if (selectedDate.ToString("yyyy-MM") == e.StartDatetime.Substring(0, 7)) // check if updated record related to current month
-                {
-                    //find day to which record belongs
-                    ScheduleForDayView dayView = ScheduleForDayViews.FirstOrDefault(v => v.SelectedDate.ToString("dd") == e.StartDatetime.Substring(8, 2));
-                    if (dayView != null)
-                    {
-                        dayView.UpdateRecord(e);
-                    }
-                }
-                Options.MainWindow.mainMenu.browserControl.NotifyOtherTabs(NotificationCodes.ScheduleRecordUpdated, e);
-            }));
-        }
-        private void TcpConnection_ScheduleRecordAdded(object sender, Schedule e)
-        {
-            Application.Current.Dispatcher.Invoke(new Action(() =>
+            if (selectedDate.ToString("yyyy-MM") == datetime.Substring(0, 7)) // check if updated record related to current month
             {
-                if (selectedDate.ToString("yyyy-MM") == e.StartDatetime.Substring(0, 7)) // check if updated record related to current month
+                //find day to which record belongs
+                ScheduleForDayView dayView = ScheduleForDayViews.FirstOrDefault(v => v.SelectedDate.ToString("dd") == datetime.Substring(8, 2));
+                if (dayView != null)
                 {
-                    //find day to which record belongs
-                    ScheduleForDayView dayView = ScheduleForDayViews.FirstOrDefault(v => v.SelectedDate.ToString("dd") == e.StartDatetime.Substring(8, 2));
-                    if (dayView != null)
+                    dayView.UpdateCabinetComment(newComment, cabinetId);
+                }
+            };
+        }
+        private void Notification_ScheduleRecordCommentUpdated(int recordId, string newComment, string date, int cabinetId)
+        {
+            if (selectedDate.ToString("yyyy-MM") == date.Substring(0, 7)) // check if updated record related to current month
+            {
+                //find day to which record belongs
+                ScheduleForDayView dayView = ScheduleForDayViews.FirstOrDefault(v => v.SelectedDate.ToString("dd") == date.Substring(8, 2));
+                if (dayView != null)
+                {
+                    dayView.UpdateRecordComment(recordId, cabinetId, newComment);
+                }
+            }
+        }
+        private void Notification_ScheduleRecordStateUpdated(int recordId, SchedulePatientState newState, string date, int cabinetId)
+        {
+            if (selectedDate.ToString("yyyy-MM") == date.Substring(0, 7)) // check if updated record related to current month
+            {
+                //find day to which record belongs
+                ScheduleForDayView dayView = ScheduleForDayViews.FirstOrDefault(v => v.SelectedDate.ToString("dd") == date.Substring(8, 2));
+                if (dayView != null)
+                {
+                    dayView.UpdateRecordState(recordId, cabinetId, newState);
+                }
+            }
+
+        }
+        private void Notification_ScheduleRecordDeleted(int recordId, string date, int cabinetId)
+        {
+            if (selectedDate.ToString("yyyy-MM") == date.Substring(0, 7)) // check if updated record related to current month
+            {
+                //find day to which record belongs
+                ScheduleForDayView dayView = ScheduleForDayViews.FirstOrDefault(v => v.SelectedDate.ToString("dd") == date.Substring(8, 2));
+                if (dayView != null)
+                {
+                    dayView.DeleteRecord(recordId, cabinetId);
+                }
+            }
+        }
+        private void Notification_ScheduleRecordUpdated(Schedule e)
+        {
+            if (selectedDate.ToString("yyyy-MM") == e.StartDatetime.Substring(0, 7)) // check if updated record related to current month
+            {
+                //find day to which record belongs
+                ScheduleForDayView dayView = ScheduleForDayViews.FirstOrDefault(v => v.SelectedDate.ToString("dd") == e.StartDatetime.Substring(8, 2));
+                if (dayView != null)
+                {
+                    dayView.UpdateRecord(e);
+                }
+            }
+        }
+        private void Notification_ScheduleStagesPaymentUpdated(string updatedStagesContent)
+        {
+            string[] splitted = updatedStagesContent.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i <= splitted.Length - 6; i += 6) //if length is 5 then start from 0 and next time begin with 5
+            {
+                int patientId = Convert.ToInt32(splitted[i]);
+                DateTime stageDatetime = DateTime.ParseExact(splitted[i + 1], SharedData.DateTimePattern, null);
+                int priceDifference = Convert.ToInt32(splitted[i + 2]);
+                int payedDifference = Convert.ToInt32(splitted[i + 3]);
+                int doctorId = Convert.ToInt32(splitted[i + 4]);
+                int expensesDifference = Convert.ToInt32(splitted[i + 5]);
+
+
+                if (SelectedDate.Year == stageDatetime.Year && SelectedDate.Month == stageDatetime.Month)
+                {
+                    //find requred day
+                    int scheduleForDayIndex = -1;
+                    for (int c = 0; c < ScheduleForDayViews.Count; c++)
                     {
-                        dayView.AddRecord(e);
+                        if (ScheduleForDayViews[c].SelectedDate.Day == stageDatetime.Day)
+                        {
+                            scheduleForDayIndex = c;
+                            break;
+                        }
+                    }
+                    if (scheduleForDayIndex == -1) { return; }
+                    bool daySummaryAlreadyUpdated = false;
+                    //try to find to which cabinet this patient belongs
+                    for (int j = 0; j < ScheduleForDayViews[scheduleForDayIndex].TimeGrids.Count; j++)
+                    {
+
+                        for (int k = 0; k < ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews.Count; k++)
+                        {
+                            if (ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].Schedule.PatientId == patientId)
+                            {
+                                ///find to which doctor it belongs
+                                int foundDoctorIndex = -1;
+                                for (int q = 0; q < ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].Schedule.DoctorIds.Count; q++)
+                                {
+                                    if (ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].Schedule.DoctorIds[q] == doctorId)
+                                    {
+                                        foundDoctorIndex = q; break;
+                                    }
+                                }
+                                if (foundDoctorIndex == -1)
+                                {
+                                    ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].Schedule.DoctorIds.Add(doctorId);
+                                    ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].Schedule.StagesPaidSum.Add(payedDifference);
+                                    ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].Schedule.StagesPriceSum.Add(priceDifference);
+                                    ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].Schedule.StagesExpensesSum.Add(expensesDifference);
+                                    foundDoctorIndex = ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].Schedule.DoctorIds.Count;
+                                }
+                                else
+                                {
+                                    //add to existing
+                                    ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].Schedule.StagesPaidSum[foundDoctorIndex] += payedDifference;
+                                    ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].Schedule.StagesPriceSum[foundDoctorIndex] += priceDifference;
+                                    ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].Schedule.StagesExpensesSum[foundDoctorIndex] += expensesDifference;
+
+                                }
+                                ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].OnPropertyChanged("StagesPaidSum");
+                                ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].OnPropertyChanged("StagesPriceSum");
+                                ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].OnPropertyChanged("PaidPriceText");
+                                if (daySummaryAlreadyUpdated == false)
+                                {
+                                    ScheduleForDayViews[scheduleForDayIndex].AddToDaySummary(doctorId, priceDifference, payedDifference, expensesDifference);
+
+                                    int daysInWeek = 7;
+                                    int daysTillNextSunday = (daysInWeek - (int)stageDatetime.DayOfWeek) % daysInWeek;
+                                    DateTime nextSunday = stageDatetime + TimeSpan.FromDays(daysTillNextSunday);
+                                    if (nextSunday.Month == stageDatetime.Month)
+                                    {
+                                        ScheduleForDayViews[scheduleForDayIndex + daysTillNextSunday].AddToWeekSummary(doctorId, priceDifference, payedDifference, expensesDifference);
+                                    }
+                                    daySummaryAlreadyUpdated = true;
+                                }
+
+                            }
+                        }
                     }
                 }
-                e.CabinetName = Options.AllCabinets.FirstOrDefault(c => c.Id == e.CabinetId).CabinetName;
-                Options.MainWindow.mainMenu.browserControl.NotifyOtherTabs(NotificationCodes.ScheduleRecordAdded, new Schedule(e));
-            }));
+                else if (IsNextSundayInThisMonth(stageDatetime) == true)
+                {
+                    DateTime dateTime = stageDatetime + TimeSpan.FromDays(7);
+                    if (dateTime.Year == SelectedDate.Year && dateTime.Month == SelectedDate.Month)
+                    {
+                        //find first sunday in this month
+                        ScheduleForDayView scheduleForDayView = ScheduleForDayViews.FirstOrDefault(v => v.SelectedDate.DayOfWeek == DayOfWeek.Sunday);
+                        scheduleForDayView.AddToWeekSummary(doctorId, priceDifference, payedDifference, expensesDifference);
+                    }
+                }
+            }
+        }
+        private void Notification_ScheduleRecordAdded(Schedule e)
+        {
+            if (selectedDate.ToString("yyyy-MM") == e.StartDatetime.Substring(0, 7)) // check if updated record related to current month
+            {
+                //find day to which record belongs
+                ScheduleForDayView dayView = ScheduleForDayViews.FirstOrDefault(v => v.SelectedDate.ToString("dd") == e.StartDatetime.Substring(8, 2));
+                if (dayView != null)
+                {
+                    dayView.AddRecord(e);
+                }
+            }
+            e.CabinetName = SharedData.AllCabinets.FirstOrDefault(c => c.Id == e.CabinetId).CabinetName;
         }
         private DateTime selectedDate;
         public static DateTime DefaultSelectedDate;
@@ -153,7 +219,7 @@ namespace ClinicDent2.View
                         ScheduleForDayViews[i].UpdateDate(selectedDate.Year, selectedDate.Month, i + 1);
                     }
                     ScrollToTopOfScrollViewer(ScheduleForDayViews[selectedDate.Day - 1], scrollViewerSchedule);
-                    UpdateCalendarDaysState();
+                    //UpdateCalendarDaysState();
                 }
                 else
                 {
@@ -244,14 +310,13 @@ namespace ClinicDent2.View
         {
 
         }
-        public bool TabDeactivated()
+        public Task<bool> TabDeactivated()
         {
             DesiredVerticalScrollOffset=scrollViewerSchedule.VerticalOffset;
-            return true;
+            return Task.FromResult(true);
         }
         public void TabClosed()
         {
-            TcpClient.DisconnectFromServer();
         }
         private bool isDragging = false;
         private Point clickPosition;
@@ -283,99 +348,30 @@ namespace ClinicDent2.View
                     string updatedStagesContent = (string)param;
                     Notification_ScheduleStagesPaymentUpdated(updatedStagesContent);
                     break;
-            }
-        }
-        private void Notification_ScheduleStagesPaymentUpdated(string updatedStagesContent)
-        {
-            string[] splitted = updatedStagesContent.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-            for (int i = 0; i <= splitted.Length - 6; i += 6) //if length is 5 then start from 0 and next time begin with 5
-            {
-                int patientId = Convert.ToInt32(splitted[i]);
-                DateTime stageDatetime = DateTime.ParseExact(splitted[i + 1], Options.DateTimePattern, null);
-                int priceDifference = Convert.ToInt32(splitted[i + 2]);
-                int payedDifference = Convert.ToInt32(splitted[i + 3]);
-                int doctorId = Convert.ToInt32(splitted[i + 4]);
-                int expensesDifference = Convert.ToInt32(splitted[i + 5]);
-
-
-                if (SelectedDate.Year == stageDatetime.Year && SelectedDate.Month == stageDatetime.Month)
-                {
-                    //find requred day
-                    int scheduleForDayIndex = -1;
-                    for (int c = 0; c < ScheduleForDayViews.Count; c++)
-                    {
-                        if (ScheduleForDayViews[c].SelectedDate.Day == stageDatetime.Day)
-                        {
-                            scheduleForDayIndex = c;
-                            break;
-                        }
-                    }
-                    if (scheduleForDayIndex == -1) { return; }
-                    bool daySummaryAlreadyUpdated = false;
-                    //try to find to which cabinet this patient belongs
-                    for (int j = 0; j < ScheduleForDayViews[scheduleForDayIndex].TimeGrids.Count; j++)
-                    {
-                        
-                        for (int k = 0; k < ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews.Count; k++)
-                        {
-                            if (ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].Schedule.PatientId == patientId)
-                            {
-                                ///find to which doctor it belongs
-                                int foundDoctorIndex = -1;
-                                for(int q =0; q< ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].Schedule.DoctorIds.Count;q++)
-                                {
-                                    if (ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].Schedule.DoctorIds[q] == doctorId)
-                                    {
-                                        foundDoctorIndex = q; break;
-                                    }
-                                }
-                                if(foundDoctorIndex== -1)
-                                {
-                                    ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].Schedule.DoctorIds.Add(doctorId);
-                                    ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].Schedule.StagesPaidSum.Add(payedDifference);
-                                    ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].Schedule.StagesPriceSum.Add(priceDifference);
-                                    ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].Schedule.StagesExpensesSum.Add(expensesDifference);
-                                    foundDoctorIndex = ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].Schedule.DoctorIds.Count;
-                                }
-                                else
-                                {
-                                    //add to existing
-                                    ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].Schedule.StagesPaidSum[foundDoctorIndex] += payedDifference;
-                                    ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].Schedule.StagesPriceSum[foundDoctorIndex] += priceDifference;
-                                    ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].Schedule.StagesExpensesSum[foundDoctorIndex] += expensesDifference;
-
-                                }
-                                ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].OnPropertyChanged("StagesPaidSum");
-                                ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].OnPropertyChanged("StagesPriceSum");
-                                ScheduleForDayViews[scheduleForDayIndex].TimeGrids[j].TimeGridElementViews[k].OnPropertyChanged("PaidPriceText");
-                                if (daySummaryAlreadyUpdated == false)
-                                {
-                                    ScheduleForDayViews[scheduleForDayIndex].AddToDaySummary(doctorId, priceDifference, payedDifference, expensesDifference);
-
-                                    int daysInWeek = 7;
-                                    int daysTillNextSunday = (daysInWeek - (int)stageDatetime.DayOfWeek) % daysInWeek;
-                                    DateTime nextSunday = stageDatetime + TimeSpan.FromDays(daysTillNextSunday);
-                                    if (nextSunday.Month == stageDatetime.Month)
-                                    {
-                                        ScheduleForDayViews[scheduleForDayIndex + daysTillNextSunday].AddToWeekSummary(doctorId, priceDifference, payedDifference, expensesDifference);
-                                    }
-                                    daySummaryAlreadyUpdated = true;
-                                }
-
-                            }
-                        }
-                    }
-                }
-                else if (IsNextSundayInThisMonth(stageDatetime) == true)
-                {
-                    DateTime dateTime = stageDatetime + TimeSpan.FromDays(7);
-                    if (dateTime.Year == SelectedDate.Year && dateTime.Month == SelectedDate.Month)
-                    {
-                        //find first sunday in this month
-                        ScheduleForDayView scheduleForDayView = ScheduleForDayViews.FirstOrDefault(v => v.SelectedDate.DayOfWeek == DayOfWeek.Sunday);
-                        scheduleForDayView.AddToWeekSummary(doctorId,priceDifference, payedDifference,expensesDifference);
-                    }
-                }
+                case NotificationCodes.ScheduleCabinetCommentUpdated:
+                    (string datetime, int cabinetId, string newComment) obj = ((string datetime, int cabinetId, string newComment))param;
+                    Notification_SchedlueCabinetCommentUpdated(obj.datetime, obj.cabinetId, obj.newComment);
+                    break;
+                case NotificationCodes.ScheduleRecordCommentUpdated:
+                    (int recordId, string newComment, string date, int cabinetId) obj2 = ((int recordId, string newComment, string date, int cabinetId))param;
+                    Notification_ScheduleRecordCommentUpdated(obj2.recordId, obj2.newComment, obj2.date, obj2.cabinetId);
+                    break;
+                case NotificationCodes.ScheduleRecordStateUpdated:
+                    (int recordId, SchedulePatientState newState, string dateTime, int cabinetId) obj3 = ((int recordId, SchedulePatientState newState, string dateTime, int cabinetId))param;
+                    Notification_ScheduleRecordStateUpdated(obj3.recordId, obj3.newState, obj3.dateTime, obj3.cabinetId);
+                    break;
+                case NotificationCodes.ScheduleRecordDeleted:
+                    (int recordId, string date, int cabinetId) obj4 = ((int recordId, string date, int cabinetId))param;
+                    Notification_ScheduleRecordDeleted(obj4.recordId, obj4.date, obj4.cabinetId);
+                    break;
+                case NotificationCodes.ScheduleRecordUpdated:
+                    Schedule s = (Schedule)param;
+                    Notification_ScheduleRecordUpdated(s);
+                    break;
+                case NotificationCodes.ScheduleRecordAdded:
+                    Schedule s2 = (Schedule)param;
+                    Notification_ScheduleRecordAdded(s2);
+                    break;
             }
         }
         public bool IsNextSundayInThisMonth(DateTime stageDatetime)
