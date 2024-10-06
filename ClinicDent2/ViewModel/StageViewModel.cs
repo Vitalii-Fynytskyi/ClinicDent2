@@ -1,4 +1,5 @@
 ﻿using ClinicDent2.Commands;
+using ClinicDent2.MultiSelectComboBox;
 using ClinicDent2.View;
 using ClinicDentClientCommon;
 using ClinicDentClientCommon.Model;
@@ -45,6 +46,8 @@ namespace ClinicDent2.ViewModel
         public RelayCommand AddImageFromClipboardCommand { get; set; }
         public RelayCommand AddImageFromDiskCommand { get; set; }
         public RelayCommand AttachImageCommand { get; set; }
+        public RelayCommand SelectedTeethChangedCommand { get; set; }
+
 
 
         private async void AddImageFromClipboard(object arg)
@@ -100,6 +103,14 @@ namespace ClinicDent2.ViewModel
             }
             owner.Stages.Remove(this);
         }
+        public void SelectedTeethChanged(object arg)
+        {
+            if (IsSelectedTeethChangedCommandActive == false) return;
+            ViewModelStatus = ViewModelStatus.Updated;
+            
+            Stage.Teeth = SelectedTeeth.Select(t => t.Tooth).ToList();
+        }
+        public bool IsSelectedTeethChangedCommandActive = false;
         private async Task SendStageViaTelegram(object arg)
         {
             string phone = arg as string;
@@ -710,6 +721,17 @@ namespace ClinicDent2.ViewModel
             AttachImageCommand = new RelayCommand(AttachImage);
             AddImageFromClipboardCommand = new RelayCommand(AddImageFromClipboard);
             MarkSentViaMessagerCommand = new RelayCommand(MarkSentViaMessager);
+            SelectedTeethChangedCommand=new RelayCommand(SelectedTeethChanged);
+            SelectedTeeth = new ObservableCollection<MultiSelectComboBoxItemTooth>();
+            foreach (var tooth in stageToSet.Teeth)
+            {
+                MultiSelectComboBoxItemTooth foundTooth = MultiSelectComboBoxItemTooth.AllTeeth.Find(t => t.Tooth.Id == tooth.Id);
+                if(foundTooth != null)
+                {
+                    SelectedTeeth.Add(foundTooth);
+                }
+            }
+            IsSelectedTeethChangedCommandActive = true;
         }
         private async Task LoadImages()
         {
@@ -723,5 +745,18 @@ namespace ClinicDent2.ViewModel
         }
 
         private StagesViewModel owner;
+        public ObservableCollection<MultiSelectComboBoxItemTooth> SelectedTeeth
+        {
+            get { return selectedTeeth; }
+            set
+            {
+                if (selectedTeeth != value)
+                {
+                    selectedTeeth = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+        private ObservableCollection<MultiSelectComboBoxItemTooth> selectedTeeth;
     }
 }

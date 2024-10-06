@@ -132,11 +132,11 @@
                     <Setter TargetName="ButtonBorder" Property="Background" Value="#FFCCCCCC" />
                 </Trigger>
                 <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Foreground" Value="White" />
+                    <Setter TargetName="ButtonBorder" Property="BorderBrush" Value="Blue" />
+                    <Setter TargetName="ButtonBorder" Property="BorderThickness" Value="3" />
                 </Trigger>
                 <Trigger Property="IsInactive" Value="True">
                     <Setter Property="Background" Value="LightGray" />
-                    <!-- You can set this to your preferred background -->
                     <Setter Property="Foreground" Value="Gray" />
                 </Trigger>
             </ControlTemplate.Triggers>

@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -70,7 +71,7 @@ namespace ClinicDent2.View
             }
             OnPropertyChanged("State");
         }
-        private void GoToStages()
+        private async Task GoToStages()
         {
 
             string dayOfMonth = ParentGridView.Owner.SelectedDate.GetUkrainianDayOfMonth();
@@ -80,7 +81,7 @@ namespace ClinicDent2.View
                 StagesView stagesView = new StagesView();
                 try
                 {
-                    stagesView.LoadAllPatientStagesWithScheduleMarked(ParentGridView.Owner.SelectedDate, Schedule.PatientId.Value);
+                    await stagesView.LoadAllPatientStagesWithScheduleMarked(ParentGridView.Owner.SelectedDate, Schedule.PatientId.Value);
                 }
                 catch (Exception ex)
                 {
@@ -415,9 +416,9 @@ namespace ClinicDent2.View
             WillAppearChanged();
         }
 
-        private void UserControl_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private async void UserControl_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            GoToStages();
+            await GoToStages();
         }
 
         private void UserControl_PreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)

@@ -4,13 +4,27 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:vm="clr-namespace:ClinicDent2.ViewModel"
+             xmlns:sdl="http://schemas.sdl.com/xaml"
              xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:mybehaviors="clr-namespace:ClinicDent2.Behaviors"
              xmlns:main="clr-namespace:ClinicDent2"
              xmlns:model="clr-namespace:ClinicDentClientCommon.Model;assembly=ClinicDentClientCommon"
+             xmlns:common="clr-namespace:ClinicDentClientCommon;assembly=ClinicDentClientCommon"
              xmlns:local="clr-namespace:ClinicDent2.View"
+             xmlns:mscb="clr-namespace:ClinicDent2.MultiSelectComboBox"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <ResourceDictionary>
+
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/MultiSelectComboBox/MultiSelectComboBox.Resources.xaml"/>
+                <ResourceDictionary Source="/MultiSelectComboBox/MultiSelectComboBox.Custom.ControlTemplate.xaml"/>
+                <ResourceDictionary Source="/MultiSelectComboBox/MultiSelectComboBox.Custom.DropdownItemTemplate.xaml"/>
+                <ResourceDictionary Source="/MultiSelectComboBox/MultiSelectComboBox.Custom.SelectedItemTemplate.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition MaxHeight="150" Height="Auto"/>
@@ -131,8 +145,8 @@
                                         </TextBox.Style>
                                     </TextBox>
                                     <WrapPanel Margin="0,5,0,0" IsEnabled="{Binding IsOwner}">
-                                        <ComboBox ItemsSource="{x:Static model:StageAsset.Operations}" DisplayMemberPath="Value" MinWidth="100" SelectedItem="{Binding Operation, Mode=TwoWay}" IsEditable="True" IsReadOnly="True" Text="Операція" HorizontalAlignment="Left"/>
-                                        <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
+                                        <ComboBox ItemsSource="{x:Static model:StageAsset.Operations}" VerticalAlignment="Top" DisplayMemberPath="Value" MinWidth="100" SelectedItem="{Binding Operation, Mode=TwoWay}" IsEditable="True" IsReadOnly="True" Text="Операція" HorizontalAlignment="Left"/>
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="5,0,0,0">
                                             <StackPanel.Style>
                                                 <Style TargetType="StackPanel">
                                                     <Setter Property="Visibility" Value="Collapsed"/>
@@ -149,7 +163,7 @@
                                             <Label Content="Бонд"/>
                                             <ComboBox MinWidth="100" SelectedItem="{Binding Bond, Mode=TwoWay}" DisplayMemberPath="Value" ItemsSource="{x:Static model:StageAsset.Bonds}"/>
                                         </StackPanel>
-                                        <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
+                                        <StackPanel Orientation="Horizontal" Margin="5,0,0,0" VerticalAlignment="Top">
                                             <StackPanel.Style>
                                                 <Style TargetType="StackPanel">
                                                     <Setter Property="Visibility" Value="Collapsed"/>
@@ -163,7 +177,7 @@
                                             <Label Content="Штифт"/>
                                             <ComboBox MinWidth="100" SelectedItem="{Binding Pin, Mode=TwoWay}" DisplayMemberPath="Value" ItemsSource="{x:Static model:StageAsset.Pins}"/>
                                         </StackPanel>
-                                        <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="5,0,0,0">
                                             <StackPanel.Style>
                                                 <Style TargetType="StackPanel">
                                                     <Setter Property="Visibility" Value="Collapsed"/>
@@ -178,7 +192,7 @@
                                             <Label Content="Дентин"/>
                                             <ComboBox MinWidth="100" SelectedItem="{Binding Dentin, Mode=TwoWay}" DisplayMemberPath="Value" ItemsSource="{x:Static model:StageAsset.Dentins}"/>
                                         </StackPanel>
-                                        <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="5,0,0,0">
                                             <StackPanel.Style>
                                                 <Style TargetType="StackPanel">
                                                     <Setter Property="Visibility" Value="Collapsed"/>
@@ -190,9 +204,9 @@
                                                 </Style>
                                             </StackPanel.Style>
                                             <Label Content="Емаль"/>
-                                            <ComboBox MinWidth="100" SelectedItem="{Binding Enamel, Mode=TwoWay}" DisplayMemberPath="Value" ItemsSource="{x:Static model:StageAsset.Enamels}"/>
+                                            <ComboBox MinWidth="100" SelectedItem="{Binding Enamel, Mode=TwoWay}"  DisplayMemberPath="Value" ItemsSource="{x:Static model:StageAsset.Enamels}"/>
                                         </StackPanel>
-                                        <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
+                                        <StackPanel Orientation="Horizontal" Margin="5,0,0,0" VerticalAlignment="Top">
                                             <StackPanel.Style>
                                                 <Style TargetType="StackPanel">
                                                     <Setter Property="Visibility" Value="Collapsed"/>
@@ -206,7 +220,7 @@
                                             <Label Content="Метод"/>
                                             <ComboBox MinWidth="100" SelectedItem="{Binding CanalMethod, Mode=TwoWay}" DisplayMemberPath="Value" ItemsSource="{x:Static model:StageAsset.CanalMethods}"/>
                                         </StackPanel>
-                                        <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
+                                        <StackPanel Orientation="Horizontal" Margin="5,0,0,0" VerticalAlignment="Top">
                                             <StackPanel.Style>
                                                 <Style TargetType="StackPanel">
                                                     <Setter Property="Visibility" Value="Collapsed"/>
@@ -220,7 +234,7 @@
                                             <Label Content="Кальцій"/>
                                             <ComboBox MinWidth="100" SelectedItem="{Binding Calcium, Mode=TwoWay}" DisplayMemberPath="Value" ItemsSource="{x:Static model:StageAsset.Calciums}"/>
                                         </StackPanel>
-                                        <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
+                                        <StackPanel Orientation="Horizontal" Margin="5,0,0,0" VerticalAlignment="Top">
                                             <StackPanel.Style>
                                                 <Style TargetType="StackPanel">
                                                     <Setter Property="Visibility" Value="Collapsed"/>
@@ -235,7 +249,7 @@
                                             <Label Content="Силер"/>
                                             <ComboBox MinWidth="100" SelectedItem="{Binding Sealer, Mode=TwoWay}" DisplayMemberPath="Value" ItemsSource="{x:Static model:StageAsset.Sealers}"/>
                                         </StackPanel>
-                                        <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
+                                        <StackPanel Orientation="Horizontal" Margin="5,0,0,0" VerticalAlignment="Top">
                                             <StackPanel.Style>
                                                 <Style TargetType="StackPanel">
                                                     <Setter Property="Visibility" Value="Collapsed"/>
@@ -252,7 +266,7 @@
                                             <Label Content="Цемент"/>
                                             <ComboBox MinWidth="100" SelectedItem="{Binding Cement, Mode=TwoWay}" DisplayMemberPath="Value" ItemsSource="{x:Static model:StageAsset.Cements}"/>
                                         </StackPanel>
-                                        <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
+                                        <StackPanel Orientation="Horizontal" Margin="5,0,0,0" VerticalAlignment="Top">
                                             <StackPanel.Style>
                                                 <Style TargetType="StackPanel">
                                                     <Setter Property="Visibility" Value="Collapsed"/>
@@ -266,11 +280,11 @@
                                             <Label Content="Технік"/>
                                             <ComboBox MinWidth="100" SelectedItem="{Binding Technician, Mode=TwoWay}" DisplayMemberPath="Value" ItemsSource="{x:Static model:StageAsset.Technicians}"/>
                                         </StackPanel>
-                                        <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
+                                        <StackPanel Orientation="Horizontal" Margin="5,0,0,0" VerticalAlignment="Top">
                                             <Label Content="Витрати"/>
                                             <TextBox MinWidth="100" Text="{Binding Expenses, Converter={StaticResource numberToStringConverter}, TargetNullValue=0, FallbackValue=0, UpdateSourceTrigger=PropertyChanged}"/>
                                         </StackPanel>
-
+                                        <sdl:MultiSelectComboBox Width="100" Height="100" ItemsSource="{Binding Path=(mscb:MultiSelectComboBoxItemTooth.AllTeeth)}" IsEditable="true" SelectionMode="Multiple" SelectedItems="{Binding SelectedTeeth}" SelectedItemTemplate="{StaticResource MultiSelectComboBox.SelectedItems.ItemTemplate}" DropdownItemTemplate="{StaticResource MultiSelectComboBox.Dropdown.ListBox.ItemTemplate}" sdl:SelectedItemsChangedBehaviour.SelectedItemsChanged="{Binding SelectedTeethChangedCommand}"/>
                                         <Label Content="{Binding DoctorName}" ContentStringFormat="Лікар: {0}" Margin="5,0,0,0" HorizontalAlignment="Right"/>
                                     </WrapPanel>
                                     <Grid HorizontalAlignment="Left" Margin="5,0,0,0" IsEnabled="{Binding IsOwner}">

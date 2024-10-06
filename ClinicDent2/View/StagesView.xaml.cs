@@ -56,7 +56,7 @@ namespace ClinicDent2.View
         }
         public async Task LoadAllPatientStagesWithScheduleMarked(DateTime date, int patientId)
         {
-            stagesViewModel.LoadAllPatientStagesWithRelatedMarked(date, patientId);
+            await stagesViewModel.LoadAllPatientStagesWithRelatedMarked(date, patientId);
             if (FutureAppointmentsViewModels == null)
             {
                 FutureAppointmentsViewModels = new ObservableCollection<ScheduleViewModel>((await HttpService.GetPatientFutureAppointments(patientId)).Select(s => new ScheduleViewModel(s)).ToList());

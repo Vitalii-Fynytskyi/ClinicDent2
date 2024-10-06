@@ -300,6 +300,7 @@ namespace ClinicDent2.View
                     existing.Price += priceSums[i];
                     existing.Payed += paidSums[i];
                     existing.Expenses += expensesSum[i];
+                    existing.NotifyPropertyChanged("DisplayText");
                 }
                 else
                 {
@@ -345,6 +346,8 @@ namespace ClinicDent2.View
                     existing.Price += priceSums[i];
                     existing.Payed += paidSums[i];
                     existing.Expenses += expensesSums[i];
+                    existing.NotifyPropertyChanged("DisplayText");
+
                 }
                 else
                 {
@@ -390,6 +393,8 @@ namespace ClinicDent2.View
                 existing.Price += scheduleSummaryViewModel.Price;
                 existing.Payed += scheduleSummaryViewModel.Payed;
                 existing.Expenses += scheduleSummaryViewModel.Expenses;
+                existing.NotifyPropertyChanged("DisplayText");
+
             }
             else
             {

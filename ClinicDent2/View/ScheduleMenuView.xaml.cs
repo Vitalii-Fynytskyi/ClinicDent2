@@ -319,7 +319,7 @@ namespace ClinicDent2.View
         {
         }
         private bool isDragging = false;
-        private Point clickPosition;
+        private System.Windows.Point clickPosition;
         private void datePicker_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             isDragging = true;
@@ -330,7 +330,7 @@ namespace ClinicDent2.View
         {
             if (isDragging)
             {
-                Point currentPosition = e.GetPosition(scrollViewerSchedule);
+                System.Windows.Point currentPosition = e.GetPosition(scrollViewerSchedule);
                 Canvas.SetTop(datePicker, currentPosition.Y - clickPosition.Y);
                 Canvas.SetLeft(datePicker, currentPosition.X - clickPosition.X);
             }
@@ -399,27 +399,79 @@ namespace ClinicDent2.View
             ///Mark button at calendar with corresponding background
             CalendarDayButton calendarDayButton = datePicker.FindVisualChildren<System.Windows.Controls.Primitives.CalendarDayButton>().FirstOrDefault(button => (button.Content as string) == dateTime.Day.ToString() && button.IsInactive == false);
             if (calendarDayButton == null) { return; }
-            if(stagesSumTime == TimeSpan.Zero)
+            calendarDayButton.Background = GetBrushForValue(stagesSumTime.TotalHours);
+        }
+        public Brush GetBrushForValue(double hours)
+        {
+            Color color;
+
+            //if (hours <= 4)
+            //{
+            //    // Interpolate between Transparent and Green
+            //    color = InterpolateColor(Colors.Transparent, Colors.Green, hours / 4.0);
+            //}
+            //else if (hours <= 6)
+            //{
+            //    // Interpolate between Green and Yellow
+            //    color = InterpolateColor(Colors.Green, Colors.Yellow, (hours - 4) / 2.0);
+            //}
+            //else if(hours <= 10)
+            //{
+            //    // Interpolate between Yellow and Red
+            //    color = InterpolateColor(Colors.Yellow, Colors.Red, (hours - 6) / 4.0);
+            //}
+            //else
+            //{
+            //    return new SolidColorBrush(Colors.Red);
+
+            //}
+            if (hours < 0.5)
             {
-                CalendarExtensions.SetCalendarDayButtonState(calendarDayButton, CalendarDayButtonStates.White);
+                color = Colors.Transparent;
 
             }
-            else if(stagesSumTime>=TimeSpan.FromMinutes(30) && stagesSumTime <= TimeSpan.FromHours(3))
+            else if (hours <= 4)
             {
-                CalendarExtensions.SetCalendarDayButtonState(calendarDayButton, CalendarDayButtonStates.Green);
-
+                color = Colors.LightGreen;
             }
-            else if(stagesSumTime >= TimeSpan.FromMinutes(210) && stagesSumTime <= TimeSpan.FromHours(6))
+            else if (hours < 6)
             {
-                CalendarExtensions.SetCalendarDayButtonState(calendarDayButton, CalendarDayButtonStates.Yellow);
+                color = Colors.Green;
             }
-            else if (stagesSumTime >= TimeSpan.FromMinutes(390) && stagesSumTime <= TimeSpan.FromMinutes(450))
+            else if (hours < 8)
             {
-                CalendarExtensions.SetCalendarDayButtonState(calendarDayButton, CalendarDayButtonStates.Orange);
+                color = Colors.Yellow;
+            }
+            else if (hours < 10)
+            {
+                color = Colors.Orange;
             }
             else
             {
-                CalendarExtensions.SetCalendarDayButtonState(calendarDayButton, CalendarDayButtonStates.Red);
+                color = Colors.Red;
+
+            }
+            return new SolidColorBrush(color);
+        }
+
+        private Color InterpolateColor(Color color1, Color color2, double fraction)
+        {
+            // Check if the transition is from Transparent to a solid color
+            if (color1.A == 0 && color2.A == 255)
+            {
+                // Only interpolate the alpha channel
+                byte a = (byte)(color1.A + (color2.A - color1.A) * fraction);
+                return Color.FromArgb(a, color2.R, color2.G, color2.B);
+            }
+            else
+            {
+                // Interpolate all channels as before
+                byte a = (byte)(color1.A + (color2.A - color1.A) * fraction);
+                byte r = (byte)(color1.R + (color2.R - color1.R) * fraction);
+                byte g = (byte)(color1.G + (color2.G - color1.G) * fraction);
+                byte b = (byte)(color1.B + (color2.B - color1.B) * fraction);
+
+                return Color.FromArgb(a, r, g, b);
             }
         }
         public void ClearCalendarDaysState()
@@ -427,7 +479,7 @@ namespace ClinicDent2.View
             CalendarDayButton[] calendarDayButtons = datePicker.FindVisualChildren<System.Windows.Controls.Primitives.CalendarDayButton>().ToArray();
             foreach (CalendarDayButton button in calendarDayButtons)
             {
-                CalendarExtensions.SetCalendarDayButtonState(button, CalendarDayButtonStates.White);
+                button.Background = System.Windows.Media.Brushes.Transparent;
             }
 
         }
@@ -448,7 +500,7 @@ namespace ClinicDent2.View
         {
             // Convert the target element's top-left position to the scroll viewer's coordinate space.
             GeneralTransform generalTransform = targetElement.TransformToVisual(scrollViewer);
-            Point offset = generalTransform.Transform(new Point(0, 0));
+            System.Windows.Point offset = generalTransform.Transform(new System.Windows.Point(0, 0));
             // Set the scroll viewer's vertical offset to the calculated position.
             scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset + offset.Y);
             isScrollChangedEventBlocked = true;

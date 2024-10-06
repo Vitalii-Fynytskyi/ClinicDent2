@@ -16,11 +16,6 @@ using System.Windows;
 
 namespace ClinicDent2.ViewModel
 {
-    public class OperationResult
-    {
-        public bool AllowDeactivateWindow { get; set; } = true;
-        public List<Exception> Exceptions { get; set; } = new List<Exception>();
-    }
     public class StagesViewModel : BaseViewModel
     {
         public RelayCommand PhotoClickedCommand { get; set; }
@@ -268,7 +263,7 @@ namespace ClinicDent2.ViewModel
                 if(value != patient)
                 {
                     patient = value;
-                    NotifyPropertyChanged();
+                    NotifyPropertyChanged(nameof(Patient), nameof(CurePlan));
                 }
                 
             }
@@ -277,7 +272,7 @@ namespace ClinicDent2.ViewModel
         {
             get
             {
-                return Patient.CurePlan;
+                return Patient?.CurePlan;
             }
             set
             {
