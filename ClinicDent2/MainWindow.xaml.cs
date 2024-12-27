@@ -17,7 +17,7 @@ namespace ClinicDent2
         public MainMenu mainMenu;
         private void CheckForUpdates()
         {
-            string clientVersion = "8";
+            string clientVersion = "10";
             string apiVersion = HttpService.GetApiVersion().Result;
             if(apiVersion != clientVersion)
             {
@@ -43,6 +43,9 @@ namespace ClinicDent2
             Options.PatientsPerPage = Convert.ToInt32(IniService.GetPrivateString("Settings", "PatientsPerPage"));
             Options.PhotosPerPage = Convert.ToInt32(IniService.GetPrivateString("Settings", "PhotosPerPage"));
             Options.DefaultSelectedTable = Convert.ToInt32(IniService.GetPrivateString("Settings", "DefaultSelectedTable"));
+            Options.ScheduleCalendarDayColorsThreshold = IniService.GetPrivateString("Settings", "ScheduleCalendarDayColorsThreshold");
+            Options.TelegramPhoneNumber = IniService.GetPrivateString("Telegram", "phoneNumber");
+            Options.TelegramOptionalPassword = IniService.GetPrivateString("Telegram", "optionalPassword");
             Options.MainWindow = this;
 
             Authenticate();

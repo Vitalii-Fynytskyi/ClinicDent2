@@ -67,7 +67,7 @@ namespace ClinicDent2
             {
                 case "api_id": return IniService.GetPrivateString("Telegram", "apiId");
                 case "api_hash": return IniService.GetPrivateString("Telegram", "apiHash");
-                case "phone_number": return IniService.GetPrivateString("Telegram", "phoneNumber");
+                case "phone_number": return Options.TelegramPhoneNumber;
                 case "verification_code":
                     Application.Current.Dispatcher.Invoke(() =>
                     {
@@ -77,7 +77,7 @@ namespace ClinicDent2
                         windowEnterMessage.ShowDialog();
                     });
                     return enteredVerificationCode;
-                case "password": return IniService.GetPrivateString("Telegram", "optionalPassword");
+                case "password": return Options.TelegramOptionalPassword;
                 default: return null;                  // let WTelegramClient decide the default config
             }
         }

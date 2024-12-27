@@ -110,7 +110,7 @@ namespace ClinicDent2.ViewModel
             
             Stage.Teeth = SelectedTeeth.Select(t => t.Tooth).ToList();
         }
-        public bool IsSelectedTeethChangedCommandActive = false;
+        public bool IsSelectedTeethChangedCommandActive;
         private async Task SendStageViaTelegram(object arg)
         {
             string phone = arg as string;
@@ -516,8 +516,6 @@ namespace ClinicDent2.ViewModel
                 }
             }
         }
-
-
         private void UpdateImagePaymentStatus()
         {
             if(paymentStatusImagePath == "..\\assets/images/OK.png" && Price != Payed)
@@ -529,7 +527,6 @@ namespace ClinicDent2.ViewModel
                 NotifyPropertyChanged("PaymentStatusImagePath");
             }
         }
-
         public int Price
         {
             get
@@ -689,9 +686,9 @@ namespace ClinicDent2.ViewModel
                 }
             }
         }
-
         public StageViewModel(Stage stageToSet, StagesViewModel ownerToSet)
         {
+            IsSelectedTeethChangedCommandActive = false;
             owner = ownerToSet;
             stage = stageToSet;
             stage.OldPrice=stage.Price;
@@ -723,15 +720,15 @@ namespace ClinicDent2.ViewModel
             MarkSentViaMessagerCommand = new RelayCommand(MarkSentViaMessager);
             SelectedTeethChangedCommand=new RelayCommand(SelectedTeethChanged);
             SelectedTeeth = new ObservableCollection<MultiSelectComboBoxItemTooth>();
+
             foreach (var tooth in stageToSet.Teeth)
             {
                 MultiSelectComboBoxItemTooth foundTooth = MultiSelectComboBoxItemTooth.AllTeeth.Find(t => t.Tooth.Id == tooth.Id);
-                if(foundTooth != null)
+                if (foundTooth != null)
                 {
                     SelectedTeeth.Add(foundTooth);
                 }
             }
-            IsSelectedTeethChangedCommandActive = true;
         }
         private async Task LoadImages()
         {

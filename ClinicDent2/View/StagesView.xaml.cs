@@ -47,7 +47,8 @@ namespace ClinicDent2.View
         }
         public async Task LoadAllPatientStages(PatientViewModel patientToSet)
         {
-            stagesViewModel.LoadAllPatientStages(patientToSet);
+            await stagesViewModel.LoadAllPatientStages(patientToSet);
+            
             if(FutureAppointmentsViewModels == null)
             {
                 List<ScheduleViewModel> scheduleViewModels = (await HttpService.GetPatientFutureAppointments(patientToSet.PatientId)).Select(s => new ScheduleViewModel(s)).ToList();
@@ -216,10 +217,11 @@ namespace ClinicDent2.View
                 Notification_ScheduleRecordAdded(updatedRecord);
             }
         }
+        DateTime scheduleStartDate = DateTime.MinValue;
         private void ListViewItem_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             ScheduleViewModel item = ((ListViewItem)sender).DataContext as ScheduleViewModel;
-            DateTime scheduleStartDate = DateTime.ParseExact(item.StartDateTime, SharedData.DateTimePattern, null);
+            scheduleStartDate = DateTime.ParseExact(item.StartDateTime, SharedData.DateTimePattern, null);
             if (Options.MainWindow.mainMenu.browserControl.ScreenRequested(ScreenNames.SCHEDULE) == false)
             {
                 BrowserTabButton scheduleTabButton = new BrowserTabButton();
@@ -230,7 +232,27 @@ namespace ClinicDent2.View
             }
             ScheduleMenuView scheduleMenuView = Options.MainWindow.mainMenu.browserControl.GetSelectedTab().Control as ScheduleMenuView;
             ScheduleMenuView.DesiredVerticalScrollOffset = null;
-            scheduleMenuView.SelectedDate= scheduleStartDate;
+
+            if (scheduleMenuView.IsLoaded)
+            {
+                // Control is already loaded; proceed immediately
+                scheduleMenuView.SelectedDate = scheduleStartDate;
+            }
+            else
+            {
+                // Control is not loaded; attach to the Loaded event
+                scheduleMenuView.Loaded += ScheduleMenuView_Loaded;
+            }
+        }
+
+        private void ScheduleMenuView_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Detach the event handler to prevent memory leaks
+            ScheduleMenuView scheduleMenuView =(ScheduleMenuView)sender;
+            scheduleMenuView.Loaded -= ScheduleMenuView_Loaded;
+
+            // Now that the control is loaded, set the SelectedDate
+            scheduleMenuView.SelectedDate = scheduleStartDate;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -279,6 +301,17 @@ namespace ClinicDent2.View
                 window.Title = "Огляд спостереження";
                 window.Show();
             }
+        }
+        private void UserControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Use Dispatcher to ensure this runs after data binding
+            System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                foreach (var stageViewModel in stagesViewModel.Stages)
+                {
+                    stageViewModel.IsSelectedTeethChangedCommandActive = true;
+                }
+            }), System.Windows.Threading.DispatcherPriority.Background);
         }
     }
 }

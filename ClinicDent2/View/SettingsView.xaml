@@ -21,8 +21,20 @@
             <TextBox x:Name="textBoxPhotosPerPage" Text="{Binding Path=(main:Options.PhotosPerPage)}" MinWidth="100"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <Label Content="Поріг годин кольорів в розкладі: "/>
+            <TextBox x:Name="textBoxScheduleCalendarDayColorsThreshold" Text="{Binding Path=(main:Options.ScheduleCalendarDayColorsThreshold)}" MinWidth="100"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
             <Label Content="Вибране крісло в розкладі: "/>
             <ComboBox MinWidth="100" SelectedItem="{Binding Path=(main:Options.DefaultSelectedCabinet)}" DisplayMemberPath="CabinetName" ItemsSource="{x:Static common:SharedData.AllCabinets}"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <Label Content="Номер телефону Telegram: "/>
+            <TextBox x:Name="textBoxTelegramPhoneNumber" Text="{Binding Path=(main:Options.TelegramPhoneNumber)}" MinWidth="150"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <Label Content="Пароль Telegram: "/>
+            <TextBox x:Name="textBoxTelegramOptionalPassword" Text="{Binding Path=(main:Options.TelegramOptionalPassword)}" MinWidth="150"/>
         </StackPanel>
         <Button Content="Редагувати списки матеріалів клініки" HorizontalAlignment="Center" Margin="0,5,0,0" Click="ButtonEditClinicMaterials_Click"/>
     </StackPanel>

@@ -24,11 +24,13 @@ namespace ClinicDent2.View
         public static double? DesiredVerticalScrollOffset = null;
         public bool isInitialized = false;
         private bool isScrollChangedEventBlocked = false;
+        public float[] ScheduleCalendarDayColorsThreshold;
         public List<ScheduleForDayView> ScheduleForDayViews { get; set; }
         public ScheduleMenuView()
         {
 
             InitializeComponent();
+            ScheduleCalendarDayColorsThreshold = Options.ScheduleCalendarDayColorsThreshold.Split(new char[] {'|'},StringSplitOptions.RemoveEmptyEntries).Select(n=>float.Parse(n)).ToArray();
             selectedDate = DefaultSelectedDate;
             DataContext = this;
         }
@@ -405,44 +407,24 @@ namespace ClinicDent2.View
         {
             Color color;
 
-            //if (hours <= 4)
-            //{
-            //    // Interpolate between Transparent and Green
-            //    color = InterpolateColor(Colors.Transparent, Colors.Green, hours / 4.0);
-            //}
-            //else if (hours <= 6)
-            //{
-            //    // Interpolate between Green and Yellow
-            //    color = InterpolateColor(Colors.Green, Colors.Yellow, (hours - 4) / 2.0);
-            //}
-            //else if(hours <= 10)
-            //{
-            //    // Interpolate between Yellow and Red
-            //    color = InterpolateColor(Colors.Yellow, Colors.Red, (hours - 6) / 4.0);
-            //}
-            //else
-            //{
-            //    return new SolidColorBrush(Colors.Red);
-
-            //}
             if (hours < 0.5)
             {
                 color = Colors.Transparent;
 
             }
-            else if (hours <= 4)
+            else if (hours <= ScheduleCalendarDayColorsThreshold[0])
             {
                 color = Colors.LightGreen;
             }
-            else if (hours < 6)
+            else if (hours < ScheduleCalendarDayColorsThreshold[1])
             {
                 color = Colors.Green;
             }
-            else if (hours < 8)
+            else if (hours < ScheduleCalendarDayColorsThreshold[2])
             {
                 color = Colors.Yellow;
             }
-            else if (hours < 10)
+            else if (hours < ScheduleCalendarDayColorsThreshold[3])
             {
                 color = Colors.Orange;
             }

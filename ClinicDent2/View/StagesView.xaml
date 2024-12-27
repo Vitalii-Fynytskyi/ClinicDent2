@@ -13,7 +13,7 @@
              xmlns:local="clr-namespace:ClinicDent2.View"
              xmlns:mscb="clr-namespace:ClinicDent2.MultiSelectComboBox"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="450" d:DesignWidth="800" Loaded="UserControl_Loaded">
     <UserControl.Resources>
         <ResourceDictionary>
 
@@ -284,7 +284,7 @@
                                             <Label Content="Витрати"/>
                                             <TextBox MinWidth="100" Text="{Binding Expenses, Converter={StaticResource numberToStringConverter}, TargetNullValue=0, FallbackValue=0, UpdateSourceTrigger=PropertyChanged}"/>
                                         </StackPanel>
-                                        <sdl:MultiSelectComboBox Width="100" Height="100" ItemsSource="{Binding Path=(mscb:MultiSelectComboBoxItemTooth.AllTeeth)}" IsEditable="true" SelectionMode="Multiple" SelectedItems="{Binding SelectedTeeth}" SelectedItemTemplate="{StaticResource MultiSelectComboBox.SelectedItems.ItemTemplate}" DropdownItemTemplate="{StaticResource MultiSelectComboBox.Dropdown.ListBox.ItemTemplate}" sdl:SelectedItemsChangedBehaviour.SelectedItemsChanged="{Binding SelectedTeethChangedCommand}"/>
+                                        <sdl:MultiSelectComboBox sdl:SelectedItemsChangedBehaviour.SelectedItemsChanged="{Binding SelectedTeethChangedCommand}" Width="100" Height="100" ItemsSource="{Binding Path=(mscb:MultiSelectComboBoxItemTooth.AllTeeth)}" IsEditable="true" SelectionMode="Multiple" SelectedItems="{Binding SelectedTeeth}" SelectedItemTemplate="{StaticResource MultiSelectComboBox.SelectedItems.ItemTemplate}" DropdownItemTemplate="{StaticResource MultiSelectComboBox.Dropdown.ListBox.ItemTemplate}"/>
                                         <Label Content="{Binding DoctorName}" ContentStringFormat="Лікар: {0}" Margin="5,0,0,0" HorizontalAlignment="Right"/>
                                     </WrapPanel>
                                     <Grid HorizontalAlignment="Left" Margin="5,0,0,0" IsEnabled="{Binding IsOwner}">

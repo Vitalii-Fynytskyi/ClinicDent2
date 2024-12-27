@@ -21,6 +21,9 @@ namespace ClinicDent2
         public static int PatientsPerPage { get; set; }
         public static int PhotosPerPage { get; set; }
         public static int DefaultSelectedTable { get; set; }
+        public static string ScheduleCalendarDayColorsThreshold { get; set; }
+        public static string TelegramPhoneNumber { get; set; }
+        public static string TelegramOptionalPassword { get; set; }
         public static Cabinet DefaultSelectedCabinet { get; set; }
         #endregion
 

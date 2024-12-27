@@ -32,6 +32,9 @@ namespace ClinicDent2.View
             IniService.WritePrivateString("Settings", "PatientsPerPage", Options.PatientsPerPage.ToString());
             IniService.WritePrivateString("Settings", "PhotosPerPage", Options.PhotosPerPage.ToString());
             IniService.WritePrivateString("Settings", "DefaultSelectedTable", Options.DefaultSelectedCabinet.Id.ToString());
+            IniService.WritePrivateString("Settings", "ScheduleCalendarDayColorsThreshold", Options.ScheduleCalendarDayColorsThreshold);
+            IniService.WritePrivateString("Telegram", "phoneNumber", Options.TelegramPhoneNumber);
+            IniService.WritePrivateString("Telegram", "optionalPassword", Options.TelegramOptionalPassword);
             return Task.FromResult(true);
         }
 
