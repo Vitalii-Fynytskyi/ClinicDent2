@@ -12,6 +12,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
@@ -212,6 +213,32 @@ namespace ClinicDent2.ViewModel
                 {
                     stage.Title = value;
                     ViewModelStatus = ViewModelStatus.Updated;
+                    // 1. Use Regex to find all two-digit numbers
+                    var regex = new Regex(@"\b\d{2}\b");
+                    var matches = regex.Matches(value);
+
+                    // 2. Build a new collection of matched teeth
+                    var newSelectedTeeth = new ObservableCollection<MultiSelectComboBoxItemTooth>();
+
+                    foreach (Match match in matches)
+                    {
+                        if (byte.TryParse(match.Value, out byte toothId))
+                        {
+                            // 3. Find the corresponding tooth in the AllTeeth list
+                            var foundTooth = MultiSelectComboBoxItemTooth.AllTeeth
+                                .FirstOrDefault(t => t.Tooth.Id == toothId);
+
+                            // 4. If it exists, add it to our new collection
+                            if (foundTooth != null)
+                            {
+                                newSelectedTeeth.Add(foundTooth);
+                            }
+                        }
+                    }
+
+                    // 5. Assign the new collection to SelectedTeeth
+                    //    This will raise NotifyPropertyChanged via the SelectedTeeth setter
+                    SelectedTeeth = newSelectedTeeth;
                     NotifyPropertyChanged();
                 }
             }

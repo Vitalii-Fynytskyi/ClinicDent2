@@ -112,7 +112,7 @@
                                             <ColumnDefinition></ColumnDefinition>
                                             <ColumnDefinition></ColumnDefinition>
                                         </Grid.ColumnDefinitions>
-                                        <TextBox Text="{Binding Title,UpdateSourceTrigger=PropertyChanged}" Background="Transparent" BorderThickness="0" IsEnabled="{Binding IsOwner}">
+                                        <TextBox Text="{Binding Title}" Background="Transparent" BorderThickness="0" IsEnabled="{Binding IsOwner}">
                                             <TextBox.ContextMenu>
                                                 <ContextMenu>
                                                     <MenuItem Header="Видалити етап" Command="{Binding DeleteStageCommand}"/>
