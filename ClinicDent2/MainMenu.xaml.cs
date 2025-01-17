@@ -127,6 +127,7 @@ namespace ClinicDent2
 
         private void buttonExitAccount_Click(object sender, MouseButtonEventArgs e)
         {
+            TcpClient.DisconnectFromServer();
             File.Delete(Environment.CurrentDirectory + "\\data\\cookies.dat");
             Options.MainWindow.goToLoginMenu();
         }
