@@ -400,6 +400,6 @@
 
         </Grid>
 
-        <tabbedbrowser:BrowserControl x:Name="browserControl" Grid.Column="1"></tabbedbrowser:BrowserControl>
+        <tabbedbrowser:BrowserControl x:Name="browserControl" Grid.Column="1" Padding="10"></tabbedbrowser:BrowserControl>
     </Grid>
 </UserControl>

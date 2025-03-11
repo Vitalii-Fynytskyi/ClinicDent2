@@ -6,10 +6,13 @@
     <UseWPF>true</UseWPF>
     <CanDeleteImage>true</CanDeleteImage>
     <SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
+    <ApplicationIcon>assets\images\appicon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
     <None Remove="assets\images\birthdateIcon.png" />
+    <None Remove="assets\images\cancel.png" />
+    <None Remove="assets\images\delete_icon.png" />
     <None Remove="assets\images\nav_bar\addNewPatient.png" />
     <None Remove="assets\images\nav_bar\allPatients.png" />
     <None Remove="assets\images\nav_bar\closeBtn_default.png" />
@@ -29,6 +32,7 @@
     <None Remove="assets\images\OK.png" />
     <None Remove="assets\images\phoneIcon.png" />
     <None Remove="assets\images\questionMark.png" />
+    <None Remove="assets\images\save_icon.png" />
     <None Remove="assets\images\TelegramLogo.png" />
     <None Remove="assets\images\TelegramLogoGray.png" />
     <None Remove="assets\images\TelegramLogoSent.png" />
@@ -36,6 +40,10 @@
     <None Remove="assets\images\toothPlus.png" />
     <None Remove="assets\images\viber icon.png" />
     <None Remove="assets\images\WRONG.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="assets\images\appicon.ico" />
   </ItemGroup>
 
   <ItemGroup>
@@ -50,6 +58,8 @@
 
   <ItemGroup>
     <Resource Include="assets\images\birthdateIcon.png" />
+    <Resource Include="assets\images\cancel.png" />
+    <Resource Include="assets\images\delete_icon.png" />
     <Resource Include="assets\images\nav_bar\addNewPatient.png" />
     <Resource Include="assets\images\nav_bar\allPatients.png" />
     <Resource Include="assets\images\nav_bar\exit.png" />
@@ -66,6 +76,7 @@
     <Resource Include="assets\images\OK.png" />
     <Resource Include="assets\images\phoneIcon.png" />
     <Resource Include="assets\images\questionMark.png" />
+    <Resource Include="assets\images\save_icon.png" />
     <Resource Include="assets\images\TelegramLogo.png" />
     <Resource Include="assets\images\TelegramLogoGray.png" />
     <Resource Include="assets\images\TelegramLogoSent.png" />

@@ -1,4 +1,5 @@
 ﻿using ClinicDent2.Commands;
+using ClinicDent2.MultiSelectComboBox;
 using ClinicDent2.TabbedBrowser;
 using ClinicDent2.View;
 using ClinicDentClientCommon;
@@ -6,11 +7,13 @@ using ClinicDentClientCommon.Exceptions;
 using ClinicDentClientCommon.Model;
 using ClinicDentClientCommon.RequestAnswers;
 using ClinicDentClientCommon.Services;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Effects;
@@ -239,6 +242,7 @@ namespace ClinicDent2.ViewModel
             stage.DoctorId = SharedData.CurrentDoctor.Id;
             stage.DoctorName = "<null>";
             stage.Title = stageName as string;
+            PopulateSelectedTeeth(stage);
             stage.StageDatetime = DateTime.Now.ToString(SharedData.DateTimePattern);
             try
             {
@@ -251,7 +255,32 @@ namespace ClinicDent2.ViewModel
             }
             Stages.Insert(0, new StageViewModel(stage, this));
         }
+        private void PopulateSelectedTeeth(Stage s)
+        {
+            // 1. Use Regex to find all two-digit numbers
+            var regex = new Regex(@"\b\d{2}\b");
+            var matches = regex.Matches(s.Title);
 
+            // 2. Build a new collection of matched teeth
+            var newSelectedTeeth = new ObservableCollection<MultiSelectComboBoxItemTooth>();
+
+            foreach (Match match in matches)
+            {
+                if (byte.TryParse(match.Value, out byte toothId))
+                {
+                    // 3. Find the corresponding tooth in the AllTeeth list
+                    var foundTooth = MultiSelectComboBoxItemTooth.AllTeeth
+                        .FirstOrDefault(t => t.Tooth.Id == toothId);
+
+                    // 4. If it exists, add it to our new collection
+                    if (foundTooth != null)
+                    {
+                        newSelectedTeeth.Add(foundTooth);
+                    }
+                }
+            }
+            s.Teeth = newSelectedTeeth.Select(t => t.Tooth).ToList();
+        }
         PatientViewModel patient;
         public PatientViewModel Patient
         {

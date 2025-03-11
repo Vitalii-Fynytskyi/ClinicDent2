@@ -79,7 +79,20 @@
                 </StackPanel>
                 <StackPanel x:Name="futureAppointmentsSection" Visibility="{Binding FutureAppointmentsViewModels.Count,  Converter={StaticResource collectionCountToVisibilityConverter}}">
                     <TextBlock Text="Заплановані візити" HorizontalAlignment="Center"/>
-                    <ListView ItemsSource="{Binding FutureAppointmentsViewModels}" HorizontalAlignment="Center">
+                    <DataGrid ItemsSource="{Binding FutureAppointmentsViewModels}" HorizontalAlignment="Center" AutoGenerateColumns="False">
+                        <DataGrid.CellStyle>
+                            <Style TargetType="DataGridCell">
+                                <EventSetter Event="MouseDoubleClick" Handler="DataGridCell_MouseDoubleClick"/>
+                            </Style>
+                        </DataGrid.CellStyle>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Binding="{Binding CabinetName}" Header="Крісло" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding StartDateTimeDT, StringFormat='d MMMM HH:mm', ConverterCulture='uk-UA' }" Header="Дата початку" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding EndDateTimeDT, StringFormat='d MMMM HH:mm', ConverterCulture='uk-UA' }" Header="Дата кінця" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding Comment, UpdateSourceTrigger=LostFocus,Mode=TwoWay}" Header="Коментар" IsReadOnly="False"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <!--<ListView ItemsSource="{Binding FutureAppointmentsViewModels}" HorizontalAlignment="Center">
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
                                 <EventSetter Event="MouseDoubleClick" Handler="ListViewItem_MouseDoubleClick"/>
@@ -88,10 +101,12 @@
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn DisplayMemberBinding="{Binding CabinetName}" Header="Крісло"/>
-                                <GridViewColumn DisplayMemberBinding="{Binding StartDateTimeDT, StringFormat='d MMMM HH:mm', ConverterCulture='uk-UA' }" Header="Дата"/>
+                                <GridViewColumn DisplayMemberBinding="{Binding StartDateTimeDT, StringFormat='d MMMM HH:mm', ConverterCulture='uk-UA' }" Header="Дата початку"/>
+                                <GridViewColumn DisplayMemberBinding="{Binding EndDateTimeDT, StringFormat='d MMMM HH:mm', ConverterCulture='uk-UA' }" Header="Дата кінця"/>
+                                <GridViewColumn DisplayMemberBinding="{Binding Comment, StringFormat='d MMMM HH:mm', ConverterCulture='uk-UA' }" Header="Коментар"/>
                             </GridView>
                         </ListView.View>
-                    </ListView>
+                    </ListView>-->
                 </StackPanel>
                 <DockPanel HorizontalAlignment="Center" Margin="0,5,0,0">
                     <Label DockPanel.Dock="Left">Новий етап</Label>

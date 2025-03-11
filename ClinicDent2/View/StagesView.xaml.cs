@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Xml.Linq;
 
 namespace ClinicDent2.View
 {
@@ -145,9 +146,24 @@ namespace ClinicDent2.View
                     Schedule schedule = (Schedule)param;
                     Notification_ScheduleRecordUpdated(schedule);
                     break;
-                
+                case NotificationCodes.ScheduleRecordCommentUpdated:
+                    (int recordId, string newComment, string date, int cabinetId) obj2 = ((int recordId, string newComment, string date, int cabinetId))param;
+                    Notification_ScheduleRecordCommentUpdated(obj2.recordId, obj2.newComment);
+                    break;
+
             }
         }
+
+        private void Notification_ScheduleRecordCommentUpdated(int recordId, string newComment)
+        {
+            ScheduleViewModel scheduleViewModel = FutureAppointmentsViewModels.FirstOrDefault(s => s.Id == recordId);
+            if (scheduleViewModel != null)
+            {
+                scheduleViewModel.schedule.Comment = newComment;
+                scheduleViewModel.NotifyPropertyChanged("Comment");
+            }
+        }
+
         private void Notification_PatientStagesUpdated(int patientId)
         {
             try
@@ -218,32 +234,6 @@ namespace ClinicDent2.View
             }
         }
         DateTime scheduleStartDate = DateTime.MinValue;
-        private void ListViewItem_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            ScheduleViewModel item = ((ListViewItem)sender).DataContext as ScheduleViewModel;
-            scheduleStartDate = DateTime.ParseExact(item.StartDateTime, SharedData.DateTimePattern, null);
-            if (Options.MainWindow.mainMenu.browserControl.ScreenRequested(ScreenNames.SCHEDULE) == false)
-            {
-                BrowserTabButton scheduleTabButton = new BrowserTabButton();
-                scheduleTabButton.TabText = ScreenNames.SCHEDULE;
-                ScheduleMenuView newScheduleMenuView = new ScheduleMenuView();
-                scheduleTabButton.Control = newScheduleMenuView;
-                Options.MainWindow.mainMenu.browserControl.AddNewTab(scheduleTabButton);
-            }
-            ScheduleMenuView scheduleMenuView = Options.MainWindow.mainMenu.browserControl.GetSelectedTab().Control as ScheduleMenuView;
-            ScheduleMenuView.DesiredVerticalScrollOffset = null;
-
-            if (scheduleMenuView.IsLoaded)
-            {
-                // Control is already loaded; proceed immediately
-                scheduleMenuView.SelectedDate = scheduleStartDate;
-            }
-            else
-            {
-                // Control is not loaded; attach to the Loaded event
-                scheduleMenuView.Loaded += ScheduleMenuView_Loaded;
-            }
-        }
 
         private void ScheduleMenuView_Loaded(object sender, RoutedEventArgs e)
         {
@@ -312,6 +302,35 @@ namespace ClinicDent2.View
                     stageViewModel.IsSelectedTeethChangedCommandActive = true;
                 }
             }), System.Windows.Threading.DispatcherPriority.Background);
+        }
+
+        private void DataGridCell_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            DataGridCell dataGridCell = sender as DataGridCell;
+            if (dataGridCell.IsReadOnly == false) return;
+            ScheduleViewModel item = dataGridCell.DataContext as ScheduleViewModel;
+            scheduleStartDate = DateTime.ParseExact(item.StartDateTime, SharedData.DateTimePattern, null);
+            if (Options.MainWindow.mainMenu.browserControl.ScreenRequested(ScreenNames.SCHEDULE) == false)
+            {
+                BrowserTabButton scheduleTabButton = new BrowserTabButton();
+                scheduleTabButton.TabText = ScreenNames.SCHEDULE;
+                ScheduleMenuView newScheduleMenuView = new ScheduleMenuView();
+                scheduleTabButton.Control = newScheduleMenuView;
+                Options.MainWindow.mainMenu.browserControl.AddNewTab(scheduleTabButton);
+            }
+            ScheduleMenuView scheduleMenuView = Options.MainWindow.mainMenu.browserControl.GetSelectedTab().Control as ScheduleMenuView;
+            ScheduleMenuView.DesiredVerticalScrollOffset = null;
+
+            if (scheduleMenuView.IsLoaded)
+            {
+                // Control is already loaded; proceed immediately
+                scheduleMenuView.SelectedDate = scheduleStartDate;
+            }
+            else
+            {
+                // Control is not loaded; attach to the Loaded event
+                scheduleMenuView.Loaded += ScheduleMenuView_Loaded;
+            }
         }
     }
 }

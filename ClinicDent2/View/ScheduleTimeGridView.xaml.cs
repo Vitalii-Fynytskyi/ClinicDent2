@@ -4,6 +4,7 @@ using ClinicDentClientCommon.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -168,7 +169,6 @@ namespace ClinicDent2.View
         public async Task LoadSchedule(DateTime date)
         {
             ClearTimeGrid();
-
             ScheduleRecordsForDayInCabinet schedules = await HttpService.GetSchedule(date, Cabinet.Id.ToString());
             foreach(Schedule s in schedules.Schedules)
             {

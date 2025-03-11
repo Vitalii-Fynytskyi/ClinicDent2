@@ -42,7 +42,8 @@ namespace ClinicDent2.TabbedBrowser
 
                 if (selectedTab != null)
                 {
-                    selectedTab.BackgroundBorder.Background = Brushes.Black;
+                    selectedTab.BackgroundBorder.Background = new SolidColorBrush(Color.FromRgb(0x2E, 0x33, 0x3A));
+
                     selectedTab.TabLabel.Foreground = Brushes.White;
                     currentTabOpened.Content = selectedTab.Control;
                     (selectedTab.Control as IBrowserTabControl)?.TabActivated();

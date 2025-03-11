@@ -74,7 +74,8 @@ namespace ClinicDent2.View
         }
         private async void deleteButton_Click(object sender, RoutedEventArgs e)
         {
-            
+            MessageBoxResult result = MessageBox.Show("Запис пацієнта і всі пов'язані з ним дані будуть видалені. Видаляти?", "Підтвердження", MessageBoxButton.YesNoCancel);
+            if (result != MessageBoxResult.Yes) return;
             try
             {
                 await HttpService.DeletePatient(patientViewModel.PatientId);

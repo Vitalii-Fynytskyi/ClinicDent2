@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -14,6 +15,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ClinicDent2.View
 {
@@ -41,16 +43,17 @@ namespace ClinicDent2.View
             {
                 return selectedDate;
             }
-            set
-            {
-                selectedDate = value;
-                OnPropertyChanged();
-                OnPropertyChanged("DayOfWeek");
-                OnPropertyChanged("AboutDay");
-                OnPropertyChanged("SelectedDateString");
-                if(isControlEnabled == true)
-                    loadSchedule(selectedDate);
-            }
+        }
+        public async Task SetSelectedDate(DateTime value)
+        {
+            selectedDate = value;
+            
+            OnPropertyChanged(nameof(SelectedDate));
+            OnPropertyChanged("DayOfWeek");
+            OnPropertyChanged("AboutDay");
+            OnPropertyChanged("SelectedDateString");
+            if (isControlEnabled == true)
+                await loadSchedule(selectedDate);
         }
         static ScheduleForDayView()
         {
@@ -74,11 +77,15 @@ namespace ClinicDent2.View
             CabinetColors[2].ElementColor = Colors.MediumSeaGreen;
             CabinetColors[2].ElementColorHovered = Colors.DarkGreen;
         }
-        public ScheduleForDayView(int year, int month, int day, ScheduleMenuView ownerToSet)
+        public ScheduleForDayView()
         {
-            Owner = ownerToSet;
             InitializeComponent();
             DataContext = this;
+            
+        }
+        public async Task Initialize(int year, int month, int day, ScheduleMenuView ownerToSet)
+        {
+            Owner = ownerToSet;
             //TODO check error when there is no 31 day in month
             DateTime newDateTime;
             try
@@ -94,19 +101,16 @@ namespace ClinicDent2.View
 
 
             TimeGrids = new List<ScheduleTimeGridView>();
-            
-            for(int i = 0; i < SharedData.AllCabinets.Length; i++)
+
+            for (int i = 0; i < SharedData.AllCabinets.Length; i++)
             {
                 ScheduleTimeGridView scheduleTimeGridView = new ScheduleTimeGridView(SharedData.AllCabinets[i], this, CabinetColors[i]);
                 scheduleTimeGridView.Margin = new Thickness(15, 0, 0, 0);
                 TimeGrids.Add(scheduleTimeGridView);
                 timeGridsPanel.Children.Add(scheduleTimeGridView);
             }
-            SelectedDate = newDateTime;
-        }
-        public ScheduleForDayView()
-        {
-            InitializeComponent();
+            await SetSelectedDate(newDateTime);
+
         }
         private async Task loadSchedule(DateTime selectedDate)
         {
@@ -118,13 +122,10 @@ namespace ClinicDent2.View
                 await timeGridView.LoadSchedule(selectedDate.Date);
             }
             OnPropertyChanged(nameof(DaySummaryList));
-            if (SelectedDate.DayOfWeek == System.DayOfWeek.Sunday)
-            {
-                await GenerateWeekSummary();
-            }
+            
             OnPropertyChanged(nameof(WeekSummaryList));
         }
-        private async Task GenerateWeekSummary()
+        public async Task GenerateWeekSummary()
         {
             if (SelectedDate.Day < 7) //request to server required
             {
@@ -230,7 +231,7 @@ namespace ClinicDent2.View
                 timeGrid.UpdateRecordComment(recordId, newComment);
             }
         }
-        internal void UpdateDate(int year, int month, int day)
+        public async Task UpdateDate(int year, int month, int day)
         {
             IsControlEnabled = true;
             Visibility = Visibility.Visible;
@@ -245,8 +246,7 @@ namespace ClinicDent2.View
                 IsControlEnabled = false;
                 Visibility = Visibility.Collapsed;
             }
-            
-            SelectedDate = newDateTime;
+            await SetSelectedDate(newDateTime);
         }
         internal void AddRecord(Schedule e)
         {

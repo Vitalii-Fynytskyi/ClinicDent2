@@ -7,6 +7,7 @@ using ClinicDentClientCommon.TcpClientToServer;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -215,12 +216,8 @@ namespace ClinicDent2.View
                 {
                     DefaultSelectedDate = value;
                     selectedDate = value;
-                    OnPropertyChanged();
-                    for (int i = 0; i < ScheduleForDayViews.Count; i++)
-                    {
-                        ScheduleForDayViews[i].UpdateDate(selectedDate.Year, selectedDate.Month, i + 1);
-                    }
-                    ScrollToTopOfScrollViewer(ScheduleForDayViews[selectedDate.Day - 1], scrollViewerSchedule);
+                    OnPropertyChanged(nameof(SelectedDate));
+                    UpdateScheduleForDayViewsDates(selectedDate);
                     //UpdateCalendarDaysState();
                 }
                 else
@@ -229,10 +226,28 @@ namespace ClinicDent2.View
                     selectedDate = value;
                     int dayOfMonth = selectedDate.Day;
                     ScrollToTopOfScrollViewer(ScheduleForDayViews[dayOfMonth - 1], scrollViewerSchedule);
-                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(SelectedDate));
+
                 }
-                
             }
+        }
+        public async Task UpdateScheduleForDayViewsDates(DateTime selectedDate)
+        {
+            isScrollChangedEventBlocked = true;
+            ScrollToTopOfScrollViewer(ScheduleForDayViews[selectedDate.Day - 1], scrollViewerSchedule);
+
+            for (int i = 0; i < ScheduleForDayViews.Count; i++)
+            {
+
+                await ScheduleForDayViews[i].UpdateDate(selectedDate.Year, selectedDate.Month, i + 1);
+                if (ScheduleForDayViews[i].SelectedDate.DayOfWeek == System.DayOfWeek.Sunday)
+                {
+                    await ScheduleForDayViews[i].GenerateWeekSummary();
+                }
+            }
+            isScrollChangedEventBlocked = false;
+
+
         }
         static ScheduleMenuView()
         {
@@ -281,31 +296,61 @@ namespace ClinicDent2.View
             }
             isScrollChangedEventBlocked = false;
         }
-        private void UserControl_Loaded(object sender, RoutedEventArgs e)
+        private async void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
             if(isInitialized == false)
             {
+                List<Task> tasks = new List<Task>();
                 ScheduleForDayViews = new List<ScheduleForDayView>(31);
                 for (int i = 0; i < 31; i++)
                 {
-                    ScheduleForDayView newScheduleForDayView = new ScheduleForDayView(selectedDate.Year, selectedDate.Month, i + 1, this);
+                    ScheduleForDayView newScheduleForDayView = new ScheduleForDayView();
                     stackPanelDays.Children.Add(newScheduleForDayView);
                     ScheduleForDayViews.Add(newScheduleForDayView);
+                    tasks.Add(ScheduleForDayViews[i].Initialize(selectedDate.Year, selectedDate.Month, i + 1, this));
+                }
+                if (DesiredVerticalScrollOffset == null)
+                {
+                    await this.Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        int dayOfMonth = selectedDate.Day;
+                        ScrollToTopOfScrollViewer(ScheduleForDayViews[dayOfMonth - 1], scrollViewerSchedule);
+                    }), DispatcherPriority.Loaded);
+                }
+                else
+                {
+                    scrollViewerSchedule.ScrollToVerticalOffset(DesiredVerticalScrollOffset.Value);
+                }
+                for (int i = 0; i < 31; i++)
+                {
+                    await tasks[i];
+                    if (ScheduleForDayViews[i].SelectedDate.DayOfWeek == DayOfWeek.Sunday)
+                    {
+                        await ScheduleForDayViews[i].GenerateWeekSummary();
+                    }
                 }
                 isInitialized = true;
             }
-            if (DesiredVerticalScrollOffset == null)
-            {
-                this.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    int dayOfMonth = selectedDate.Day;
-                    ScrollToTopOfScrollViewer(ScheduleForDayViews[dayOfMonth - 1], scrollViewerSchedule);
-                }), DispatcherPriority.Loaded);
-            }
             else
             {
-                scrollViewerSchedule.ScrollToVerticalOffset(DesiredVerticalScrollOffset.Value);
+                if (DesiredVerticalScrollOffset == null)
+                {
+                    await this.Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        int dayOfMonth = selectedDate.Day;
+                        ScrollToTopOfScrollViewer(ScheduleForDayViews[dayOfMonth - 1], scrollViewerSchedule);
+                    }), DispatcherPriority.Loaded);
+                }
+                else
+                {
+                    scrollViewerSchedule.ScrollToVerticalOffset(DesiredVerticalScrollOffset.Value);
+                }
             }
+            
+
+
+
+
             datePicker.DisplayDate = datePicker.SelectedDate.Value;
         }
         public void TabActivated()

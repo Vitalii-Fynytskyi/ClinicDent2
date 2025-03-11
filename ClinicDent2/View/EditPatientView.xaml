@@ -57,7 +57,6 @@
                 <sys:String>Ортодонтія</sys:String>
             </ListBox>
         </StackPanel>
-        <Button Content="Завантажити фото" Click="buttonSelectImageFromDisk_Click" MinWidth="115" Margin="320,5,0,0" HorizontalAlignment="Left"/>
         <Image x:Name="patientPhoto" HorizontalAlignment="Left" Margin="280,10,0,0" MaxWidth="400" MaxHeight="300" Source="{Binding ImageBytes, Mode=TwoWay, Converter={StaticResource bytesToImageSourceConverter}}" Validation.ErrorTemplate="{x:Null}" MouseLeftButtonDown="patientPhoto_MouseLeftButtonDown">
             <Image.ContextMenu>
                 <ContextMenu>
@@ -66,10 +65,24 @@
                 </ContextMenu>
             </Image.ContextMenu>
         </Image>
-        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="280,10,0,0">
-            <Button VerticalAlignment="Top" HorizontalAlignment="Left" Content="Зберегти"  MinWidth="60" Click="buttonSave_Click"/>
-            <Button VerticalAlignment="Top" HorizontalAlignment="Left" Content="Відміна"  MinWidth="60" Click="cancelButton_Click" Margin="10,0,0,0"/>
-            <Button VerticalAlignment="Top" HorizontalAlignment="Left" Content="Видалити"  MinWidth="60" Click="deleteButton_Click" Margin="10,0,0,0"/>
-        </StackPanel>
+        <Button Content="Завантажити фото" Click="buttonSelectImageFromDisk_Click" MinWidth="115" Margin="320,5,0,0" HorizontalAlignment="Left"/>
+        <Button VerticalAlignment="Top" MinWidth="60" Click="buttonSave_Click" HorizontalAlignment="Left" Margin="320,10,0,0">
+            <StackPanel Orientation="Horizontal">
+                <Image Source="/assets/images/save_icon.png" MaxWidth="32" MaxHeight="32"></Image>
+                <TextBlock Text="Зберегти зміни" VerticalAlignment="Center"/>
+            </StackPanel>
+        </Button>
+        <Button VerticalAlignment="Top" HorizontalAlignment="Left" MinWidth="60" Click="cancelButton_Click" Margin="320,10,0,0">
+            <StackPanel Orientation="Horizontal">
+                <Image Source="/assets/images/cancel.png" MaxWidth="32" MaxHeight="32"></Image>
+                <TextBlock Text="Відмінити зміни" VerticalAlignment="Center"/>
+            </StackPanel>
+        </Button>
+        <Button VerticalAlignment="Top" HorizontalAlignment="Left"  MinWidth="60" Click="deleteButton_Click" Margin="320,10,0,0">
+            <StackPanel Orientation="Horizontal">
+                <Image Source="/assets/images/delete_icon.png" MaxWidth="32" MaxHeight="32"></Image>
+                <TextBlock Text="Видалити запис пацієнта" VerticalAlignment="Center"/>
+            </StackPanel>
+        </Button>
     </StackPanel>
 </UserControl>

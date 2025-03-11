@@ -152,6 +152,7 @@ namespace ClinicDent2.View
                 Schedule.Comment = value;
                 OnPropertyChanged();
                 Options.MainWindow.mainMenu.TcpClient.UpdateRecordComment(Schedule.Id, value);
+                Options.MainWindow.mainMenu.browserControl.NotifyOtherTabs(NotificationCodes.ScheduleRecordCommentUpdated, (Schedule.Id, value, Schedule.StartDatetime, Schedule.CabinetId));
             }
         }
         public ScheduleIsSentViaMessagetState StagesSentViaMessagerState
